@@ -72,7 +72,15 @@ function groupIncidents(incidents: CrimeIncident[]): ClusterGroup[] {
  * Zoom-dependent clustering: localities collapse into a single count marker
  * when zoomed out, and the individual incident markers return when zoomed in.
  */
-export function IncidentLayer({ incidents }: { incidents: CrimeIncident[] }) {
+export function IncidentLayer({
+  incidents,
+  onEdit,
+  onDelete,
+}: {
+  incidents: CrimeIncident[]
+  onEdit: (incident: CrimeIncident) => void
+  onDelete: (incidentId: string) => void
+}) {
   const map = useMap()
   const [zoom, setZoom] = useState(map.getZoom())
 
@@ -80,8 +88,14 @@ export function IncidentLayer({ incidents }: { incidents: CrimeIncident[] }) {
     zoomend: () => setZoom(map.getZoom()),
   })
 
+  // User-reported crimes always render as their own pointer marker.
+  const userReported = useMemo(() => incidents.filter((incident) => !incident.isDemo), [incidents])
+
   const groups = useMemo(
-    () => (zoom < CLUSTER_ZOOM ? groupIncidents(incidents) : []),
+    () =>
+      zoom < CLUSTER_ZOOM
+        ? groupIncidents(incidents.filter((incident) => incident.isDemo))
+        : [],
     [zoom, incidents],
   )
 
@@ -89,7 +103,12 @@ export function IncidentLayer({ incidents }: { incidents: CrimeIncident[] }) {
     return (
       <>
         {incidents.map((incident) => (
-          <CrimeMarker key={incident.id} incident={incident} />
+          <CrimeMarker
+            key={incident.id}
+            incident={incident}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         ))}
       </>
     )
@@ -97,6 +116,14 @@ export function IncidentLayer({ incidents }: { incidents: CrimeIncident[] }) {
 
   return (
     <>
+      {userReported.map((incident) => (
+        <CrimeMarker
+          key={incident.id}
+          incident={incident}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      ))}
       {groups.map((group) => (
         <Marker
           key={`cluster-${group.area}`}

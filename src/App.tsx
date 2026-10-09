@@ -180,6 +180,41 @@ export default function App() {
     setView('map')
   }, [])
 
+  const updateIncident = useCallback((updated: CrimeIncident) => {
+    setData((current) =>
+      current
+        ? {
+            ...current,
+            incidents: current.incidents.map((incident) =>
+              incident.id === updated.id ? updated : incident,
+            ),
+          }
+        : current,
+    )
+  }, [])
+
+  const deleteIncident = useCallback((incidentId: string) => {
+    setData((current) =>
+      current
+        ? { ...current, incidents: current.incidents.filter((incident) => incident.id !== incidentId) }
+        : current,
+    )
+  }, [])
+
+  const createIncident = useCallback((created: CrimeIncident) => {
+    setData((current) =>
+      current ? { ...current, incidents: [created, ...current.incidents] } : current,
+    )
+    // Widen the date range so the freshly reported incident is actually visible.
+    setFilters((current) => {
+      const day = created.occurredAt.slice(0, 10)
+      const from = day < current.dateRange.from ? day : current.dateRange.from
+      const to = day > current.dateRange.to ? day : current.dateRange.to
+      if (from === current.dateRange.from && to === current.dateRange.to) return current
+      return { ...current, dateRange: { from, to } }
+    })
+  }, [])
+
   const navigate = useCallback((next: AppView) => {
     setView(next)
   }, [])
@@ -314,6 +349,9 @@ export default function App() {
             onFocusArea={focusArea}
             onFiltersChange={setFilters}
             onResetFilters={resetAllFilters}
+            onUpdateIncident={updateIncident}
+            onCreateIncident={createIncident}
+            onDeleteIncident={deleteIncident}
           />
         )
     }

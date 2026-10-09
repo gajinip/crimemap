@@ -308,6 +308,21 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
+/* User-reported incident pointer (triangle tip marks the coordinate) */
+.crime-triangle-wrap {
+  background: transparent;
+  border: none;
+}
+
+.crime-triangle-wrap svg {
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55));
+}
+
+/* Incident editor eyebrow (kept smaller than the global 16px floor) */
+.editor-eyebrow {
+  font-size: 12px;
+}
+
 /* Simulated patrol unit chip */
 .patrol-marker-wrap {
   background: transparent;

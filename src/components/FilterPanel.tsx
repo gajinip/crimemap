@@ -1,4 +1,4 @@
-import { ChevronDown, RotateCcw, SlidersHorizontal, X } from 'lucide-react'
+import { RotateCcw, SlidersHorizontal, X } from 'lucide-react'
 import { useState } from 'react'
 import {
   CRIME_CATEGORIES,
@@ -80,45 +80,37 @@ export function FilterPanel({
     }`
 
   return (
-    <div className="pointer-events-auto absolute left-2 right-2 top-2 z-[1200] rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_12px_34px_rgba(0,0,0,0.5)] backdrop-blur-sm sm:left-3 sm:right-auto sm:top-3 sm:w-60">
-      <div className="flex items-center justify-between gap-2 border-b border-navy-700 px-3 py-2">
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          aria-label={open ? 'Collapse filters' : 'Expand filters'}
-          className="inline-flex flex-1 items-center gap-1.5 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-steel-300 hover:text-white"
-        >
-          <SlidersHorizontal className="size-3.5 text-blue-400" aria-hidden />
-          Crime filters
-        </button>
-        <div className="flex items-center gap-1">
-          {isDirty ? (
-            <button
-              type="button"
-              onClick={onReset}
-              title="Reset filters"
-              className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
-            >
-              <RotateCcw className="size-3.5" />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-expanded={open}
-            aria-label={open ? 'Collapse filters' : 'Expand filters'}
-            className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
-          >
-            <ChevronDown
-              className={`size-3.5 transition-transform duration-150 ${open ? '' : '-rotate-90'}`}
-            />
-          </button>
-        </div>
-      </div>
-
+    <div className="pointer-events-auto absolute left-2 top-2 z-[1200] sm:left-3 sm:top-3">
       {open ? (
-        <div className="scroll-thin max-h-[55vh] overflow-y-auto px-3 py-3 sm:max-h-[68vh]">
+        <div className="w-[calc(100vw-16px)] max-w-[290px] rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_12px_34px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-2 border-b border-navy-700 px-3 py-2">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-steel-300">
+              <SlidersHorizontal className="size-3.5 text-blue-400" aria-hidden />
+              Crime filters
+            </span>
+            <div className="flex items-center gap-1">
+              {isDirty ? (
+                <button
+                  type="button"
+                  onClick={onReset}
+                  title="Reset filters"
+                  className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+                >
+                  <RotateCcw className="size-3.5" />
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close filters"
+                className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="scroll-thin max-h-[55vh] overflow-y-auto px-3 py-3 sm:max-h-[68vh]">
           <div className="mb-1.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
             <span>Time period</span>
             <span className="normal-case tracking-normal text-steel-600">
@@ -315,8 +307,25 @@ export function FilterPanel({
               </button>
             ) : null}
           </div>
+          </div>
         </div>
-      ) : null}
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open crime filters"
+          title="Crime filters"
+          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-white"
+        >
+          <SlidersHorizontal className="size-4" aria-hidden />
+          {isDirty ? (
+            <span
+              className="absolute right-1.5 top-1.5 size-2 rounded-full bg-blue-400"
+              aria-hidden
+            />
+          ) : null}
+        </button>
+      )}
     </div>
   )
 }

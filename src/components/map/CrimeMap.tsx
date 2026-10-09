@@ -11,9 +11,10 @@ import {
   ZoomControl,
   useMap,
 } from 'react-leaflet'
+import type { LeafletMouseEvent } from 'leaflet'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../../data/areas'
 import boundary from '../../data/puducherry-boundary.json'
-import type { CrimeIncident, PoliceStation, RiskZone } from '../../types'
+import type { CrimeIncident, GeoPoint, PoliceStation, RiskZone } from '../../types'
 import { ALL_AREAS } from '../../utils/filters'
 import { IncidentLayer } from './ClusterLayer'
 import { PatrolLayer } from './PatrolLayer'
@@ -79,6 +80,10 @@ interface CrimeMapProps {
   searchQuery: string
   selectedZoneId: string | null
   onSelectZone: (zoneId: string) => void
+  onEditIncident: (incident: CrimeIncident) => void
+  onDeleteIncident: (incidentId: string) => void
+  pickingLocation: boolean
+  onPickLocation: (point: GeoPoint) => void
 }
 
 /** Pans the camera when the header area selector changes. */
@@ -127,6 +132,30 @@ function SearchFocusController({
   return null
 }
 
+/** Captures the next map click as a new incident location when armed. */
+function LocationPicker({
+  active,
+  onPick,
+}: {
+  active: boolean
+  onPick: (point: GeoPoint) => void
+}) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (!active) return
+    const handleClick = (event: LeafletMouseEvent) => {
+      onPick({ lat: event.latlng.lat, lng: event.latlng.lng })
+    }
+    map.on('click', handleClick)
+    return () => {
+      map.off('click', handleClick)
+    }
+  }, [active, map, onPick])
+
+  return null
+}
+
 /** Provides the primary interactive Leaflet map surface. */
 export function CrimeMap({
   incidents,
@@ -136,6 +165,10 @@ export function CrimeMap({
   searchQuery,
   selectedZoneId,
   onSelectZone,
+  onEditIncident,
+  onDeleteIncident,
+  pickingLocation,
+  onPickLocation,
 }: CrimeMapProps) {
   return (
     <MapContainer
@@ -184,7 +217,11 @@ export function CrimeMap({
 
         <LayersControl.Overlay checked name="Crime incidents">
           <LayerGroup>
-            <IncidentLayer incidents={incidents} />
+            <IncidentLayer
+              incidents={incidents}
+              onEdit={onEditIncident}
+              onDelete={onDeleteIncident}
+            />
           </LayerGroup>
         </LayersControl.Overlay>
 
@@ -232,6 +269,7 @@ export function CrimeMap({
       <ScaleControl position="bottomleft" imperial={false} />
       <AreaCameraController selectedArea={selectedArea} />
       <SearchFocusController query={searchQuery} incidents={incidents} />
+      <LocationPicker active={pickingLocation} onPick={onPickLocation} />
 
       <CircleMarker
         center={[PUDUCHERRY_CENTER.lat, PUDUCHERRY_CENTER.lng]}

@@ -1,8 +1,6 @@
 import {
   Brain,
   Car,
-  ChevronLeft,
-  ChevronRight,
   FileText,
   Flame,
   LayoutDashboard,
@@ -13,7 +11,7 @@ import {
   TrendingUp,
   type LucideIcon,
 } from 'lucide-react'
-import { useRef, type MouseEvent } from 'react'
+import { useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import type { AppView } from '../types'
 
 interface NavItem {
@@ -39,15 +37,63 @@ interface TopNavProps {
   onNavigate: (view: AppView) => void
 }
 
-/** Top navigation bar with a horizontally scrollable, click-to-scroll tab strip. */
+interface DragState {
+  pointerId: number
+  startX: number
+  startScroll: number
+  moved: boolean
+}
+
+/** Top navigation bar with a swipe/drag-scrollable tab strip. */
 export function TopNav({ activeView, onNavigate }: TopNavProps) {
   const stripRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<DragState | null>(null)
+  const didDragRef = useRef(false)
+  const [dragging, setDragging] = useState(false)
 
-  const scrollStrip = (delta: number) => {
-    stripRef.current?.scrollBy({ left: delta, behavior: 'smooth' })
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    didDragRef.current = false
+    if (event.pointerType !== 'mouse') return
+    const strip = stripRef.current
+    if (!strip) return
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScroll: strip.scrollLeft,
+      moved: false,
+    }
+  }
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const state = dragRef.current
+    const strip = stripRef.current
+    if (!state || !strip || state.pointerId !== event.pointerId) return
+    const delta = event.clientX - state.startX
+    if (!state.moved && Math.abs(delta) > 4) {
+      state.moved = true
+      setDragging(true)
+      strip.setPointerCapture(event.pointerId)
+    }
+    if (state.moved) strip.scrollLeft = state.startScroll - delta
+  }
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const state = dragRef.current
+    const strip = stripRef.current
+    if (!state || !strip || state.pointerId !== event.pointerId) return
+    if (state.moved) {
+      didDragRef.current = true
+      strip.releasePointerCapture(event.pointerId)
+    }
+    dragRef.current = null
+    setDragging(false)
   }
 
   const handleSelect = (view: AppView, event: MouseEvent<HTMLButtonElement>) => {
+    if (didDragRef.current) {
+      didDragRef.current = false
+      return
+    }
     onNavigate(view)
     event.currentTarget.scrollIntoView({
       behavior: 'smooth',
@@ -72,19 +118,16 @@ export function TopNav({ activeView, onNavigate }: TopNavProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-1 px-2 pb-2">
-        <button
-          type="button"
-          onClick={() => scrollStrip(-180)}
-          aria-label="Scroll navigation left"
-          className="grid size-7 shrink-0 place-items-center rounded-full border border-navy-600 text-steel-400 hover:bg-navy-800 hover:text-white"
-        >
-          <ChevronLeft className="size-4" aria-hidden />
-        </button>
-
+      <div className="pb-2">
         <div
           ref={stripRef}
-          className="scroll-thin flex flex-1 gap-1.5 overflow-x-auto scroll-smooth px-1 py-0.5"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className={`scroll-thin flex touch-pan-x select-none gap-1.5 overflow-x-auto px-3 py-0.5 ${
+            dragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
         >
           {NAV_ITEMS.map((item) => {
             const active = item.id === activeView
@@ -110,15 +153,6 @@ export function TopNav({ activeView, onNavigate }: TopNavProps) {
             )
           })}
         </div>
-
-        <button
-          type="button"
-          onClick={() => scrollStrip(180)}
-          aria-label="Scroll navigation right"
-          className="grid size-7 shrink-0 place-items-center rounded-full border border-navy-600 text-steel-400 hover:bg-navy-800 hover:text-white"
-        >
-          <ChevronRight className="size-4" aria-hidden />
-        </button>
       </div>
     </nav>
   )
