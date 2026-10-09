@@ -1,0 +1,36 @@
+import type { AreaOption } from '../types'
+
+/**
+ * Approximate locality centres used by the demo dataset.
+ * Coordinates are generalised reference points for map placement only.
+ */
+export interface DemoArea extends AreaOption {
+  lat: number
+  lng: number
+}
+
+export const PUDUCHERRY_CENTER = { lat: 11.9315, lng: 79.8255 }
+export const DEFAULT_ZOOM = 14
+
+export const DEMO_AREAS: DemoArea[] = [
+  { name: 'Mission Street', lat: 11.9275, lng: 79.8325 },
+  { name: 'Muthialpet', lat: 11.9245, lng: 79.83 },
+  { name: 'Mudaliarpet', lat: 11.9178, lng: 79.8119 },
+  { name: 'Lawspet', lat: 11.9545, lng: 79.833 },
+  { name: 'Solai Nagar', lat: 11.9561, lng: 79.8383 },
+  { name: 'White Town', lat: 11.934, lng: 79.827 },
+  { name: 'Thattanchavady', lat: 11.9442, lng: 79.8061 },
+  { name: 'Oulgaret', lat: 11.957, lng: 79.813 },
+  { name: 'Nellithope', lat: 11.9317, lng: 79.8105 },
+  { name: 'Saram', lat: 11.9404, lng: 79.8145 },
+  { name: 'Nehru Street', lat: 11.9229, lng: 79.8113 },
+  { name: 'Orleanpet', lat: 11.942, lng: 79.8215 },
+  { name: 'Gorimedu', lat: 11.9535, lng: 79.7936 },
+  { name: 'Keezhmedu', lat: 11.9495, lng: 79.8245 },
+  { name: 'Isukapatti', lat: 11.9445, lng: 79.8145 },
+  { name: 'Ariyankuppam', lat: 11.8949, lng: 79.8076 },
+  { name: 'Villianur', lat: 11.9133, lng: 79.7551 },
+  { name: 'Kuruvinatham', lat: 11.952, lng: 79.7995 },
+  { name: 'Manakuppam', lat: 11.9185, lng: 79.8015 },
+  { name: 'Bahour', lat: 11.9255, lng: 79.7765 },
+]

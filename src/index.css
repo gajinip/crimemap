@@ -1,0 +1,403 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', 'Segoe UI', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, monospace;
+
+  --color-navy-950: #050a14;
+  --color-navy-900: #0a1120;
+  --color-navy-850: #0d1526;
+  --color-navy-800: #111c31;
+  --color-navy-700: #1a2740;
+  --color-navy-600: #24344f;
+  --color-navy-500: #344a6e;
+
+  --color-steel-100: #e2e8f0;
+  --color-steel-200: #cbd5e1;
+  --color-steel-300: #94a3b8;
+  --color-steel-400: #64748b;
+  --color-steel-500: #475569;
+  --color-steel-600: #334155;
+
+  --color-risk-low: #22c55e;
+  --color-risk-medium: #eab308;
+  --color-risk-high: #f97316;
+  --color-risk-critical: #ef4444;
+
+  --color-signal-blue: #3b82f6;
+  --color-signal-cyan: #22d3ee;
+
+  /* Force the mobile layout at every viewport width by disabling the
+     responsive breakpoints (sm/md/lg/xl/2xl can never match). */
+  --breakpoint-sm: 100000px;
+  --breakpoint-md: 100000px;
+  --breakpoint-lg: 100000px;
+  --breakpoint-xl: 100000px;
+  --breakpoint-2xl: 100000px;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-navy-950);
+  color: var(--color-steel-100);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keep the app clear of notches/rounded corners on mobile devices. */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile tuning                                                       */
+/* ------------------------------------------------------------------ */
+
+/* Mobile-style touch targets applied everywhere. */
+.leaflet-control-zoom a {
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: 18px !important;
+}
+
+.leaflet-control-layers-expanded {
+  min-width: 150px;
+}
+
+/* Popups should never be wider than the phone-width view. */
+.leaflet-popup-content-wrapper {
+  max-width: calc(100vw - 32px);
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Leaflet overrides (dark dashboard styling)                          */
+/* ------------------------------------------------------------------ */
+
+.leaflet-container {
+  background: #0a1120;
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+.leaflet-control-zoom a {
+  background-color: #111c31 !important;
+  border-color: #24344f !important;
+  color: #cbd5e1 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #1a2740 !important;
+  color: #ffffff !important;
+}
+
+.leaflet-control-zoom,
+.leaflet-control-layers {
+  border: 1px solid #24344f !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-control-layers {
+  background: #111c31 !important;
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 10px 12px !important;
+  min-width: 178px;
+}
+
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+  padding: 3px 0;
+  font-size: 16px;
+}
+
+.leaflet-control-layers-separator {
+  border-color: #24344f !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(5, 10, 20, 0.78) !important;
+  color: #94a3b8 !important;
+  font-size: 16px;
+}
+
+.leaflet-control-attribution a {
+  color: #60a5fa !important;
+}
+
+.leaflet-control-scale-line {
+  background: rgba(5, 10, 20, 0.7) !important;
+  border-color: #344a6e !important;
+  color: #cbd5e1 !important;
+}
+
+/* Outside-boundary mask: captures clicks (so they do not reach overlays
+   hidden beneath it) but keeps the neutral map cursor. */
+.leaflet-pane > svg path.boundary-mask {
+  cursor: default;
+}
+
+.leaflet-pane > svg path.boundary-outline {
+  pointer-events: none;
+}
+
+/* Popups */
+/* Drop the map pane's stacking context so panes can be layered against the
+   surrounding UI: controls (1000) < popups (1100) < overlay panels (1200).
+   This keeps a popup above the layers/zoom controls while leaving the detail
+   panels (and their close buttons) on top of popups. */
+.leaflet-map-pane {
+  z-index: auto;
+}
+
+.leaflet-pane.leaflet-popup-pane {
+  z-index: 1100;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #0d1526 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #24344f;
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  font-size: 16px !important;
+  line-height: 1.5;
+}
+
+.leaflet-popup-tip {
+  background: #0d1526 !important;
+  border: 1px solid #24344f;
+}
+
+.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #ffffff !important;
+}
+
+.popup-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #f8fafc;
+  margin-bottom: 2px;
+}
+
+.popup-sub {
+  font-size: 16px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 3px 0;
+  border-top: 1px dashed #1f2e4a;
+  font-size: 16px;
+}
+
+.popup-row span:first-child {
+  color: #64748b;
+}
+
+.popup-row span:last-child {
+  color: #e2e8f0;
+  text-align: right;
+  font-weight: 500;
+}
+
+.popup-demo {
+  margin-top: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #fde047;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.badge-inline {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Map marker icons                                                    */
+/* ------------------------------------------------------------------ */
+
+.police-marker {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(160deg, #2563eb, #1e3a8a);
+  border: 2px solid #bfdbfe;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+.police-marker svg {
+  width: 17px;
+  height: 17px;
+  fill: #ffffff;
+}
+
+.crime-pulse-marker {
+  width: 14px;
+  height: 14px;
+}
+
+/* Locality cluster badge (zoomed-out map) */
+.cluster-marker-wrap {
+  background: transparent;
+  border: none;
+}
+
+.cluster-marker {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(13, 21, 38, 0.92);
+  border: 2px solid var(--cluster-color, #60a5fa);
+  color: var(--cluster-color, #60a5fa);
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Simulated patrol unit chip */
+.patrol-marker-wrap {
+  background: transparent;
+  border: none;
+}
+
+.patrol-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px 2px 5px;
+  border-radius: 999px;
+  background: rgba(13, 21, 38, 0.94);
+  border: 1.5px solid var(--patrol-color, #60a5fa);
+  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.55);
+}
+
+.patrol-marker svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--patrol-color, #60a5fa);
+}
+
+.patrol-marker b {
+  color: var(--patrol-color, #60a5fa);
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbars                                                          */
+/* ------------------------------------------------------------------ */
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #24344f transparent;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #24344f;
+  border-radius: 8px;
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Global readable text scale                                          */
+/* Lift every text utility into a legible 16-19px band across the app. */
+/* Unlayered, so it wins over Tailwind's @layer utilities.             */
+/* ------------------------------------------------------------------ */
+
+.text-\[7px\],
+.text-\[9px\],
+.text-\[10px\],
+.text-\[11px\],
+.text-\[12px\],
+.text-\[13px\],
+.text-\[14px\],
+.text-\[15px\],
+.text-\[16px\] {
+  font-size: 16px;
+}
+
+.text-\[17px\] {
+  font-size: 17px;
+}
+
+.text-\[18px\] {
+  font-size: 18px;
+}
+
+.text-\[22px\] {
+  font-size: 19px;
+}
+
+.text-xl {
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.text-3xl {
+  font-size: 19px;
+  line-height: 1.3;
+}
