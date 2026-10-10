@@ -108,6 +108,7 @@ export function timePresets(): { label: string; days: number | null; range: Date
         }
 
   return [
+    { label: '1D', days: 1, range: make(1) },
     { label: '7D', days: 7, range: make(7) },
     { label: '30D', days: 30, range: make(30) },
     { label: '90D', days: 90, range: make(90) },

@@ -1,7 +1,7 @@
 import { Calendar, MapPin, X } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from '../types'
-import { ALL_AREAS, timePresets } from '../utils/filters'
+import { ALL_AREAS, DATA_MAX_DATE, timePresets } from '../utils/filters'
 
 interface AreaDatePanelProps {
   area: string
@@ -25,6 +25,9 @@ export function AreaDatePanel({
   onDateRangeChange,
 }: AreaDatePanelProps) {
   const [open, setOpen] = useState(false)
+  const [mode, setMode] = useState<'day' | 'range'>(
+    dateRange.from === dateRange.to ? 'day' : 'range',
+  )
 
   const activePreset = PRESETS.find(
     (preset) =>
@@ -71,35 +74,88 @@ export function AreaDatePanel({
             </select>
 
             <div className="mb-1.5 mt-4 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-              <span>Date range</span>
+              <span>Date</span>
               <span className="normal-case tracking-normal text-steel-600">
-                {dateRange.from} → {dateRange.to}
+                {mode === 'day'
+                  ? dateRange.from
+                  : `${dateRange.from} → ${dateRange.to}`}
               </span>
+            </div>
+
+            <div className="mb-2 inline-flex rounded-lg border border-navy-600 bg-navy-800 p-0.5">
+              {(['day', 'range'] as const).map((option) => {
+                const active = mode === option
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => {
+                      setMode(option)
+                      if (option === 'day') {
+                        onDateRangeChange({
+                          from: dateRange.from,
+                          to: dateRange.from,
+                        })
+                      }
+                    }}
+                    aria-pressed={active}
+                    className={`rounded-md px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+                      active ? '' : 'text-steel-500 hover:text-steel-300'
+                    }`}
+                    style={
+                      active
+                        ? { backgroundColor: '#60a5fa1f', color: '#60a5fa' }
+                        : undefined
+                    }
+                  >
+                    {option === 'day' ? 'Single day' : 'Range'}
+                  </button>
+                )
+              })}
             </div>
 
             <div className="flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-1.5">
               <Calendar className="size-3.5 shrink-0 text-steel-400" aria-hidden />
-              <input
-                type="date"
-                value={dateRange.from}
-                max={dateRange.to}
-                onChange={(event) =>
-                  onDateRangeChange({ ...dateRange, from: event.target.value })
-                }
-                aria-label="Date range start"
-                className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none"
-              />
-              <span className="text-[11px] text-steel-500">→</span>
-              <input
-                type="date"
-                value={dateRange.to}
-                min={dateRange.from}
-                onChange={(event) =>
-                  onDateRangeChange({ ...dateRange, to: event.target.value })
-                }
-                aria-label="Date range end"
-                className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none"
-              />
+              {mode === 'day' ? (
+                <input
+                  type="date"
+                  value={dateRange.from}
+                  max={DATA_MAX_DATE}
+                  onChange={(event) =>
+                    onDateRangeChange({
+                      from: event.target.value,
+                      to: event.target.value,
+                    })
+                  }
+                  aria-label="Select a single day"
+                  className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none"
+                />
+              ) : (
+                <>
+                  <input
+                    type="date"
+                    value={dateRange.from}
+                    max={dateRange.to}
+                    onChange={(event) =>
+                      onDateRangeChange({ ...dateRange, from: event.target.value })
+                    }
+                    aria-label="Date range start"
+                    className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none"
+                  />
+                  <span className="text-[11px] text-steel-500">→</span>
+                  <input
+                    type="date"
+                    value={dateRange.to}
+                    min={dateRange.from}
+                    max={DATA_MAX_DATE}
+                    onChange={(event) =>
+                      onDateRangeChange({ ...dateRange, to: event.target.value })
+                    }
+                    aria-label="Date range end"
+                    className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none"
+                  />
+                </>
+              )}
             </div>
 
             <div className="mt-2.5 flex flex-wrap gap-1.5">
@@ -109,7 +165,12 @@ export function AreaDatePanel({
                   <button
                     key={preset.label}
                     type="button"
-                    onClick={() => onDateRangeChange(preset.range)}
+                    onClick={() => {
+                      onDateRangeChange(preset.range)
+                      setMode(
+                        preset.range.from === preset.range.to ? 'day' : 'range',
+                      )
+                    }}
                     aria-pressed={active}
                     className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors ${
                       active
