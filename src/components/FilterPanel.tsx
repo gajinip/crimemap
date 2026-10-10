@@ -21,6 +21,7 @@ interface FilterPanelProps {
   totalCount: number
   onChange: (filters: CrimeFilterState) => void
   onReset: () => void
+  placement?: 'top-left' | 'bottom-right'
 }
 
 const PRESETS = timePresets()
@@ -33,8 +34,14 @@ export function FilterPanel({
   totalCount,
   onChange,
   onReset,
+  placement = 'top-left',
 }: FilterPanelProps) {
   const [open, setOpen] = useState(false)
+
+  const rootClass =
+    placement === 'top-left'
+      ? 'pointer-events-auto absolute left-2 top-2 z-[1200] sm:left-3 sm:top-3'
+      : 'pointer-events-auto absolute bottom-3 right-3 z-[1200]'
 
   const toggleCategory = (category: CrimeCategory) => {
     const categories = filters.categories.includes(category)
@@ -80,7 +87,7 @@ export function FilterPanel({
     }`
 
   return (
-    <div className="pointer-events-auto absolute left-2 top-2 z-[1200] sm:left-3 sm:top-3">
+    <div className={rootClass}>
       {open ? (
         <div className="w-[calc(100vw-16px)] max-w-[290px] rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_12px_34px_rgba(0,0,0,0.5)] backdrop-blur-sm">
           <div className="flex items-center justify-between gap-2 border-b border-navy-700 px-3 py-2">

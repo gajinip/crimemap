@@ -38,7 +38,7 @@ export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPane
           <DemoChip />
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="flex flex-col gap-2.5">
           <StatTile
             label="Total incidents"
             value={formatNumber(stats.totalIncidents)}

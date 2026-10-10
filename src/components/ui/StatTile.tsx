@@ -10,17 +10,21 @@ interface StatTileProps {
 
 export function StatTile({ label, value, hint, color = '#e2e8f0', icon }: StatTileProps) {
   return (
-    <div className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-400">
-          {label}
-        </span>
-        {icon ? <span className="text-steel-500">{icon}</span> : null}
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-navy-600 bg-navy-800 px-3 py-2.5">
+      <div className="min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-400">
+            {label}
+          </span>
+          {icon ? <span className="shrink-0 text-steel-500">{icon}</span> : null}
+        </div>
+        {hint ? (
+          <div className="mt-1 text-[10px] leading-tight text-steel-500">{hint}</div>
+        ) : null}
       </div>
-      <div className="mt-1 text-xl font-bold leading-none" style={{ color }}>
+      <div className="shrink-0 text-right text-xl font-bold leading-none" style={{ color }}>
         {value}
       </div>
-      {hint ? <div className="mt-1 text-[10px] leading-tight text-steel-500">{hint}</div> : null}
     </div>
   )
 }

@@ -37,7 +37,7 @@ export function HotspotsView({
           <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
             Dynamic Risk Zones
           </h1>
-          <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-steel-400">
+          <p className="mt-1 max-w-3xl text-[11px] leading-relaxed text-steel-400">
             Deterministic, explainable risk zones derived from incident frequency, trend, severity,
             repeat activity, time-of-day and proximity. Scores are reproducible and always
             accompanied by their breakdown.
@@ -62,11 +62,11 @@ export function HotspotsView({
           </p>
         </Panel>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="scroll-thin flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1">
           {sorted.map((zone) => (
             <article
               key={zone.id}
-              className="flex flex-col gap-3 rounded-xl border border-navy-700 bg-navy-900 p-3"
+              className="flex w-[85%] shrink-0 snap-center flex-col gap-3 rounded-xl border border-navy-700 bg-navy-900 p-3 sm:w-[340px]"
             >
               <header className="flex items-start justify-between gap-2">
                 <div className="min-w-0">

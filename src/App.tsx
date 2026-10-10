@@ -5,9 +5,9 @@ import { detectChanges } from './analytics/changes'
 import { buildDispatchPlan, buildRecommendation } from './analytics/recommend'
 import { buildPatrolPlan } from './analytics/patrol'
 import { DemoBanner } from './components/DemoBanner'
+import { BottomNav } from './components/BottomNav'
 import { Header } from './components/Header'
 import { TopNav } from './components/TopNav'
-import { DEMO_AREAS } from './data/areas'
 import { PatrolProvider } from './patrol/PatrolContext'
 import { crimeDataSource } from './services/crimeApi'
 import type {
@@ -266,8 +266,6 @@ export default function App() {
     )
   }
 
-  const areaOptions = DEMO_AREAS.map((area) => area.name)
-
   const renderView = () => {
     switch (view) {
       case 'dashboard':
@@ -359,37 +357,31 @@ export default function App() {
 
   const mainClass =
     view === 'map'
-      ? 'relative min-w-0 h-[60vh] min-h-[320px] sm:h-[70vh] xl:h-auto xl:min-h-0 xl:flex-1'
-      : 'relative min-w-0 xl:min-h-0 xl:flex-1'
+      ? 'relative h-full min-h-[320px]'
+      : 'relative min-w-0 pb-14 xl:min-h-0 xl:flex-1'
 
   return (
     <PatrolProvider plan={patrolPlan}>
-      <div className="flex min-h-dvh justify-center bg-black text-steel-100">
-        <div className="relative flex min-h-dvh w-full max-w-[430px] flex-col overflow-x-hidden bg-navy-950 shadow-[0_0_60px_rgba(0,0,0,0.8)] ring-1 ring-navy-800">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <DemoBanner />
-            <TopNav activeView={view} onNavigate={navigate} />
-            <Header
-              area={filters.area}
-              areas={areaOptions}
-              onAreaChange={(area) => setFilters((current) => ({ ...current, area }))}
-              searchQuery={filters.searchQuery}
-              onSearchChange={(searchQuery) =>
-                setFilters((current) => ({ ...current, searchQuery }))
-              }
-              dateRange={filters.dateRange}
-              onDateRangeChange={(dateRange) =>
-                setFilters((current) => ({ ...current, dateRange }))
-              }
-              compact={view === 'map'}
-            />
+      <div className="flex h-screen justify-center bg-black text-steel-100">
+        <div
+          style={{ height: '100dvh' }}
+          className="relative flex h-screen w-full max-w-[430px] flex-col overflow-hidden bg-navy-950 shadow-[0_0_60px_rgba(0,0,0,0.8)] ring-1 ring-navy-800"
+        >
+          <DemoBanner />
+          <Header />
+          <TopNav
+            searchQuery={filters.searchQuery}
+            onSearchChange={(searchQuery) =>
+              setFilters((current) => ({ ...current, searchQuery }))
+            }
+          />
 
-            <div className="flex flex-col">
-              <main className={mainClass} key={view}>
-                {renderView()}
-              </main>
-            </div>
+          <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
+            <main className={mainClass} key={view}>
+              {renderView()}
+            </main>
           </div>
+          <BottomNav activeView={view} onNavigate={navigate} />
         </div>
       </div>
     </PatrolProvider>
