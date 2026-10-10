@@ -174,9 +174,14 @@ export function HotspotsView({
           title="Recommended actions"
           subtitle={`${recommendations.length} actionable items derived from these zones`}
         >
-          <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="scroll-thin flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1">
             {recommendations.slice(0, 6).map((recommendation) => (
-              <RecommendationCard key={recommendation.zoneId} recommendation={recommendation} compact />
+              <div
+                key={recommendation.zoneId}
+                className="w-[85%] shrink-0 snap-center sm:w-[340px]"
+              >
+                <RecommendationCard recommendation={recommendation} compact />
+              </div>
             ))}
           </div>
         </Panel>
