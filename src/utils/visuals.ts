@@ -1,14 +1,17 @@
 import type { CrimeCategory, RiskLevel } from '../types'
 
 export const CRIME_CATEGORY_COLORS: Record<CrimeCategory, string> = {
-  Theft: '#38bdf8',
-  Robbery: '#f43f5e',
-  Assault: '#fb923c',
-  Burglary: '#a78bfa',
-  'Vehicle Theft': '#facc15',
-  Fraud: '#2dd4bf',
-  Other: '#94a3b8',
+  Theft: '#378ADD',
+  Robbery: '#E24B4A',
+  Assault: '#EF9F27',
+  Burglary: '#2E8B57',
+  'Vehicle Theft': '#7F56D9',
+  Fraud: '#159DAD',
+  Other: '#64748B',
 }
+
+/** Slate fallback for incident records with an unknown category. */
+export const CRIME_FALLBACK_COLOR = '#64748B'
 
 export const RISK_LEVEL_COLORS: Record<RiskLevel, string> = {
   Low: '#22c55e',

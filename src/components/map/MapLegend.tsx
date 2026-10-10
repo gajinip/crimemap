@@ -1,8 +1,15 @@
 import { Crosshair, X } from 'lucide-react'
 import { useState } from 'react'
 import { CRIME_CATEGORIES, RISK_LEVELS } from '../../types'
-import { CRIME_CATEGORY_COLORS, RISK_LEVEL_COLORS } from '../../utils/visuals'
+import {
+  CRIME_FALLBACK_COLOR,
+  CRIME_CATEGORY_COLORS,
+  RISK_LEVEL_COLORS,
+} from '../../utils/visuals'
+import { crimeCategoryIcon } from '../../utils/crimeIcons'
 import { DemoChip } from '../ui/Badge'
+
+const IncidentMarkerIcon = crimeCategoryIcon('Other')
 
 /** Floating legend pinned to the map (categories, risk levels, station icon). */
 export function MapLegend() {
@@ -32,15 +39,26 @@ export function MapLegend() {
               Crime category
             </p>
             <ul className="space-y-1">
-              {CRIME_CATEGORIES.map((category) => (
-                <li key={category} className="flex items-center gap-2 text-[10px] text-steel-200">
-                  <span
-                    className="inline-block size-2.5 shrink-0 rounded-full ring-1 ring-navy-950"
-                    style={{ backgroundColor: CRIME_CATEGORY_COLORS[category] }}
-                  />
-                  {category}
-                </li>
-              ))}
+              {CRIME_CATEGORIES.map((category) => {
+                const Icon = crimeCategoryIcon(category)
+                return (
+                  <li
+                    key={category}
+                    className="flex items-center gap-2 text-[10px] text-steel-200"
+                  >
+                    <span
+                      className="grid size-[18px] shrink-0 place-items-center rounded-full border-2 border-white text-white shadow-sm"
+                      style={{
+                        backgroundColor:
+                          CRIME_CATEGORY_COLORS[category] ?? CRIME_FALLBACK_COLOR,
+                      }}
+                    >
+                      <Icon className="size-3" strokeWidth={2.25} aria-hidden />
+                    </span>
+                    {category}
+                  </li>
+                )
+              })}
             </ul>
 
             <p className="mb-1.5 mt-3 text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
@@ -75,7 +93,12 @@ export function MapLegend() {
                 Police station
               </li>
               <li className="flex items-center gap-2 text-[10px] text-steel-200">
-                <span className="inline-block size-3 rounded-full border-2 border-navy-950 bg-sky-400" />
+                <span
+                  className="grid size-[18px] shrink-0 place-items-center rounded-full border-2 border-white text-white"
+                  style={{ backgroundColor: CRIME_CATEGORY_COLORS.Other }}
+                >
+                  <IncidentMarkerIcon className="size-3" strokeWidth={2.25} aria-hidden />
+                </span>
                 Incident marker
               </li>
               <li className="flex items-center gap-2 text-[10px] text-steel-200">
@@ -90,8 +113,14 @@ export function MapLegend() {
                 Risk zone (scored 0-100)
               </li>
               <li className="flex items-center gap-2 text-[10px] text-steel-200">
-                <span className="grid size-4 place-items-center rounded-full bg-navy-700 text-[7px] font-bold text-white ring-1 ring-navy-500">
-                  12
+                <span
+                  className="relative grid size-4 shrink-0 place-items-center rounded-full border-2 border-white text-white"
+                  style={{ backgroundColor: CRIME_CATEGORY_COLORS.Other }}
+                >
+                  <IncidentMarkerIcon className="size-2.5" strokeWidth={2.25} aria-hidden />
+                  <span className="absolute -right-1.5 -top-1.5 grid h-3 min-w-3 place-items-center rounded-full border border-white bg-navy-950 px-[2px] text-[6px] font-bold leading-none text-white">
+                    12
+                  </span>
                 </span>
                 Locality cluster (zoom out)
               </li>

@@ -291,34 +291,94 @@ body {
   height: 14px;
 }
 
-/* Locality cluster badge (zoomed-out map) */
+/* Locality cluster badge (zoomed-out map): dominant crime icon + count */
 .cluster-marker-wrap {
   background: transparent;
   border: none;
 }
 
 .cluster-marker {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
-  background: rgba(13, 21, 38, 0.92);
-  border: 2px solid var(--cluster-color, #60a5fa);
-  color: var(--cluster-color, #60a5fa);
-  font-size: 11px;
-  font-weight: 700;
+  background: var(--cluster-color, #60a5fa);
+  border: 2px solid #ffffff;
+  color: #ffffff;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* User-reported incident pointer (triangle tip marks the coordinate) */
-.crime-triangle-wrap {
+.cluster-marker-glyph {
+  display: grid;
+  place-items: center;
+}
+
+.cluster-marker-glyph svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  stroke: #ffffff;
+}
+
+.cluster-marker-count {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #0d1526;
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Incident marker: teardrop pin with a white crime-type glyph in the head */
+.crime-pin-wrap {
   background: transparent;
   border: none;
 }
 
-.crime-triangle-wrap svg {
-  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55));
+.crime-pin {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 48px;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+.crime-pin-shape {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 0;
+}
+
+.crime-pin-glyph {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  transform: translateX(-50%);
+  color: #ffffff;
+}
+
+.crime-pin-glyph svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  stroke: #ffffff;
 }
 
 /* Incident editor eyebrow (kept smaller than the global text floor) */

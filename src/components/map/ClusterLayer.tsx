@@ -3,7 +3,8 @@ import { Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import type { CrimeCategory, CrimeIncident } from '../../types'
 import { CrimeMarker } from './CrimeMarker'
-import { CRIME_CATEGORY_COLORS } from '../../utils/visuals'
+import { CRIME_FALLBACK_COLOR, CRIME_CATEGORY_COLORS } from '../../utils/visuals'
+import { crimeIconSvg } from '../../utils/crimeIcons'
 
 /** Below this zoom level incidents collapse into locality clusters. */
 const CLUSTER_ZOOM = 13
@@ -18,10 +19,15 @@ interface ClusterGroup {
 }
 
 function clusterIcon(group: ClusterGroup): L.DivIcon {
-  const color = CRIME_CATEGORY_COLORS[group.dominant]
+  const color = CRIME_CATEGORY_COLORS[group.dominant] ?? CRIME_FALLBACK_COLOR
+  const html =
+    `<span class="cluster-marker" style="--cluster-color:${color}">` +
+    `<span class="cluster-marker-glyph">${crimeIconSvg(group.dominant, '#ffffff', 15)}</span>` +
+    `<span class="cluster-marker-count">${group.count}</span>` +
+    `</span>`
   return L.divIcon({
     className: 'cluster-marker-wrap',
-    html: `<span class="cluster-marker" style="--cluster-color:${color}">${group.count}</span>`,
+    html,
     iconSize: [38, 38],
     iconAnchor: [19, 19],
   })
