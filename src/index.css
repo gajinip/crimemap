@@ -27,8 +27,8 @@
   --color-signal-blue: #3b82f6;
   --color-signal-cyan: #22d3ee;
 
-  /* Slightly tightened spacing scale so the mobile layout reads smaller. */
-  --spacing: 0.225rem;
+  /* Tightened spacing scale so the mobile layout reads smaller. */
+  --spacing: 0.185rem;
 
   /* Force the mobile layout at every viewport width by disabling the
      responsive breakpoints (sm/md/lg/xl/2xl can never match). */
@@ -74,10 +74,10 @@ body {
 
 /* Mobile-style touch targets applied everywhere. */
 .leaflet-control-zoom a {
-  width: 30px !important;
-  height: 30px !important;
-  line-height: 30px !important;
-  font-size: 16px !important;
+  width: 26px !important;
+  height: 26px !important;
+  line-height: 26px !important;
+  font-size: 14px !important;
 }
 
 .leaflet-control-layers-expanded {
@@ -125,7 +125,7 @@ body {
 .leaflet-control-layers {
   background: #111c31 !important;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .leaflet-control-layers-expanded {
@@ -136,7 +136,7 @@ body {
 .leaflet-control-layers-base label,
 .leaflet-control-layers-overlays label {
   padding: 3px 0;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .leaflet-control-layers-separator {
@@ -146,7 +146,7 @@ body {
 .leaflet-control-attribution {
   background: rgba(5, 10, 20, 0.78) !important;
   color: #94a3b8 !important;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .leaflet-control-attribution a {
@@ -192,7 +192,7 @@ body {
 
 .leaflet-popup-content {
   margin: 12px 14px !important;
-  font-size: 13px !important;
+  font-size: 11px !important;
   line-height: 1.5;
 }
 
@@ -210,7 +210,7 @@ body {
 }
 
 .popup-title {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #f8fafc;
@@ -218,7 +218,7 @@ body {
 }
 
 .popup-sub {
-  font-size: 13px;
+  font-size: 11px;
   color: #94a3b8;
   margin-bottom: 8px;
 }
@@ -229,7 +229,7 @@ body {
   gap: 14px;
   padding: 3px 0;
   border-top: 1px dashed #1f2e4a;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .popup-row span:first-child {
@@ -249,7 +249,7 @@ body {
   background: rgba(234, 179, 8, 0.12);
   border: 1px solid rgba(234, 179, 8, 0.4);
   color: #fde047;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-align: center;
@@ -259,7 +259,7 @@ body {
   display: inline-block;
   padding: 1px 7px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.04em;
   border: 1px solid transparent;
@@ -272,8 +272,8 @@ body {
 .police-marker {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
   background: linear-gradient(160deg, #2563eb, #1e3a8a);
   border: 2px solid #bfdbfe;
@@ -281,8 +281,8 @@ body {
 }
 
 .police-marker svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
   fill: #ffffff;
 }
 
@@ -300,13 +300,13 @@ body {
 .cluster-marker {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   background: rgba(13, 21, 38, 0.92);
   border: 2px solid var(--cluster-color, #60a5fa);
   color: var(--cluster-color, #60a5fa);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
@@ -321,9 +321,9 @@ body {
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55));
 }
 
-/* Incident editor eyebrow (kept smaller than the global 16px floor) */
+/* Incident editor eyebrow (kept smaller than the global text floor) */
 .editor-eyebrow {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 /* Simulated patrol unit chip */
@@ -341,7 +341,7 @@ body {
   background: rgba(13, 21, 38, 0.94);
   border: 1.5px solid var(--patrol-color, #60a5fa);
   color: #e2e8f0;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.55);
@@ -388,12 +388,12 @@ body {
 
 /* Compact top disclaimer — deliberately below the 16px floor. */
 .demo-banner {
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.35;
 }
 
 .demo-banner-note {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .text-\[7px\],
@@ -405,28 +405,28 @@ body {
 .text-\[14px\],
 .text-\[15px\],
 .text-\[16px\] {
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .text-\[17px\] {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .text-\[18px\] {
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .text-\[22px\] {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .text-xl {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.3;
 }
 
 .text-3xl {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.3;
 }
 
