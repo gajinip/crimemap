@@ -1,16 +1,18 @@
-import { Activity, Flame, Gauge, ShieldAlert, TrendingUp, Zap } from 'lucide-react'
-import type { DashboardStats, RiskZone } from '../types'
+import type { ReactNode } from 'react'
+import type { ComparePeriod, DashboardStats, RiskZone, TrendDirection } from '../types'
 import { formatNumber, formatPercent } from '../utils/format'
 import { CRIME_CATEGORY_COLORS, RISK_LEVEL_COLORS } from '../utils/visuals'
 import { DemoChip, RiskBadge, TrendIndicator } from './ui/Badge'
-import { Panel } from './ui/Panel'
-import { StatTile } from './ui/StatTile'
 
 interface StatisticsPanelProps {
   stats: DashboardStats
   zones: RiskZone[]
+  comparePeriod: ComparePeriod
+  onComparePeriodChange: (period: ComparePeriod) => void
   className?: string
 }
+
+const PERIODS: ComparePeriod[] = ['Day', 'Week', 'Month', 'Year']
 
 const TREND_COLORS: Record<DashboardStats['trendDirection'], string> = {
   Rising: '#ef4444',
@@ -18,8 +20,77 @@ const TREND_COLORS: Record<DashboardStats['trendDirection'], string> = {
   Declining: '#22c55e',
 }
 
+/** Compact table. Sparkline placeholder: "▲ +12% / ▼ -8% / ~0%". */
+function DeltaBadge({
+  percent,
+  direction,
+  className = '',
+}: {
+  percent: number
+  direction: TrendDirection
+  className?: string
+}) {
+  if (direction === 'Stable') {
+    return (
+      <span className={`font-mono text-[13px] font-bold text-steel-400 ${className}`}>
+        ~{Math.abs(percent)}%
+      </span>
+    )
+  }
+  const rising = direction === 'Rising'
+  return (
+    <span
+      className={`font-mono text-[13px] font-bold ${className}`}
+      style={{ color: rising ? '#ef4444' : '#22c55e' }}
+    >
+      {rising ? '▲' : '▼'} {Math.abs(percent)}%
+    </span>
+  )
+}
+
+/** Minimal "label — count" situation cell (no border or background). */
+function OverviewRow({
+  label,
+  value,
+  trend,
+  className = '',
+}: {
+  label: string
+  value: ReactNode
+  trend?: { percent: number; direction: TrendDirection }
+  className?: string
+}) {
+  return (
+    <div className={`flex flex-col gap-0.5 py-0.5 ${className}`}>
+      <span className="text-[15px] font-bold uppercase tracking-[0.12em] text-steel-400">
+        {label}
+      </span>
+      <span className="font-mono text-[25px] font-bold leading-none text-white">{value}</span>
+      {trend ? <DeltaBadge percent={trend.percent} direction={trend.direction} /> : null}
+    </div>
+  )
+}
+
+/** Uppercase section heading sharing the Panel title styling. */
+function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <>
+      <h2 className="text-[18px] font-bold uppercase tracking-[0.14em] text-steel-300">
+        {title}
+      </h2>
+      {subtitle ? <p className="mt-0.5 text-[16px] text-steel-500">{subtitle}</p> : null}
+    </>
+  )
+}
+
 /** Right-hand information panel with the headline intelligence indicators. */
-export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPanelProps) {
+export function StatisticsPanel({
+  stats,
+  zones,
+  comparePeriod,
+  onComparePeriodChange,
+  className = '',
+}: StatisticsPanelProps) {
   const trendColor = TREND_COLORS[stats.trendDirection]
   const watchlist = [...zones]
     .sort((a, b) => b.riskScore - a.riskScore || b.crimeCount - a.crimeCount)
@@ -27,112 +98,118 @@ export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPane
 
   return (
     <aside
-      className={`scroll-thin border-t border-navy-700 bg-navy-900 xl:h-full xl:w-[340px] xl:shrink-0 xl:overflow-y-auto xl:border-l xl:border-t-0 ${className}`}
+      className={`bg-navy-900 sticky top-0 self-start xl:w-[340px] xl:shrink-0 ${className}`}
       aria-label="Situation statistics"
     >
-      <div className="flex flex-col gap-3 p-3 xl:p-4">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.16em] text-steel-300">
+      <div className="flex flex-col p-3 xl:p-4">
+        <header className="flex items-center justify-between gap-2">
+          <h2 className="text-[16px] font-bold uppercase tracking-[0.14em] text-steel-300">
             Situation overview
           </h2>
           <DemoChip />
+        </header>
+
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-steel-500">
+            vs previous
+          </span>
+          <div className="flex gap-1">
+            {PERIODS.map((period) => (
+              <button
+                key={period}
+                type="button"
+                onClick={() => onComparePeriodChange(period)}
+                aria-pressed={period === comparePeriod}
+                className={`rounded-full px-2.5 py-1 text-[12px] font-bold transition-colors ${
+                  period === comparePeriod
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-navy-800 text-steel-300 hover:text-white'
+                }`}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex flex-col gap-2.5">
-          <StatTile
+        <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+          <OverviewRow
             label="Total incidents"
             value={formatNumber(stats.totalIncidents)}
-            hint="Matching active filters"
-            color="#60a5fa"
-            icon={<Activity className="size-3.5" />}
+            trend={stats.compare}
           />
-          <StatTile
-            label="Active zones"
-            value={stats.activeHotspots}
-            hint="Flagged for patrol focus"
-            color="#ef4444"
-            icon={<Flame className="size-3.5" />}
-          />
-          <StatTile
-            label="Emerging zones"
-            value={stats.emergingHotspots}
-            hint="New or rising localities"
-            color="#f97316"
-            icon={<Zap className="size-3.5" />}
-          />
-          <StatTile
-            label="High-risk zones"
-            value={stats.highRiskZones}
-            hint="High or critical rating"
-            color="#eab308"
-            icon={<ShieldAlert className="size-3.5" />}
-          />
-          <StatTile
+          <OverviewRow label="Active zones" value={stats.activeHotspots} />
+          <OverviewRow label="Emerging zones" value={stats.emergingHotspots} />
+          <OverviewRow label="High-risk zones" value={stats.highRiskZones} />
+          <OverviewRow
             label="Avg risk score"
             value={`${stats.averageRiskScore}/100`}
-            hint="Mean across visible zones"
-            color="#a78bfa"
-            icon={<Gauge className="size-3.5" />}
+            className="col-span-2"
           />
         </div>
 
-        <Panel title="Crime trend" subtitle="Last 30 days vs previous 30 days">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <div
-                className="text-3xl font-bold leading-none"
-                style={{ color: trendColor }}
-              >
-                {formatPercent(stats.trendPercent, 1)}
-              </div>
-              <div className="mt-1.5">
-                <TrendIndicator trend={stats.trendDirection} showGlyph={false} />
-              </div>
-            </div>
-            <span
-              className="grid size-11 shrink-0 place-items-center rounded-full"
-              style={{ backgroundColor: `${trendColor}1f`, color: trendColor }}
-            >
-              <TrendingUp
-                className={`size-5 ${stats.trendDirection === 'Declining' ? 'rotate-180' : stats.trendDirection === 'Stable' ? 'rotate-90' : ''}`}
-                aria-hidden
+        <section className="mt-2.5 border-t border-navy-700 pt-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SectionTitle
+                title="Crime trend"
+                subtitle="Last 30 days vs previous 30 days"
               />
-            </span>
-          </div>
-          <p className="mt-3 text-[10px] leading-relaxed text-steel-500">
-            Comparison uses synthetic demo incident timestamps inside the selected date range.
-          </p>
-        </Panel>
-
-        <Panel title="Most common crime type" subtitle="Share of filtered demo incidents">
-          {stats.mostCommonCategory ? (
-            <>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-lg font-bold text-white">{stats.mostCommonCategory}</span>
+            </div>
+            <div className="shrink-0 text-right">
+              <span className="inline-flex items-center gap-1.5">
                 <span
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: CRIME_CATEGORY_COLORS[stats.mostCommonCategory] }}
-                  aria-hidden
-                />
-              </div>
-              <div className="mt-1 text-[11px] text-steel-400">
-                {formatNumber(stats.mostCommonCount)} incidents &middot;{' '}
-                {stats.totalIncidents > 0
-                  ? Math.round((stats.mostCommonCount / stats.totalIncidents) * 100)
-                  : 0}
-                % of all filtered records
-              </div>
-            </>
-          ) : (
-            <p className="text-[11px] text-steel-500">No incidents match the current filters.</p>
-          )}
-        </Panel>
+                  className="text-[25px] font-bold leading-none"
+                  style={{ color: trendColor }}
+                >
+                  {formatPercent(stats.trendPercent, 1)}
+                </span>
+                <TrendIndicator trend={stats.trendDirection} glyphOnly />
+              </span>
+            </div>
+          </div>
+        </section>
 
-        <Panel title="Zone watchlist" subtitle="Highest risk score first">
+        <section className="mt-2.5 border-t border-navy-700 pt-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SectionTitle
+                title="Most common crime type"
+                subtitle="Share of filtered demo incidents"
+              />
+            </div>
+            {stats.mostCommonCategory ? (
+              <div className="shrink-0 text-right">
+                <span className="flex items-center justify-end gap-1.5 text-[21px] font-bold text-white">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: CRIME_CATEGORY_COLORS[stats.mostCommonCategory] }}
+                    aria-hidden
+                  />
+                  {stats.mostCommonCategory}
+                </span>
+                <div className="mt-1 text-[17px] text-steel-400">
+                  {formatNumber(stats.mostCommonCount)} incidents &middot;{' '}
+                  {stats.totalIncidents > 0
+                    ? Math.round((stats.mostCommonCount / stats.totalIncidents) * 100)
+                    : 0}
+                  % <DeltaBadge percent={stats.compare.percent} direction={stats.compare.direction} />
+                </div>
+              </div>
+            ) : (
+              <p className="text-[12px] text-steel-500">
+                No incidents match the current filters.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-2.5 border-t border-navy-700 pt-2.5">
+          <SectionTitle title="Zone watchlist" subtitle="Highest risk score first" />
           {watchlist.length > 0 ? (
-            <ul className="divide-y divide-navy-700">
+            <ul className="mt-2 divide-y divide-navy-700">
               {watchlist.map((zone) => (
-                <li key={zone.id} className="flex items-center gap-3 py-2 first:pt-0 last:pb-0">
+                <li key={zone.id} className="flex items-center gap-3 py-1 first:pt-0 last:pb-0">
                   <span
                     className="h-8 w-1 shrink-0 rounded-full"
                     style={{ backgroundColor: RISK_LEVEL_COLORS[zone.riskLevel] }}
@@ -140,12 +217,12 @@ export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPane
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-[12px] font-semibold text-steel-100">
+                      <span className="truncate text-[18px] font-semibold text-steel-100">
                         {zone.area}
                       </span>
                       <RiskBadge level={zone.riskLevel} />
                     </div>
-                    <div className="mt-0.5 flex items-center gap-2 text-[10px] text-steel-500">
+                    <div className="mt-0.5 flex items-center gap-2 text-[16px] text-steel-500">
                       <span>{zone.id}</span>
                       <span>&middot;</span>
                       <span>{zone.dominantCrime}</span>
@@ -154,25 +231,25 @@ export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPane
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
-                    <span
-                      className="font-mono text-[13px] font-bold"
-                      style={{ color: RISK_LEVEL_COLORS[zone.riskLevel] }}
-                    >
-                      {zone.riskScore}
+                    <span className="inline-flex items-center justify-end gap-1.5">
+                      <span
+                        className="font-mono text-[27px] font-bold"
+                        style={{ color: RISK_LEVEL_COLORS[zone.riskLevel] }}
+                      >
+                        {zone.riskScore}
+                      </span>
+                      <TrendIndicator trend={zone.trend} glyphOnly />
                     </span>
-                    <div className="mt-0.5">
-                      <TrendIndicator trend={zone.trend} />
-                    </div>
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-[11px] text-steel-500">No zones match the current filters.</p>
+            <p className="mt-3 text-[11px] text-steel-500">No zones match the current filters.</p>
           )}
-        </Panel>
+        </section>
 
-        <p className="pb-1 text-[10px] leading-relaxed text-steel-600">
+        <p className="mt-2.5 border-t border-navy-700 pt-2.5 text-[12px] leading-relaxed text-steel-600">
           All figures derive from synthetic demo records bundled with the app. They are not
           statistics from any police department or government source.
         </p>

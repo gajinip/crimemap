@@ -1,7 +1,8 @@
 import { ShieldAlert, TrendingUp } from 'lucide-react'
+import { useState } from 'react'
 import { DemoChip, RiskBadge, TrendIndicator } from '../components/ui/Badge'
 import { Panel } from '../components/ui/Panel'
-import type { RiskForecastResponse } from '../types'
+import type { RiskForecastResponse, RiskLevel } from '../types'
 import { formatPercent } from '../utils/format'
 import { RISK_LEVEL_COLORS } from '../utils/visuals'
 
@@ -10,12 +11,28 @@ interface PredictiveRiskViewProps {
   onFocusArea: (area: string) => void
 }
 
+const LEVEL_ORDER: RiskLevel[] = ['Critical', 'High', 'Medium', 'Low']
+
 /** Risk Forecast view - deterministic forward view using current zone dynamics. */
 export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskViewProps) {
   const predictions = [...forecast.predictions].sort(
     (a, b) => b.risk_score - a.risk_score,
   )
   const topArea = predictions[0]?.area ?? null
+
+  const counts = LEVEL_ORDER.reduce<Record<RiskLevel, number>>(
+    (acc, level) => {
+      acc[level] = predictions.filter((prediction) => prediction.risk_level === level).length
+      return acc
+    },
+    { Critical: 0, High: 0, Medium: 0, Low: 0 },
+  )
+
+  const [activeLevel, setActiveLevel] = useState<RiskLevel>(
+    () => LEVEL_ORDER.find((level) => counts[level] > 0) ?? 'Critical',
+  )
+
+  const visible = predictions.filter((prediction) => prediction.risk_level === activeLevel)
 
   return (
     <div className="scroll-thin flex h-full flex-col gap-3 overflow-y-auto bg-navy-950 p-3 pb-6 xl:p-4">
@@ -44,54 +61,96 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
         </div>
       </header>
 
-      <Panel title="Forecast summary" subtitle="By risk zone (next outlook)">
+      <Panel title="Forecast summary" subtitle="Select a risk level to inspect">
         {predictions.length === 0 ? (
           <p className="text-[11px] text-steel-500">No forecastable zones for current filters.</p>
         ) : (
-          <div className="divide-y divide-navy-700">
-            {predictions.map((prediction) => (
-              <div key={prediction.zoneId} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                <span
-                  className="h-9 w-1 shrink-0 rounded-full"
-                  style={{ backgroundColor: RISK_LEVEL_COLORS[prediction.risk_level] }}
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate text-[13px] font-semibold text-white">
-                      {prediction.area}
-                    </span>
-                    <RiskBadge level={prediction.risk_level} />
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-steel-500">
-                    <span>{prediction.zoneId}</span>
-                    <span>Confidence {formatPercent(prediction.confidence)}</span>
-                    <span>Model {prediction.modelVersion}</span>
-                  </div>
-                  {prediction.contributing_factors.length > 0 ? (
-                    <ul className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-steel-400">
-                      {prediction.contributing_factors.map((factor) => (
-                        <li key={factor} className="rounded bg-navy-800 px-1.5 py-px">
-                          {factor}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </div>
-                <div className="shrink-0 text-right">
-                  <span
-                    className="text-[18px] font-bold"
-                    style={{ color: RISK_LEVEL_COLORS[prediction.risk_level] }}
+          <>
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {LEVEL_ORDER.map((level) => {
+                const active = level === activeLevel
+                return (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setActiveLevel(level)}
+                    aria-pressed={active}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                      active
+                        ? 'text-white'
+                        : 'border-navy-600 text-steel-300 hover:border-navy-500 hover:text-white'
+                    }`}
+                    style={active ? { borderColor: RISK_LEVEL_COLORS[level] } : undefined}
                   >
-                    {prediction.risk_score}/100
-                  </span>
-                  <div className="mt-0.5 flex justify-end">
-                    <TrendIndicator trend="Stable" showGlyph={false} />
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: RISK_LEVEL_COLORS[level] }}
+                      aria-hidden
+                    />
+                    {level}
+                    <span
+                      className={`rounded-full px-1.5 text-[10px] ${
+                        active ? 'bg-navy-900/60 text-white' : 'bg-navy-800 text-steel-400'
+                      }`}
+                    >
+                      {counts[level]}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {visible.length === 0 ? (
+              <p className="text-[11px] text-steel-500">
+                No zones at {activeLevel} level for the current filters.
+              </p>
+            ) : (
+              <div className="scroll-thin max-h-[52vh] divide-y divide-navy-700 overflow-y-auto pr-1">
+                {visible.map((prediction) => (
+                  <div key={prediction.zoneId} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <span
+                      className="h-9 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: RISK_LEVEL_COLORS[prediction.risk_level] }}
+                      aria-hidden
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate text-[13px] font-semibold text-white">
+                          {prediction.area}
+                        </span>
+                        <RiskBadge level={prediction.risk_level} />
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-steel-500">
+                        <span>{prediction.zoneId}</span>
+                        <span>Confidence {formatPercent(prediction.confidence)}</span>
+                        <span>Model {prediction.modelVersion}</span>
+                      </div>
+                      {prediction.contributing_factors.length > 0 ? (
+                        <ul className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-steel-400">
+                          {prediction.contributing_factors.map((factor) => (
+                            <li key={factor} className="rounded bg-navy-800 px-1.5 py-px">
+                              {factor}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <span
+                        className="text-[18px] font-bold"
+                        style={{ color: RISK_LEVEL_COLORS[prediction.risk_level] }}
+                      >
+                        {prediction.risk_score}/100
+                      </span>
+                      <div className="mt-0.5 flex justify-end">
+                        <TrendIndicator trend="Stable" showGlyph={false} />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </Panel>
 

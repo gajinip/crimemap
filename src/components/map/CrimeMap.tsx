@@ -15,6 +15,7 @@ import {
 import type { LeafletMouseEvent } from 'leaflet'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../../data/areas'
 import boundary from '../../data/puducherry-boundary.json'
+import type { DisplayPatrolUnit } from '../../patrol/patrolStore'
 import type {
   CrimeIncident,
   GeoPoint,
@@ -45,13 +46,18 @@ const BOUNDARY_POSITIONS: [number, number][] =
 
 /**
  * Outer ring for the outside-area mask.
- * This covers the world area supported by Web Mercator.
+ *
+ * Only needs to cover the largest viewport the `maxBounds` clamp allows, so it
+ * is sized to the district bbox plus a small margin. A world-spanning ring
+ * projects to huge SVG coordinates and makes the mask redraw and zoom slowly.
  */
-const WORLD_RING: [number, number][] = [
-  [-85, -180],
-  [-85, 180],
-  [85, 180],
-  [85, -180],
+const MASK_MARGIN = 5
+
+const MASK_RING: [number, number][] = [
+  [boundary.bbox.south - MASK_MARGIN, boundary.bbox.west - MASK_MARGIN],
+  [boundary.bbox.south - MASK_MARGIN, boundary.bbox.east + MASK_MARGIN],
+  [boundary.bbox.north + MASK_MARGIN, boundary.bbox.east + MASK_MARGIN],
+  [boundary.bbox.north + MASK_MARGIN, boundary.bbox.west - MASK_MARGIN],
 ]
 
 /**
@@ -148,7 +154,9 @@ interface CrimeMapProps {
   selectedZoneId: string | null
   onSelectZone: (zoneId: string) => void
   onSelectIncident: (incident: CrimeIncident) => void
-  onDeselectIncident: () => void
+  onSelectStation: (station: PoliceStation) => void
+  onSelectPatrol: (unit: DisplayPatrolUnit) => void
+  onDeselect: () => void
   pickingLocation: boolean
   onPickLocation: (point: GeoPoint) => void
 }
@@ -239,7 +247,7 @@ function SearchFocusController({
 }
 
 /**
- * Close the incident details sheet when the empty map is tapped.
+ * Close any open detail sheet when the empty map is tapped.
  * Marker clicks stop propagation, so they never reach this handler.
  */
 function TapToDismiss({ onDeselect }: { onDeselect: () => void }) {
@@ -306,14 +314,16 @@ export function CrimeMap({
   selectedZoneId,
   onSelectZone,
   onSelectIncident,
-  onDeselectIncident,
+  onSelectStation,
+  onSelectPatrol,
+  onDeselect,
   pickingLocation,
   onPickLocation,
 }: CrimeMapProps) {
   return (
     <MapContainer
-      bounds={PUDUCHERRY_BOUNDS}
-      boundsOptions={{ padding: [20, 20] }}
+      center={[PUDUCHERRY_CENTER.lat, PUDUCHERRY_CENTER.lng]}
+      zoom={12}
       maxBounds={PUDUCHERRY_BOUNDS}
       maxBoundsViscosity={1.0}
       minZoom={11}
@@ -402,6 +412,7 @@ export function CrimeMap({
               <PoliceStationMarker
                 key={station.id}
                 station={station}
+                onSelect={onSelectStation}
               />
             ))}
           </LayerGroup>
@@ -413,7 +424,7 @@ export function CrimeMap({
           name="Patrol units (simulated)"
         >
           <LayerGroup>
-            <PatrolLayer />
+            <PatrolLayer onSelect={onSelectPatrol} />
           </LayerGroup>
         </LayersControl.Overlay>
       </LayersControl>
@@ -425,14 +436,14 @@ export function CrimeMap({
       >
         <Polygon
           positions={[
-            WORLD_RING,
+            MASK_RING,
             maskHole(selectedArea),
           ]}
           pathOptions={{
             stroke: false,
             fill: true,
-            fillColor: '#000000',
-            fillOpacity: 1,
+            fillColor: '#334155',
+            fillOpacity: 0.8,
             fillRule: 'evenodd',
             interactive: false,
             className: 'area-mask',
@@ -458,7 +469,7 @@ export function CrimeMap({
       />
 
       <TapToDismiss
-        onDeselect={onDeselectIncident}
+        onDeselect={onDeselect}
       />
 
       <LocationPicker

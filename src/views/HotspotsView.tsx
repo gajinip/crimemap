@@ -66,7 +66,7 @@ export function HotspotsView({
           {sorted.map((zone) => (
             <article
               key={zone.id}
-              className="flex w-[85%] shrink-0 snap-center flex-col gap-3 rounded-xl border border-navy-700 bg-navy-900 p-3 sm:w-[340px]"
+              className="flex w-full shrink-0 snap-center flex-col gap-3 rounded-xl border border-navy-700 bg-navy-900 p-3"
             >
               <header className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -178,7 +178,7 @@ export function HotspotsView({
             {recommendations.slice(0, 6).map((recommendation) => (
               <div
                 key={recommendation.zoneId}
-                className="w-[85%] shrink-0 snap-center sm:w-[340px]"
+                className="w-full shrink-0 snap-center"
               >
                 <RecommendationCard recommendation={recommendation} compact plain />
               </div>

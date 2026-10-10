@@ -6,8 +6,13 @@ import { CrimeMarker } from './CrimeMarker'
 import { CRIME_FALLBACK_COLOR, CRIME_CATEGORY_COLORS } from '../../utils/visuals'
 import { crimeIconSvg } from '../../utils/crimeIcons'
 
-/** Below this zoom level incidents collapse into locality clusters. */
-const CLUSTER_ZOOM = 13
+/**
+ * Below this zoom level incidents collapse into locality clusters.
+ *
+ * Zoom 15 is where the map scale bar reads ~300 m (Puducherry latitude), so
+ * individual crime pins only appear once the view is that far in.
+ */
+const CLUSTER_ZOOM = 15
 
 interface ClusterGroup {
   area: string
@@ -132,7 +137,7 @@ export function IncidentLayer({
           position={[group.lat, group.lng]}
           icon={clusterIcon(group)}
           eventHandlers={{
-            click: () => map.flyTo([group.lat, group.lng], 15, { duration: 0.4 }),
+            click: () => map.flyTo([group.lat, group.lng], CLUSTER_ZOOM, { duration: 0.4 }),
           }}
         >
           <Popup minWidth={230}>

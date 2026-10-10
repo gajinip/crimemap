@@ -10,7 +10,7 @@ import type { PoliceStation } from '../types'
 export const POLICE_STATIONS: PoliceStation[] = [
   {
     id: 'PS-01',
-    name: 'Town Police Station',
+    name: 'Mission Street Police Station',
     lat: 11.927,
     lng: 79.8325,
     area: 'Mission Street',
@@ -19,7 +19,7 @@ export const POLICE_STATIONS: PoliceStation[] = [
   },
   {
     id: 'PS-02',
-    name: 'Marine Police Station',
+    name: 'White Town Police Station',
     lat: 11.9335,
     lng: 79.8262,
     area: 'White Town',

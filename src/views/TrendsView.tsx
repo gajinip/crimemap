@@ -1,7 +1,15 @@
 ﻿import { CategoryChart, TrendsChart } from '../components/Charts'
+import { WhatChangedPanel } from '../components/WhatChangedPanel'
 import { Panel } from '../components/ui/Panel'
 import { DemoChip } from '../components/ui/Badge'
-import type { AreaStat, CategoryStat, DashboardStats, MonthPoint, RiskLevel } from '../types'
+import type {
+  AreaStat,
+  CategoryStat,
+  ChangeReport,
+  DashboardStats,
+  MonthPoint,
+  RiskLevel,
+} from '../types'
 import { RISK_LEVEL_COLORS } from '../utils/visuals'
 
 interface TrendsViewProps {
@@ -11,9 +19,19 @@ interface TrendsViewProps {
   areaStats: AreaStat[]
   statusStats: { status: string; count: number }[]
   zoneRiskCounts: Record<string, number>
+  changes: ChangeReport
+  onFocusArea: (area: string) => void
 }
 
-export function TrendsView({ monthly, categoryStats, areaStats, statusStats, zoneRiskCounts }: TrendsViewProps) {
+export function TrendsView({
+  monthly,
+  categoryStats,
+  areaStats,
+  statusStats,
+  zoneRiskCounts,
+  changes,
+  onFocusArea,
+}: TrendsViewProps) {
   return (
     <div className="flex flex-col gap-3 p-3 pb-6 xl:p-4">
       <div className="grid gap-3 lg:grid-cols-2 lg:gap-4">
@@ -59,7 +77,7 @@ export function TrendsView({ monthly, categoryStats, areaStats, statusStats, zon
           </div>
         </Panel>
       </div>
+      <WhatChangedPanel report={changes} onFocusArea={onFocusArea} />
     </div>
   )
 }
-

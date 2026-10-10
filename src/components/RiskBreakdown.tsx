@@ -47,7 +47,7 @@ export function RiskBreakdown({ zone, title, compact = false }: RiskBreakdownPro
         </span>
       </div>
 
-      <ul className={`mt-3 space-y-2.5 ${compact ? '' : 'sm:space-y-3'}`}>
+      <ul className={`mt-3 grid grid-cols-1 gap-2.5 min-[400px]:grid-cols-2 ${compact ? '' : 'min-[640px]:gap-3'}`}>
         {zone.components.map((component) => {
           const width = Math.max(0, Math.min(100, (component.points / component.max) * 100))
           return (

@@ -245,6 +245,8 @@ export interface CrimeFilterState {
   searchQuery: string
 }
 
+export type ComparePeriod = 'Day' | 'Week' | 'Month' | 'Year'
+
 export interface DashboardStats {
   totalIncidents: number
   activeHotspots: number
@@ -253,6 +255,10 @@ export interface DashboardStats {
   averageRiskScore: number
   trendPercent: number
   trendDirection: TrendDirection
+  compare: {
+    percent: number
+    direction: TrendDirection
+  }
   mostCommonCategory: CrimeCategory | null
   mostCommonCount: number
 }

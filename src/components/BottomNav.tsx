@@ -52,10 +52,8 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
   }
 
 const navButtonClass = (active: boolean) =>
-  `relative inline-flex size-11 shrink-0 items-center justify-center rounded-full border transition-colors ${
-    active
-      ? 'border-blue-400 bg-navy-700 text-white'
-      : 'border-transparent text-steel-300 hover:bg-navy-800 hover:text-white'
+  `relative inline-flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-colors ${
+    active ? 'text-white' : 'text-steel-300 hover:text-white'
   }`
 
   return (
@@ -81,11 +79,18 @@ const navButtonClass = (active: boolean) =>
                 className={`size-6 shrink-0 ${active ? 'text-blue-400' : 'text-steel-400'}`}
                 aria-hidden
               />
+              <span
+                className={`w-full truncate text-center text-[10px] font-semibold leading-none ${
+                  active ? 'text-blue-400' : 'text-steel-300'
+                }`}
+              >
+                {item.label}
+              </span>
             </button>
           )
         })}
 
-        <div className="relative">
+        <div className="min-w-0 flex-1">
           <button
             type="button"
             onClick={() => setMoreOpen((current) => !current)}
@@ -102,10 +107,13 @@ const navButtonClass = (active: boolean) =>
             )}
             {hasActiveInMore ? (
               <span
-                className="absolute right-1 top-1 size-2 rounded-full bg-blue-400"
+                className="absolute right-4 top-1 size-2 rounded-full bg-blue-400"
                 aria-hidden
               />
             ) : null}
+            <span className="w-full truncate text-center text-[10px] font-semibold leading-none text-steel-300">
+              More
+            </span>
           </button>
 
           {moreOpen ? (
@@ -134,7 +142,9 @@ const navButtonClass = (active: boolean) =>
                         className={`size-5 ${active ? 'text-blue-400' : 'text-steel-400'}`}
                         aria-hidden
                       />
-                      <span className="text-[9px] font-semibold leading-none">{item.label}</span>
+                      <span className="w-full truncate text-center text-[10px] font-semibold leading-none">
+                        {item.label}
+                      </span>
                     </button>
                   )
                 })}

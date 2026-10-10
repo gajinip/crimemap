@@ -4,10 +4,13 @@ import { CrimeMap } from '../components/map/CrimeMap'
 import { IncidentEditor } from '../components/map/IncidentEditor'
 import { IncidentSheet } from '../components/map/IncidentSheet'
 import { MapLegend } from '../components/map/MapLegend'
+import { PatrolSheet } from '../components/map/PatrolSheet'
+import { StationSheet } from '../components/map/StationSheet'
 import { ZoneDetailPanel } from '../components/map/ZoneDetailPanel'
 import { AreaDatePanel } from '../components/AreaDatePanel'
 import { FilterPanel } from '../components/FilterPanel'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../data/areas'
+import type { DisplayPatrolUnit } from '../patrol/patrolStore'
 import type {
   CrimeFilterState,
   CrimeIncident,
@@ -76,21 +79,29 @@ export function MapView({
   const [pickingLocation, setPickingLocation] = useState(false)
   const [pickedPoint, setPickedPoint] = useState<GeoPoint | null>(null)
   const [selectedIncident, setSelectedIncident] = useState<CrimeIncident | null>(null)
+  const [selectedStation, setSelectedStation] = useState<PoliceStation | null>(null)
+  const [selectedPatrolId, setSelectedPatrolId] = useState<string | null>(null)
+
+  const clearMapSelections = useCallback(() => {
+    setSelectedIncident(null)
+    setSelectedStation(null)
+    setSelectedPatrolId(null)
+  }, [])
 
   const openEditor = useCallback(
     (incident: CrimeIncident) => {
       onCloseZone()
-      setSelectedIncident(null)
+      clearMapSelections()
       setEditor({ mode: 'edit', incident })
       setPickingLocation(false)
       setPickedPoint(null)
     },
-    [onCloseZone],
+    [onCloseZone, clearMapSelections],
   )
 
   const openCreate = useCallback(() => {
     onCloseZone()
-    setSelectedIncident(null)
+    clearMapSelections()
     const area =
       selectedArea !== ALL_AREAS
         ? DEMO_AREAS.find((entry) => entry.name === selectedArea) ?? null
@@ -109,7 +120,7 @@ export function MapView({
     setEditor({ mode: 'create', incident: draft })
     setPickingLocation(false)
     setPickedPoint(null)
-  }, [incidents, selectedArea, filters.categories, onCloseZone])
+  }, [incidents, selectedArea, filters.categories, onCloseZone, clearMapSelections])
 
   const closeEditor = useCallback(() => {
     setEditor(null)
@@ -125,14 +136,45 @@ export function MapView({
   const handleSelectIncident = useCallback(
     (incident: CrimeIncident) => {
       onCloseZone()
+      setSelectedStation(null)
+      setSelectedPatrolId(null)
       setSelectedIncident(incident)
     },
     [onCloseZone],
   )
 
-  const handleDeselectIncident = useCallback(() => {
-    setSelectedIncident(null)
-  }, [])
+  const handleSelectStation = useCallback(
+    (station: PoliceStation) => {
+      onCloseZone()
+      setSelectedIncident(null)
+      setSelectedPatrolId(null)
+      setSelectedStation(station)
+    },
+    [onCloseZone],
+  )
+
+  const handleSelectPatrol = useCallback(
+    (unit: DisplayPatrolUnit) => {
+      onCloseZone()
+      setSelectedIncident(null)
+      setSelectedStation(null)
+      setSelectedPatrolId(unit.id)
+    },
+    [onCloseZone],
+  )
+
+  const handleSelectZone = useCallback(
+    (zoneId: string) => {
+      clearMapSelections()
+      onSelectZone(zoneId)
+    },
+    [clearMapSelections, onSelectZone],
+  )
+
+  const handleDeselect = useCallback(() => {
+    clearMapSelections()
+    onCloseZone()
+  }, [clearMapSelections, onCloseZone])
 
   const handleSave = useCallback(
     (updated: CrimeIncident) => {
@@ -160,9 +202,11 @@ export function MapView({
         selectedArea={selectedArea}
         searchQuery={filters.searchQuery}
         selectedZoneId={selectedZone ? selectedZone.id : null}
-        onSelectZone={onSelectZone}
+        onSelectZone={handleSelectZone}
         onSelectIncident={handleSelectIncident}
-        onDeselectIncident={handleDeselectIncident}
+        onSelectStation={handleSelectStation}
+        onSelectPatrol={handleSelectPatrol}
+        onDeselect={handleDeselect}
         pickingLocation={pickingLocation}
         onPickLocation={handlePickLocation}
       />
@@ -194,6 +238,18 @@ export function MapView({
             setSelectedIncident(null)
             onDeleteIncident(incidentId)
           }}
+        />
+      ) : null}
+      {selectedStation ? (
+        <StationSheet
+          station={selectedStation}
+          onClose={() => setSelectedStation(null)}
+        />
+      ) : null}
+      {selectedPatrolId ? (
+        <PatrolSheet
+          unitId={selectedPatrolId}
+          onClose={() => setSelectedPatrolId(null)}
         />
       ) : null}
       {editor ? null : (

@@ -1,8 +1,12 @@
 import L from 'leaflet'
-import { Marker, Popup } from 'react-leaflet'
-import { useMemo } from 'react'
+import { Marker, useMap, useMapEvents } from 'react-leaflet'
+import { useMemo, useState } from 'react'
 import type { GeoPoint } from '../../types'
 import { usePatrol } from '../../patrol/usePatrol'
+import type { DisplayPatrolUnit } from '../../patrol/patrolStore'
+
+/** At or above this zoom every unit shows its callsign chip; below it, a dot. */
+const PATROL_LABEL_ZOOM = 13
 
 const STATUS_COLORS: Record<string, string> = {
   Standby: '#94a3b8',
@@ -20,21 +24,50 @@ function patrolIcon(callsign: string, status: string): L.DivIcon {
   })
 }
 
+/** Compact status dot used when zoomed out so units do not clutter the map. */
+function patrolDotIcon(status: string): L.DivIcon {
+  const color = STATUS_COLORS[status] ?? '#94a3b8'
+  return L.divIcon({
+    className: 'patrol-dot-wrap',
+    html: `<span class="patrol-dot" style="--patrol-color:${color}"></span>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  })
+}
+
 interface PatrolLayerProps {
   /** Optional boundary test; units outside the city boundary are hidden. */
   isInside?: (point: GeoPoint) => boolean
+  onSelect: (unit: DisplayPatrolUnit) => void
 }
 
 /** Animated patrol units driven by the simulation context. */
-export function PatrolLayer({ isInside }: PatrolLayerProps = {}) {
+export function PatrolLayer({ isInside, onSelect }: PatrolLayerProps) {
   const { units } = usePatrol()
+  const map = useMap()
+  const [zoom, setZoom] = useState(map.getZoom())
+
+  useMapEvents({
+    zoomend: () => setZoom(map.getZoom()),
+  })
+
   const visibleUnits = useMemo(
     () => (isInside ? units.filter((unit) => isInside({ lat: unit.displayLat, lng: unit.displayLng })) : units),
     [units, isInside],
   )
+
+  const showLabel = zoom >= PATROL_LABEL_ZOOM
   const icons = useMemo(
-    () => new Map(visibleUnits.map((unit) => [unit.id, patrolIcon(unit.callsign, unit.displayStatus)])),
-    [visibleUnits],
+    () =>
+      new Map(
+        visibleUnits.map((unit) => [
+          unit.id,
+          showLabel
+            ? patrolIcon(unit.callsign, unit.displayStatus)
+            : patrolDotIcon(unit.displayStatus),
+        ]),
+      ),
+    [visibleUnits, showLabel],
   )
 
   return (
@@ -45,31 +78,9 @@ export function PatrolLayer({ isInside }: PatrolLayerProps = {}) {
           position={[unit.displayLat, unit.displayLng]}
           icon={icons.get(unit.id)}
           zIndexOffset={600}
-        >
-          <Popup minWidth={240}>
-            <div className="popup-title">
-              {unit.callsign} <span className="text-steel-400">({unit.id})</span>
-            </div>
-            <div className="popup-sub">Simulated patrol unit - demo only</div>
-            <div className="popup-row">
-              <span>Status</span>
-              <span style={{ color: STATUS_COLORS[unit.displayStatus] }}>{unit.displayStatus}</span>
-            </div>
-            <div className="popup-row">
-              <span>Base</span>
-              <span>{unit.stationName}</span>
-            </div>
-            <div className="popup-row">
-              <span>Assigned zone</span>
-              <span>{unit.zoneArea}</span>
-            </div>
-            <div className="popup-row">
-              <span>ETA</span>
-              <span>{unit.etaMinutes > 0 ? `${unit.etaMinutes} min` : 'On station'}</span>
-            </div>
-            <div className="popup-demo">SIMULATED UNITS - NOT LIVE VEHICLE DATA</div>
-          </Popup>
-        </Marker>
+          bubblingMouseEvents={false}
+          eventHandlers={{ click: () => onSelect(unit) }}
+        />
       ))}
     </>
   )

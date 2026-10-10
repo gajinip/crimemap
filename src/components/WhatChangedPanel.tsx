@@ -28,8 +28,8 @@ export function WhatChangedPanel({ report, onFocusArea, onClose }: WhatChangedPa
   const declining = report.signals.filter((signal) => signal.kind === 'declining').length
 
   return (
-    <section className="rounded-xl border border-navy-700 bg-navy-850">
-      <header className="flex items-start justify-between gap-3 border-b border-navy-700 px-4 py-3">
+    <section className="border-t border-navy-700 pt-3">
+      <header className="flex items-start justify-between gap-3 border-b border-navy-700 px-1 pb-3">
         <div className="min-w-0">
           <h2 className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white">
             <span className="grid size-5 place-items-center rounded bg-amber-400/15 text-amber-300">
@@ -67,7 +67,7 @@ export function WhatChangedPanel({ report, onFocusArea, onClose }: WhatChangedPa
         </div>
       </header>
 
-      <div className="p-4">
+      <div className="px-1 pt-3">
         <p className="text-[11px] leading-relaxed text-steel-400">
           {formatNumber(report.recentTotal)} incidents in the recent window vs{' '}
           {formatNumber(report.previousTotal)} in the previous window · {rising} rising,{' '}

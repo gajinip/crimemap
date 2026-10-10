@@ -1,8 +1,8 @@
-import { X } from 'lucide-react'
 import type { Recommendation, RiskZone } from '../../types'
 import { RecommendationCard } from '../RecommendationCard'
 import { RiskBreakdown } from '../RiskBreakdown'
 import { DemoChip, TrendIndicator } from '../ui/Badge'
+import { DetailSheet } from './DetailSheet'
 
 interface ZoneDetailPanelProps {
   zone: RiskZone
@@ -12,8 +12,8 @@ interface ZoneDetailPanelProps {
 }
 
 /**
- * Selected-zone intelligence: explainable score + operational recommendation.
- * Desktop docks it to the right of the map, mobile stacks it under the map.
+ * Selected-zone intelligence shown as a bottom sheet: explainable score plus
+ * the operational recommendation. Matches the crime/station detail sheets.
  */
 export function ZoneDetailPanel({
   zone,
@@ -22,12 +22,11 @@ export function ZoneDetailPanel({
   onFocusArea,
 }: ZoneDetailPanelProps) {
   return (
-    <aside
-      className="pointer-events-auto scroll-thin absolute inset-x-2 bottom-2 z-[1200] max-h-[58vh] overflow-y-auto rounded-xl border border-navy-600 bg-navy-900/97 shadow-[0_18px_50px_rgba(0,0,0,0.6)] backdrop-blur-sm xl:inset-x-auto xl:bottom-3 xl:right-3 xl:top-3 xl:max-h-none xl:w-[350px]"
-      aria-label={`Risk analysis for ${zone.area}`}
-    >
-      <header className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-navy-700 bg-navy-900/97 px-3 py-2.5 backdrop-blur">
-        <div className="min-w-0">
+    <DetailSheet
+      ariaLabel={`Risk analysis for ${zone.area}`}
+      onClose={onClose}
+      header={
+        <>
           <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-steel-500">
             Zone analysis · {zone.id}
           </p>
@@ -39,18 +38,10 @@ export function ZoneDetailPanel({
             </span>
             <DemoChip compact />
           </div>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close zone analysis"
-          className="shrink-0 rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
-        >
-          <X className="size-4" />
-        </button>
-      </header>
-
-      <div className="flex flex-col gap-3 p-3">
+        </>
+      }
+    >
+      <div className="flex flex-col gap-3">
         <RiskBreakdown zone={zone} title={`Why is ${zone.area} high risk?`} />
 
         {recommendation ? <RecommendationCard recommendation={recommendation} /> : null}
@@ -90,6 +81,6 @@ export function ZoneDetailPanel({
           Focus map on {zone.area}
         </button>
       </div>
-    </aside>
+    </DetailSheet>
   )
 }

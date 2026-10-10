@@ -2,6 +2,7 @@ import { CRIME_CATEGORIES } from '../types'
 import type {
   AreaStat,
   CategoryStat,
+  ComparePeriod,
   CrimeCategory,
   CrimeIncident,
   DashboardStats,
@@ -14,11 +15,40 @@ import { formatMonth } from './format'
 const DAY_MS = 24 * 60 * 60 * 1000
 const WINDOW_DAYS = 30
 
+const COMPARE_DAYS: Record<ComparePeriod, number> = {
+  Day: 1,
+  Week: 7,
+  Month: 30,
+  Year: 365,
+}
+
 function countBetween(incidents: CrimeIncident[], from: number, to: number): number {
   return incidents.filter((incident) => {
     const time = new Date(incident.occurredAt).getTime()
     return time >= from && time < to
   }).length
+}
+
+export function computePeriodCompare(
+  incidents: CrimeIncident[],
+  range: DateRange,
+  period: ComparePeriod,
+): { percent: number; direction: 'Rising' | 'Stable' | 'Declining' } {
+  const to = new Date(`${range.to}T23:59:59+05:30`).getTime()
+  const width = COMPARE_DAYS[period] * DAY_MS
+  const currentFrom = to - width
+  const previousFrom = currentFrom - width
+
+  const current = countBetween(incidents, currentFrom, to)
+  const previous = countBetween(incidents, previousFrom, currentFrom)
+
+  if (previous === 0) {
+    return { percent: current > 0 ? 100 : 0, direction: current > 0 ? 'Rising' : 'Stable' }
+  }
+
+  const percent = ((current - previous) / previous) * 100
+  const direction = percent > 5 ? 'Rising' : percent < -5 ? 'Declining' : 'Stable'
+  return { percent: Math.round(percent * 10) / 10, direction }
 }
 
 export function computeTrend(
@@ -45,6 +75,7 @@ export function computeDashboardStats(
   incidents: CrimeIncident[],
   zones: RiskZone[],
   range: DateRange,
+  comparePeriod: ComparePeriod,
 ): DashboardStats {
   const categoryCounts = incidents.reduce<Record<string, number>>((acc, incident) => {
     acc[incident.category] = (acc[incident.category] ?? 0) + 1
@@ -61,6 +92,7 @@ export function computeDashboardStats(
   }
 
   const trend = computeTrend(incidents, range)
+  const compare = computePeriodCompare(incidents, range, comparePeriod)
   const averageRiskScore =
     zones.length > 0
       ? Math.round(zones.reduce((sum, zone) => sum + zone.riskScore, 0) / zones.length)
@@ -76,6 +108,7 @@ export function computeDashboardStats(
     averageRiskScore,
     trendPercent: trend.percent,
     trendDirection: trend.direction,
+    compare,
     mostCommonCategory,
     mostCommonCount,
   }

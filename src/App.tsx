@@ -12,6 +12,7 @@ import { PatrolProvider } from './patrol/PatrolContext'
 import { crimeDataSource } from './services/crimeApi'
 import type {
   AppView,
+  ComparePeriod,
   CrimeFilterState,
   CrimeIncident,
   DateRange,
@@ -69,6 +70,7 @@ interface ZoneSelection {
 export default function App() {
   const [view, setView] = useState<AppView>('map')
   const [filters, setFilters] = useState<CrimeFilterState>(INITIAL_FILTERS)
+  const [comparePeriod, setComparePeriod] = useState<ComparePeriod>('Week')
   const [data, setData] = useState<LoadState | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -152,8 +154,8 @@ export default function App() {
   }, [selectedZone, recommendations, stations])
 
   const stats = useMemo(
-    () => computeDashboardStats(filteredIncidents, visibleZones, filters.dateRange),
-    [filteredIncidents, visibleZones, filters.dateRange],
+    () => computeDashboardStats(filteredIncidents, visibleZones, filters.dateRange, comparePeriod),
+    [filteredIncidents, visibleZones, filters.dateRange, comparePeriod],
   )
   const categoryStats = useMemo(() => buildCategoryStats(filteredIncidents), [filteredIncidents])
   const areaStats = useMemo(() => buildAreaStats(filteredIncidents), [filteredIncidents])
@@ -269,7 +271,14 @@ export default function App() {
   const renderView = () => {
     switch (view) {
       case 'dashboard':
-        return <DashboardView stats={stats} zones={visibleZones} />
+        return (
+          <DashboardView
+            stats={stats}
+            zones={visibleZones}
+            comparePeriod={comparePeriod}
+            onComparePeriodChange={setComparePeriod}
+          />
+        )
       case 'hotspots':
         return (
           <HotspotsView
@@ -290,6 +299,8 @@ export default function App() {
             areaStats={areaStats}
             statusStats={statusStats}
             zoneRiskCounts={zoneRiskCounts}
+            changes={changes}
+            onFocusArea={focusArea}
           />
         )
       case 'intelligence':
@@ -301,7 +312,6 @@ export default function App() {
             recommendations={recommendations}
             stations={stations}
             window={analysisWindow}
-            onFocusArea={focusArea}
           />
         )
       case 'predictive-risk':

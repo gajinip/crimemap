@@ -341,7 +341,7 @@ body {
 }
 
 /* Incident marker: teardrop pin with a white crime-type glyph in the head */
-.crime-pin-wrap {
+.crime-pin-wrapper {
   background: transparent;
   border: none;
 }
@@ -349,36 +349,27 @@ body {
 .crime-pin {
   position: relative;
   display: block;
-  width: 40px;
-  height: 48px;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+  width: 32px;
+  height: 38px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
 }
 
-.crime-pin-shape {
+.crime-pin__shape {
   position: absolute;
   inset: 0;
-  display: block;
   z-index: 0;
+  display: block;
 }
 
-.crime-pin-glyph {
+.crime-pin__symbol {
   position: absolute;
   top: 6px;
   left: 50%;
   z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  transform: translateX(-50%);
-  color: #ffffff;
-}
-
-.crime-pin-glyph svg {
   display: block;
-  width: 20px;
-  height: 20px;
-  stroke: #ffffff;
+  width: 16px;
+  height: 16px;
+  transform: translateX(-50%);
 }
 
 /* Incident editor eyebrow (kept smaller than the global text floor) */
@@ -417,27 +408,35 @@ body {
   color: var(--patrol-color, #60a5fa);
 }
 
+/* Zoomed-out patrol unit: compact status dot */
+.patrol-dot-wrap {
+  background: transparent;
+  border: none;
+}
+
+.patrol-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--patrol-color, #60a5fa);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
 /* ------------------------------------------------------------------ */
 /* Scrollbars                                                          */
 /* ------------------------------------------------------------------ */
 
 .scroll-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #24344f transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .scroll-thin::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.scroll-thin::-webkit-scrollbar-thumb {
-  background: #24344f;
-  border-radius: 8px;
-}
-
-.scroll-thin::-webkit-scrollbar-track {
-  background: transparent;
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* ------------------------------------------------------------------ */

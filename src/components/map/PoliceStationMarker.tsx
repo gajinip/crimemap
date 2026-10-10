@@ -1,35 +1,24 @@
-import { Marker, Popup } from 'react-leaflet'
+import { Marker } from 'react-leaflet'
 import type { PoliceStation } from '../../types'
 import { policeStationIcon } from './policeIcon'
 
 interface PoliceStationMarkerProps {
   station: PoliceStation
+  onSelect: (station: PoliceStation) => void
 }
 
-export function PoliceStationMarker({ station }: PoliceStationMarkerProps) {
+/**
+ * Police station marker. Tapping it opens the station detail bottom sheet.
+ * `bubblingMouseEvents={false}` keeps the tap from reaching the map so the
+ * tap-to-dismiss handler does not close the sheet immediately.
+ */
+export function PoliceStationMarker({ station, onSelect }: PoliceStationMarkerProps) {
   return (
-    <Marker position={[station.lat, station.lng]} icon={policeStationIcon}>
-      <Popup minWidth={240}>
-        <div className="popup-title">{station.name}</div>
-        <div className="popup-sub">
-          {station.id} &middot; {station.area}
-        </div>
-        <div className="popup-row">
-          <span>Type</span>
-          <span>Police station (demo)</span>
-        </div>
-        <div className="popup-row">
-          <span>Jurisdiction</span>
-          <span className="max-w-[150px]">{station.jurisdiction.join(', ')}</span>
-        </div>
-        <div className="popup-row">
-          <span>Coordinates</span>
-          <span>
-            {station.lat.toFixed(4)}, {station.lng.toFixed(4)}
-          </span>
-        </div>
-        <div className="popup-demo">DEMO DATA - NOT REAL STATION INFORMATION</div>
-      </Popup>
-    </Marker>
+    <Marker
+      position={[station.lat, station.lng]}
+      icon={policeStationIcon}
+      bubblingMouseEvents={false}
+      eventHandlers={{ click: () => onSelect(station) }}
+    />
   )
 }
