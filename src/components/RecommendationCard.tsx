@@ -10,14 +10,26 @@ const PRIORITY_COLORS: Record<Recommendation['priority'], string> = {
 interface RecommendationCardProps {
   recommendation: Recommendation
   compact?: boolean
+  /** Drop the card background/border (used inside swipe strips). */
+  plain?: boolean
 }
 
 /** Operational recommendation for a zone: what to do, where and when. */
-export function RecommendationCard({ recommendation, compact = false }: RecommendationCardProps) {
+export function RecommendationCard({
+  recommendation,
+  compact = false,
+  plain = false,
+}: RecommendationCardProps) {
   const steps = compact ? recommendation.steps.slice(0, 2) : recommendation.steps
 
   return (
-    <div className="rounded-lg border border-blue-500/30 bg-blue-600/10 p-3">
+    <div
+      className={
+        plain
+          ? 'p-3'
+          : 'rounded-lg border border-blue-500/30 p-3'
+      }
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.16em] text-blue-300">

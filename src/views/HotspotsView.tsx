@@ -180,7 +180,7 @@ export function HotspotsView({
                 key={recommendation.zoneId}
                 className="w-[85%] shrink-0 snap-center sm:w-[340px]"
               >
-                <RecommendationCard recommendation={recommendation} compact />
+                <RecommendationCard recommendation={recommendation} compact plain />
               </div>
             ))}
           </div>
