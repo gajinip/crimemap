@@ -176,7 +176,7 @@ export function MapView({
       />
       <AreaDatePanel
         area={filters.area}
-        areas={DEMO_AREAS.map((entry) => entry.name)}
+        areas={DEMO_AREAS.map((entry) => entry.name).sort((a, b) => a.localeCompare(b))}
         dateRange={filters.dateRange}
         onAreaChange={(area) => onFiltersChange({ ...filters, area })}
         onDateRangeChange={(dateRange) => onFiltersChange({ ...filters, dateRange })}
