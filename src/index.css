@@ -383,6 +383,16 @@ body {
 /* Unlayered, so it wins over Tailwind's @layer utilities.             */
 /* ------------------------------------------------------------------ */
 
+/* Compact top disclaimer — deliberately below the 16px floor. */
+.demo-banner {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.demo-banner-note {
+  font-size: 10px;
+}
+
 .text-\[7px\],
 .text-\[9px\],
 .text-\[10px\],
@@ -415,4 +425,18 @@ body {
 .text-3xl {
   font-size: 19px;
   line-height: 1.3;
+}
+
+/* Google-Maps-style bottom sheet slide-up */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.incident-sheet-in {
+  animation: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }

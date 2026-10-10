@@ -10,6 +10,7 @@ interface HeaderProps {
   onSearchChange: (query: string) => void
   dateRange: DateRange
   onDateRangeChange: (range: DateRange) => void
+  compact?: boolean
 }
 
 const CONTROL_CLASS =
@@ -23,6 +24,7 @@ export function Header({
   onSearchChange,
   dateRange,
   onDateRangeChange,
+  compact = false,
 }: HeaderProps) {
   return (
     <header className="border-b border-navy-700 bg-navy-900 px-3 py-3 sm:px-4">
@@ -68,46 +70,50 @@ export function Header({
           />
         </label>
 
-        <label className="relative w-full sm:w-auto">
-          <select
-            value={area}
-            onChange={(event) => onAreaChange(event.target.value)}
-            aria-label="Select area"
-            className={`${CONTROL_CLASS} w-full appearance-none py-0 pl-3 pr-8 sm:w-auto`}
-          >
-            <option value={ALL_AREAS}>{ALL_AREAS}</option>
-            {areas.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            className="pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2 text-steel-400"
-            aria-hidden
-          />
-        </label>
+        {compact ? null : (
+          <>
+            <label className="relative w-full sm:w-auto">
+              <select
+                value={area}
+                onChange={(event) => onAreaChange(event.target.value)}
+                aria-label="Select area"
+                className={`${CONTROL_CLASS} w-full appearance-none py-0 pl-3 pr-8 sm:w-auto`}
+              >
+                <option value={ALL_AREAS}>{ALL_AREAS}</option>
+                {areas.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2 text-steel-400"
+                aria-hidden
+              />
+            </label>
 
-        <div className="flex w-full items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-1.5 sm:w-auto">
-          <Calendar className="size-3.5 shrink-0 text-steel-400" aria-hidden />
-          <input
-            type="date"
-            value={dateRange.from}
-            max={dateRange.to}
-            onChange={(event) => onDateRangeChange({ ...dateRange, from: event.target.value })}
-            aria-label="Date range start"
-            className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none sm:w-[7.6rem] sm:flex-none"
-          />
-          <span className="text-[11px] text-steel-500">→</span>
-          <input
-            type="date"
-            value={dateRange.to}
-            min={dateRange.from}
-            onChange={(event) => onDateRangeChange({ ...dateRange, to: event.target.value })}
-            aria-label="Date range end"
-            className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none sm:w-[7.6rem] sm:flex-none"
-          />
-        </div>
+            <div className="flex w-full items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-1.5 sm:w-auto">
+              <Calendar className="size-3.5 shrink-0 text-steel-400" aria-hidden />
+              <input
+                type="date"
+                value={dateRange.from}
+                max={dateRange.to}
+                onChange={(event) => onDateRangeChange({ ...dateRange, from: event.target.value })}
+                aria-label="Date range start"
+                className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none sm:w-[7.6rem] sm:flex-none"
+              />
+              <span className="text-[11px] text-steel-500">→</span>
+              <input
+                type="date"
+                value={dateRange.to}
+                min={dateRange.from}
+                onChange={(event) => onDateRangeChange({ ...dateRange, to: event.target.value })}
+                aria-label="Date range end"
+                className="min-w-0 flex-1 bg-transparent text-[11px] text-steel-200 outline-none sm:w-[7.6rem] sm:flex-none"
+              />
+            </div>
+          </>
+        )}
       </div>
     </header>
   )

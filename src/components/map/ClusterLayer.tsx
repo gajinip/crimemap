@@ -74,12 +74,10 @@ function groupIncidents(incidents: CrimeIncident[]): ClusterGroup[] {
  */
 export function IncidentLayer({
   incidents,
-  onEdit,
-  onDelete,
+  onSelect,
 }: {
   incidents: CrimeIncident[]
-  onEdit: (incident: CrimeIncident) => void
-  onDelete: (incidentId: string) => void
+  onSelect: (incident: CrimeIncident) => void
 }) {
   const map = useMap()
   const [zoom, setZoom] = useState(map.getZoom())
@@ -106,8 +104,7 @@ export function IncidentLayer({
           <CrimeMarker
             key={incident.id}
             incident={incident}
-            onEdit={onEdit}
-            onDelete={onDelete}
+            onSelect={onSelect}
           />
         ))}
       </>
@@ -120,8 +117,7 @@ export function IncidentLayer({
         <CrimeMarker
           key={incident.id}
           incident={incident}
-          onEdit={onEdit}
-          onDelete={onDelete}
+          onSelect={onSelect}
         />
       ))}
       {groups.map((group) => (

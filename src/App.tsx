@@ -381,6 +381,7 @@ export default function App() {
               onDateRangeChange={(dateRange) =>
                 setFilters((current) => ({ ...current, dateRange }))
               }
+              compact={view === 'map'}
             />
 
             <div className="flex flex-col">

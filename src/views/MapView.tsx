@@ -2,8 +2,10 @@ import { Plus } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { CrimeMap } from '../components/map/CrimeMap'
 import { IncidentEditor } from '../components/map/IncidentEditor'
+import { IncidentSheet } from '../components/map/IncidentSheet'
 import { MapLegend } from '../components/map/MapLegend'
 import { ZoneDetailPanel } from '../components/map/ZoneDetailPanel'
+import { AreaDatePanel } from '../components/AreaDatePanel'
 import { FilterPanel } from '../components/FilterPanel'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../data/areas'
 import type {
@@ -73,10 +75,12 @@ export function MapView({
   const [editor, setEditor] = useState<EditorState | null>(null)
   const [pickingLocation, setPickingLocation] = useState(false)
   const [pickedPoint, setPickedPoint] = useState<GeoPoint | null>(null)
+  const [selectedIncident, setSelectedIncident] = useState<CrimeIncident | null>(null)
 
   const openEditor = useCallback(
     (incident: CrimeIncident) => {
       onCloseZone()
+      setSelectedIncident(null)
       setEditor({ mode: 'edit', incident })
       setPickingLocation(false)
       setPickedPoint(null)
@@ -86,6 +90,7 @@ export function MapView({
 
   const openCreate = useCallback(() => {
     onCloseZone()
+    setSelectedIncident(null)
     const area =
       selectedArea !== ALL_AREAS
         ? DEMO_AREAS.find((entry) => entry.name === selectedArea) ?? null
@@ -117,6 +122,18 @@ export function MapView({
     setPickingLocation(false)
   }, [])
 
+  const handleSelectIncident = useCallback(
+    (incident: CrimeIncident) => {
+      onCloseZone()
+      setSelectedIncident(incident)
+    },
+    [onCloseZone],
+  )
+
+  const handleDeselectIncident = useCallback(() => {
+    setSelectedIncident(null)
+  }, [])
+
   const handleSave = useCallback(
     (updated: CrimeIncident) => {
       if (editor?.mode === 'create') onCreateIncident(updated)
@@ -144,8 +161,8 @@ export function MapView({
         searchQuery={filters.searchQuery}
         selectedZoneId={selectedZone ? selectedZone.id : null}
         onSelectZone={onSelectZone}
-        onEditIncident={openEditor}
-        onDeleteIncident={handleDelete}
+        onSelectIncident={handleSelectIncident}
+        onDeselectIncident={handleDeselectIncident}
         pickingLocation={pickingLocation}
         onPickLocation={handlePickLocation}
       />
@@ -157,7 +174,28 @@ export function MapView({
         onChange={onFiltersChange}
         onReset={onResetFilters}
       />
+      <AreaDatePanel
+        area={filters.area}
+        areas={DEMO_AREAS.map((entry) => entry.name)}
+        dateRange={filters.dateRange}
+        onAreaChange={(area) => onFiltersChange({ ...filters, area })}
+        onDateRangeChange={(dateRange) => onFiltersChange({ ...filters, dateRange })}
+      />
       <MapLegend />
+      {selectedIncident ? (
+        <IncidentSheet
+          incident={selectedIncident}
+          onClose={() => setSelectedIncident(null)}
+          onEdit={(incident) => {
+            setSelectedIncident(null)
+            openEditor(incident)
+          }}
+          onDelete={(incidentId) => {
+            setSelectedIncident(null)
+            onDeleteIncident(incidentId)
+          }}
+        />
+      ) : null}
       {editor ? null : (
         <button
           type="button"
@@ -166,7 +204,7 @@ export function MapView({
           title="Report a new crime incident"
           className="pointer-events-auto absolute bottom-28 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-blue-500/60 bg-blue-600 text-white shadow-[0_10px_30px_rgba(0,0,0,0.55)] transition-colors hover:bg-blue-500"
         >
-          <Plus className="size-5" aria-hidden />
+          <Plus className="size-6" aria-hidden />
         </button>
       )}
       {selectedZone ? (

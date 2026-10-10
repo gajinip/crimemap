@@ -317,7 +317,7 @@ export function FilterPanel({
           title="Crime filters"
           className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-white"
         >
-          <SlidersHorizontal className="size-4" aria-hidden />
+          <SlidersHorizontal className="size-5" aria-hidden />
           {isDirty ? (
             <span
               className="absolute right-1.5 top-1.5 size-2 rounded-full bg-blue-400"
