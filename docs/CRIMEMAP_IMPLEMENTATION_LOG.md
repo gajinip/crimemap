@@ -24,9 +24,10 @@ Companion documents:
 | Ref | Meaning |
 | --- | --- |
 | tag `rollback-baseline` -> `9b7a19d` | pristine last commit; rollback point requested before work began |
-| `940fd04` (HEAD) | checkpoint commit of the pre-existing WIP (map-filter decoupling, related incidents, assistant, patrol icon, prediction wiring) |
+| `940fd04` | checkpoint commit of the pre-existing WIP (map-filter decoupling, related incidents, assistant, patrol icon, prediction wiring) |
+| `6abf2d6` | commit of the additive deliverables (`backend/`, `docs/`, `qa/`, 58 files) |
 
-Untracked (new) artefacts left in place: `backend/`, `docs/`, `qa/`.
+New artefacts: `backend/`, `docs/`, `qa/` (committed in `6abf2d6`).
 Pre-existing stray file `-w` (a saved Vercel NOT_FOUND response) is unrelated
 and left untouched.
 
@@ -54,14 +55,28 @@ and left untouched.
   `dto`, `bootstrap`, `main`, and 7 routers (incidents, stations, risk, ops,
   stats, assistant, admin).
 - PostGIS `geography(Point,4326)` models with a composite area/time index.
-- **Live DB verification deferred**: no PostgreSQL binary present and the
-  install requires an elevated shell the agent does not have. Commands were
-  provided to the user (`choco install postgresql17` / `postgis`).
 - Two environment adaptations, both documented in code:
   - driver switched to `psycopg2-binary` (the installed `psycopg` 3 wheel has no
     `libpq` on this host);
-  - the DB engine is created lazily so analytics/validation tests import without
-    a driver or a running database.
+   - the DB engine is created lazily so analytics/validation tests import without
+     a driver or a running database.
+
+### Phase 2b - Live database verification (no admin)
+- The elevated `choco` install was unavailable to the agent, so a **portable,
+  user-space** stack was used instead: the PostgreSQL 17.6 Windows binaries plus
+  the PostGIS 3.6.2 bundle were unpacked side by side, `initdb` created a fresh
+  cluster under the temp directory, and `pg_ctl` ran the server on
+  127.0.0.1:5432 with **no Windows service** and no elevation.
+- Ran against the live database: `CREATE EXTENSION postgis` via
+  `python -m app.bootstrap`, then `python -m app.ingest`
+  (488 loaded / 488 inserted / 0 duplicates / 0 rejected).
+- PostGIS paths exercised directly in SQL: `geography(Point,4326)` columns on
+  `incidents` and `stations`, GiST index `idx_incidents_geom`,
+  `ST_Intersects(ST_MakeEnvelope(...))` (457/457 within the data extent),
+  `ST_DWithin` (200 incidents within 2 km of a sample point), and KNN
+  `<->` nearest-neighbour ordering.
+- Row counts confirmed: 457 incidents / 11 stations / 20 areas.
+- The two DB-gated tests now run: backend suite is **22 passed, 0 skipped**.
 
 ### Phase 3 - Trainable forecasting model
 - `backend/app/train.py`: sliding 30-day windows (15-day step), six-factor
@@ -96,16 +111,17 @@ and left untouched.
 | Check | Command | Result |
 | --- | --- | --- |
 | App lint + build | `npm run lint; npm run build` | clean; 1.38 s; gzip 179.5 kB JS |
-| Backend tests | `python -m pytest -q` (in `backend/`) | 20 passed, 2 skipped (DB-gated) |
+| Backend tests | `python -m pytest -q` (in `backend/`, live PostGIS) | 22 passed, 0 skipped |
 | Unit tests | `npm --prefix qa run test:unit` | 31 passed |
 | E2E tests | `npx playwright test` (in `qa/`) | 3 passed |
-| App untouched | `git status --short` | only untracked `backend/`, `docs/`, `qa/` |
+| Live DB | `bootstrap` + `ingest` + spatial SQL | 457 incidents / 11 stations / 20 areas |
+| App untouched | `git status --short` | only the unrelated `-w` remains |
 
 ## Open items
 
-1. **Live database verification** - run the elevated PostgreSQL + PostGIS
-   install, then `python -m app.bootstrap`, `python -m app.ingest`, and the
-   DB-gated pytest tests. This is the only unfinished phase (2b).
+1. The portable stack lives in the temp directory and is not durable; for a
+   permanent setup run the elevated `choco install postgresql17` / `postgis`
+   install and point `CRIMEMAP_DATABASE_URL` at it.
 2. Deeper view-level tests are intentionally out of scope under the quarantine
    constraint.
 3. The model must be re-baselined on real data before any operational use.

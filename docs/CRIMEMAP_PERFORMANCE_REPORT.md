@@ -36,11 +36,11 @@ Notes:
 | --- | --- | --- |
 | Vitest unit (`qa/unit`) | 31 passed / 31 | ~1.2 s test time |
 | Playwright E2E (`qa/e2e`) | 3 passed / 3 | 14.5 s (includes dev-server start) |
-| pytest backend | 20 passed, 2 skipped | ~10-12 s |
+| pytest backend | 22 passed, 0 skipped | ~6 s (live PostGIS) |
 
-The 2 skipped backend tests are the PostgreSQL/PostGIS-gated API round-trips;
-they ran here with the database unavailable and will activate once PostgreSQL is
-installed. E2E run time is dominated by the Vite dev-server boot, not the tests.
+The two PostgreSQL/PostGIS-gated API round-trip tests now run against the live
+database (portable PostgreSQL 17.6 + PostGIS 3.6.2, see the implementation log,
+Phase 2b). E2E run time is dominated by the Vite dev-server boot, not the tests.
 
 ## 3. Backend analytics
 
