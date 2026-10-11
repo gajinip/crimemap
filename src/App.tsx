@@ -11,7 +11,6 @@ import {
 import { buildPatrolPlan, buildPatrolPlanWeighted } from './analytics/patrol'
 import { DemoBanner } from './components/DemoBanner'
 import { BottomNav } from './components/BottomNav'
-import { Header } from './components/Header'
 import { TopNav } from './components/TopNav'
 import { PatrolProvider } from './patrol/PatrolContext'
 import { crimeDataSource } from './services/crimeApi'
@@ -350,6 +349,7 @@ export default function App() {
         return (
           <HotspotsView
             zones={zones}
+            incidents={incidents}
             recommendations={recommendations}
             selectedZone={selectedZone}
             onFocusArea={focusArea}
@@ -449,7 +449,6 @@ export default function App() {
           className="relative flex h-screen w-full max-w-[430px] flex-col overflow-hidden bg-navy-950 shadow-[0_0_60px_rgba(0,0,0,0.8)] ring-1 ring-navy-800"
         >
           <DemoBanner />
-          <Header />
           <TopNav
             searchQuery={filters.searchQuery}
             onSearchChange={(searchQuery) =>

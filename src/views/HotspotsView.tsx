@@ -1,12 +1,19 @@
-import { Flame, Radar, X, Zap } from 'lucide-react'
-import { DemoChip, RiskBadge, TrendIndicator } from '../components/ui/Badge'
-import { Panel } from '../components/ui/Panel'
+import { useMemo, useState } from 'react'
+import { X } from 'lucide-react'
+import { RiskZoneCard } from '../components/risk/RiskZoneCard'
 import { RiskBreakdown } from '../components/RiskBreakdown'
 import { RecommendationCard } from '../components/RecommendationCard'
-import type { Recommendation, RiskZone } from '../types'
+import type { CrimeIncident, Recommendation, RiskZone } from '../types'
+import {
+  RISK_ACTION_BLUE,
+  RISK_BG,
+  RISK_ELEVATED_BG,
+} from '../utils/riskPalette'
+import { zoneDailySeries } from '../utils/zoneSeries'
 
 interface HotspotsViewProps {
   zones: RiskZone[]
+  incidents: CrimeIncident[]
   recommendations: Recommendation[]
   selectedZone: RiskZone | null
   onFocusArea: (area: string) => void
@@ -14,16 +21,73 @@ interface HotspotsViewProps {
   onCloseDetails: () => void
 }
 
-/** Risk zones view - explains every zone's 0-100 score with full breakdowns. */
+type Scope = 'active' | 'all'
+
+function Seg({
+  value,
+  label,
+  count,
+  active,
+  onChange,
+}: {
+  value: Scope
+  label: string
+  count: number
+  active: boolean
+  onChange: (value: Scope) => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={() => onChange(value)}
+      className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-[12px] font-semibold transition-colors ${
+        active
+          ? 'bg-[#087BFF] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
+          : 'text-[#8DB5DE] hover:text-[#F4F7FC]'
+      }`}
+    >
+      <span className="truncate">{label}</span>
+      <span
+        className={`shrink-0 rounded-full px-1.5 py-px font-mono text-[10px] ${
+          active ? 'bg-white/20 text-white' : 'bg-[#123B67] text-[#8DB5DE]'
+        }`}
+      >
+        {count}
+      </span>
+    </button>
+  )
+}
+
+/** Reference-style Risk Zones page: filter rail, score-ring cards, detach detail. */
 export function HotspotsView({
   zones,
+  incidents,
   recommendations,
   selectedZone,
   onFocusArea,
   onSelectZone,
   onCloseDetails,
 }: HotspotsViewProps) {
-  const sorted = [...zones].sort((a, b) => b.riskScore - a.riskScore)
+  const [scope, setScope] = useState<Scope>('active')
+  const sorted = useMemo(
+    () => [...zones].sort((a, b) => b.riskScore - a.riskScore),
+    [zones],
+  )
+  const activeZones = useMemo(
+    () => sorted.filter((zone) => zone.status === 'Active'),
+    [sorted],
+  )
+  const visible = scope === 'active' ? activeZones : sorted
+
+  const seriesByArea = useMemo(() => {
+    const map: Record<string, number[]> = {}
+    for (const zone of sorted) {
+      map[zone.area] = zoneDailySeries(incidents, zone.area)
+    }
+    return map
+  }, [sorted, incidents])
+
   const selectedRecommendation = selectedZone
     ? (recommendations.find(
         (entry) => entry.zoneId === selectedZone.id || entry.area === selectedZone.area,
@@ -31,160 +95,146 @@ export function HotspotsView({
     : null
 
   return (
-    <div className="scroll-thin flex h-full flex-col gap-3 overflow-y-auto bg-navy-950 p-3 pb-6 xl:p-4">
-      <header className="flex flex-col gap-1">
-        <div className="flex items-start justify-between gap-3">
-          <h1 className="min-w-0 text-[18px] font-bold leading-tight text-white xl:text-[22px]">
-            Dynamic Risk Zones
+    <div
+      className="scroll-thin flex min-w-0 flex-col gap-4 p-3 pb-8 xl:p-4"
+      style={{ backgroundColor: RISK_BG }}
+    >
+      <header className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+          <h1 className="min-w-0 break-words text-[clamp(20px,4vw,26px)] font-bold leading-tight text-[#F4F7FC]">
+            Risk Zones
           </h1>
-          <div className="flex shrink-0 items-center gap-2">
-            <DemoChip />
-            <span className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-300">
-              {sorted.length} active zones
-            </span>
-          </div>
+          <span className="shrink-0 rounded-lg border border-[#123B67] bg-[#0A203B] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8DB5DE]">
+            Synthetic demo data
+          </span>
         </div>
-        <p className="text-caption max-w-3xl text-steel-400">
-          Deterministic, explainable risk zones derived from incident frequency, trend, severity,
-          repeat activity, time-of-day and proximity. Scores are reproducible and always accompanied
-          by their breakdown.
+        <p className="max-w-3xl text-[12px] leading-relaxed text-[#8DB5DE]">
+          Monitor high-risk areas and stay informed about potential crime activity. Scores
+          are deterministic and explainable, derived from incident frequency, trend,
+          severity, repeat activity, time of day and proximity.
         </p>
+        <div
+          className="flex gap-1 rounded-xl border p-1"
+          style={{ backgroundColor: RISK_ELEVATED_BG, borderColor: '#123B67' }}
+          role="group"
+          aria-label="Filter risk zones"
+        >
+          <Seg value="active" label="Active Zones" count={activeZones.length} active={scope === 'active'} onChange={setScope} />
+          <Seg value="all" label="All Zones" count={sorted.length} active={scope === 'all'} onChange={setScope} />
+        </div>
       </header>
 
       {sorted.length === 0 ? (
-        <Panel
-          title="No risk zones detected"
-          subtitle="Adjust filters to include more incidents or widen the date range"
-        >
-          <p className="text-[12px] text-steel-500">
-            The engine groups recent incidents by locality and computes 0-100 scores only when
-            enough activity exists in the recent window.
+        <div className="rounded-2xl border border-[#123B67] bg-[#0A203B] p-4">
+          <p className="text-[14px] font-semibold text-[#F4F7FC]">No risk zones detected</p>
+          <p className="mt-1 text-[12px] text-[#8DB5DE]">
+            The engine groups recent incidents by locality and computes 0-100 scores only
+            when enough activity exists in the recent window.
           </p>
-        </Panel>
+        </div>
+      ) : visible.length === 0 ? (
+        <div className="rounded-2xl border border-[#123B67] bg-[#0A203B] p-4">
+          <p className="text-[14px] font-semibold text-[#F4F7FC]">No active high-risk zones</p>
+          <p className="mt-1 text-[12px] text-[#8DB5DE]">
+            Switch to All Zones to browse every detected locality.
+          </p>
+        </div>
       ) : (
-        <div className="scroll-thin flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1">
-          {sorted.map((zone) => (
-            <article
+        <div className="grid grid-cols-1 content-start gap-3">
+          {visible.map((zone) => (
+            <RiskZoneCard
               key={zone.id}
-              className="flex w-full shrink-0 snap-center flex-col gap-3 rounded-xl border border-navy-700 bg-navy-900 p-3"
-            >
-              <header className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-steel-500">
-                    {zone.isEmerging ? (
-                      <>
-                        <Zap className="size-3.5 text-amber-300" aria-hidden /> Emerging hotspot
-                      </>
-                    ) : (
-                      <>
-                        <Flame className="size-3.5 text-red-400" aria-hidden /> Active risk zone
-                      </>
-                    )}
-                  </p>
-                  <h2 className="truncate text-[15px] font-bold text-white">{zone.area}</h2>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
-                    <RiskBadge level={zone.riskLevel} />
-                    <TrendIndicator trend={zone.trend} percent={zone.trendPercent} />
-                    <span className="text-[11px] text-steel-500">{zone.id}</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelectZone(zone)
-                    onFocusArea(zone.area)
-                  }}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-blue-500/60 bg-blue-600/90 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-blue-500"
-                >
-                  <Radar className="size-3.5" /> View on map
-                </button>
-              </header>
-
-              <RiskBreakdown zone={zone} compact />
-
-              <div className="grid grid-cols-2 gap-1.5 border-t border-navy-700 pt-2 text-[11px] text-steel-400">
-                <div>Peak: {zone.peakWindow}</div>
-                <div>Peak share: {zone.peakShare}%</div>
-                <div>Repeat: {zone.repeatShare}% within 250 m</div>
-                <div>Nearby: {zone.nearbyCount} incidents &lt; 3 km</div>
-                <div>Dominant: {zone.dominantCrime}</div>
-                <div>Radius: {zone.radiusMeters} m</div>
-              </div>
-            </article>
+              zone={zone}
+              series={seriesByArea[zone.area] ?? []}
+              selected={selectedZone?.id === zone.id}
+              onView={() => onFocusArea(zone.area)}
+              onSelect={() => onSelectZone(zone)}
+            />
           ))}
         </div>
       )}
 
       {selectedZone ? (
-        <Panel
-          title={`Hotspot details: ${selectedZone.area}`}
-          subtitle={`${selectedZone.id} · Risk score ${selectedZone.riskScore} (${selectedZone.riskLevel})`}
-          actions={
+        <section className="rounded-2xl border border-[#123B67] bg-[#0A203B] p-4">
+          <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+            <div className="min-w-0">
+              <h2 className="break-words text-[15px] font-bold text-[#F4F7FC]">
+                Hotspot details: {selectedZone.area}
+              </h2>
+              <p className="mt-0.5 text-[11px] text-[#8DB5DE]">
+                {selectedZone.id} · Risk score {selectedZone.riskScore} ({selectedZone.riskLevel})
+              </p>
+            </div>
             <button
               type="button"
               onClick={onCloseDetails}
-              className="inline-flex items-center gap-1 rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-1.5 text-[10px] font-semibold text-steel-300 hover:text-white"
+              className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#123B67] bg-[#06182D] px-2.5 py-1.5 text-[10px] font-semibold text-[#8DB5DE] hover:text-[#F4F7FC]"
             >
-              <X className="size-3.5" /> Close details
+              <X className="size-3.5" aria-hidden /> Close details
             </button>
-          }
-        >
-          <div className="flex flex-col gap-3">
-            <RiskBreakdown zone={selectedZone} title={`Why is ${selectedZone.area} high risk?`} />
-            {selectedRecommendation ? <RecommendationCard recommendation={selectedRecommendation} /> : null}
+          </header>
+          <div className="mt-3 flex flex-col gap-3">
+            <RiskBreakdown
+              zone={selectedZone}
+              title={`Why is ${selectedZone.area} high risk?`}
+            />
+            {selectedRecommendation ? (
+              <RecommendationCard recommendation={selectedRecommendation} />
+            ) : null}
             <div className="grid grid-cols-2 gap-2 text-[11px] md:grid-cols-4">
-              <div className="rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-steel-500">Peak time</p>
-                <p className="mt-0.5 text-[12px] font-semibold text-steel-100">{selectedZone.peakWindow}</p>
-                <p className="text-steel-500">{selectedZone.peakShare}% of incidents</p>
+              <div className="rounded-lg border border-[#123B67]/60 bg-[#06182D] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">Peak time</p>
+                <p className="mt-0.5 text-[12px] font-semibold text-[#F4F7FC]">{selectedZone.peakWindow}</p>
+                <p className="text-[10px] text-[#8DB5DE]">{selectedZone.peakShare}% of incidents</p>
               </div>
-              <div className="rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-steel-500">Repeat spots</p>
-                <p className="mt-0.5 text-[12px] font-semibold text-steel-100">{selectedZone.repeatShare}%</p>
-                <p className="text-steel-500">within 250 m</p>
+              <div className="rounded-lg border border-[#123B67]/60 bg-[#06182D] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">Repeat spots</p>
+                <p className="mt-0.5 text-[12px] font-semibold text-[#F4F7FC]">{selectedZone.repeatShare}%</p>
+                <p className="text-[10px] text-[#8DB5DE]">within 250 m</p>
               </div>
-              <div className="rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-steel-500">Previous window</p>
-                <p className="mt-0.5 text-[12px] font-semibold text-steel-100">
+              <div className="rounded-lg border border-[#123B67]/60 bg-[#06182D] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">Previous window</p>
+                <p className="mt-0.5 text-[12px] font-semibold text-[#F4F7FC]">
                   {selectedZone.previousCount} incidents
                 </p>
-                <p className="text-steel-500">now {selectedZone.crimeCount}</p>
+                <p className="text-[10px] text-[#8DB5DE]">now {selectedZone.crimeCount}</p>
               </div>
-              <div className="rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-steel-500">Nearby activity</p>
-                <p className="mt-0.5 text-[12px] font-semibold text-steel-100">
+              <div className="rounded-lg border border-[#123B67]/60 bg-[#06182D] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">Nearby activity</p>
+                <p className="mt-0.5 text-[12px] font-semibold text-[#F4F7FC]">
                   {selectedZone.nearbyCount} incidents
                 </p>
-                <p className="text-steel-500">within 3 km</p>
+                <p className="text-[10px] text-[#8DB5DE]">within 3 km</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => onFocusArea(selectedZone.area)}
-              className="rounded-lg border border-blue-500/60 bg-blue-600 px-3 py-2 text-[12px] font-semibold text-white hover:bg-blue-500"
+              className="rounded-xl py-2 text-[12px] font-semibold text-white hover:bg-[#3b97ff]"
+              style={{ backgroundColor: RISK_ACTION_BLUE }}
             >
               Focus map on {selectedZone.area}
             </button>
           </div>
-        </Panel>
+        </section>
       ) : null}
 
       {recommendations.length > 0 ? (
-        <Panel
-          title="Recommended actions"
-          subtitle={`${recommendations.length} actionable items derived from these zones`}
-        >
-          <div className="scroll-thin flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1">
+        <section className="rounded-2xl border border-[#123B67] bg-[#0A203B] p-4">
+          <header className="flex flex-col gap-1">
+            <h2 className="text-[14px] font-bold text-[#F4F7FC]">Recommended actions</h2>
+            <p className="text-[11px] text-[#8DB5DE]">
+              {recommendations.length} actionable items derived from these zones
+            </p>
+          </header>
+          <div className="scroll-thin mt-3 flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1">
             {recommendations.slice(0, 6).map((recommendation) => (
-              <div
-                key={recommendation.zoneId}
-                className="w-full shrink-0 snap-center"
-              >
+              <div key={recommendation.zoneId} className="w-full shrink-0 snap-center">
                 <RecommendationCard recommendation={recommendation} compact plain />
               </div>
             ))}
           </div>
-        </Panel>
+        </section>
       ) : null}
     </div>
   )

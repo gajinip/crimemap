@@ -17,13 +17,13 @@ export function RiskBreakdown({ zone, title, compact = false }: RiskBreakdownPro
 
   return (
     <div className="rounded-lg border border-navy-600 bg-navy-800/70 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <div className="min-w-0 flex-[1_1_12rem]">
           <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-steel-500">
             {title ?? `Why is ${zone.area} at risk?`}
           </p>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-3xl font-bold leading-none" style={{ color }}>
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-[clamp(20px,1.25rem+0.5vw,26px)] font-bold leading-none" style={{ color }}>
               {zone.riskScore}
             </span>
             <span className="text-[12px] text-steel-400">/ 100</span>

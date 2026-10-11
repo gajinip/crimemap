@@ -468,9 +468,11 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Global readable text scale                                          */
-/* Lift every text utility into a legible 16-19px band across the app. */
-/* Unlayered, so it wins over Tailwind's @layer utilities.             */
+/* Typography scale                                                    */
+/* Fine-grained text utilities are used deliberately across the UI. No */
+/* flat remap is applied here - each arbitrary text-[Npx] token renders */
+/* at its declared size so cards, charts and nav stay compact and       */
+/* responsive. A few legacy helpers are kept below.                     */
 /* ------------------------------------------------------------------ */
 
 /* Compact top disclaimer — deliberately below the 16px floor. */
@@ -483,6 +485,30 @@ body {
   font-size: 10px;
 }
 
+/* Single-line scrolling ticker so the disclaimer stays on one row. */
+.ticker-track {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* Small caption deliberately below the 16px floor (e.g. Crime trend period). */
 .text-caption {
   font-size: 12px;
@@ -492,40 +518,6 @@ body {
 /* Extra-small chip/label text (below the 16px floor). */
 .text-chip {
   font-size: 10px;
-}
-
-.text-\[7px\],
-.text-\[9px\],
-.text-\[10px\],
-.text-\[11px\],
-.text-\[12px\],
-.text-\[13px\],
-.text-\[14px\],
-.text-\[15px\],
-.text-\[16px\] {
-  font-size: 16px;
-}
-
-.text-\[17px\] {
-  font-size: 17px;
-}
-
-.text-\[18px\] {
-  font-size: 18px;
-}
-
-.text-\[22px\] {
-  font-size: 19px;
-}
-
-.text-xl {
-  font-size: 19px;
-  line-height: 1.3;
-}
-
-.text-3xl {
-  font-size: 19px;
-  line-height: 1.3;
 }
 
 /* Google-Maps-style bottom sheet slide-up */

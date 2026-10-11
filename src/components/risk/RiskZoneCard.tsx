@@ -1,0 +1,195 @@
+import {
+  Activity,
+  Flame,
+  Gauge,
+  MapPin,
+  Minus,
+  Radar,
+  ShieldCheck,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react'
+import type { ReactNode } from 'react'
+import type { RiskLevel, RiskZone, TrendDirection } from '../../types'
+import {
+  RISK_LEVEL_BADGE,
+  RISK_LEVEL_COLOR,
+  RISK_LEVEL_LABEL,
+  TREND_COLOR,
+} from '../../utils/riskPalette'
+import { MinSparkline } from './MinSparkline'
+import { RiskScoreRing } from './RiskScoreRing'
+
+const LEVEL_ICON: Record<RiskLevel, ReactNode> = {
+  Critical: <Flame className="size-3.5" aria-hidden />,
+  High: <Flame className="size-3.5" aria-hidden />,
+  Medium: <Gauge className="size-3.5" aria-hidden />,
+  Low: <ShieldCheck className="size-3.5" aria-hidden />,
+}
+
+function TrendBadge({ trend, percent }: { trend: TrendDirection; percent: number }) {
+  const color = TREND_COLOR[trend]
+  const Icon =
+    trend === 'Rising' ? TrendingUp : trend === 'Declining' ? TrendingDown : Minus
+  const text = `${percent > 0 ? '+' : ''}${percent}%`
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold"
+      style={{ color, backgroundColor: `${color}1a` }}
+    >
+      <Icon className="size-3.5" aria-hidden />
+      {text}
+    </span>
+  )
+}
+
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string
+  value: ReactNode
+  hint?: string
+}) {
+  return (
+    <div className="min-w-0 rounded-lg border border-[#123B67]/60 bg-[#0A203B]/70 px-2.5 py-2">
+      <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">
+        {label}
+      </p>
+      <p className="mt-0.5 truncate text-[13px] font-semibold text-[#F4F7FC]">{value}</p>
+      {hint ? <p className="truncate text-[10px] text-[#8DB5DE]">{hint}</p> : null}
+    </div>
+  )
+}
+
+interface RiskZoneCardProps {
+  zone: RiskZone
+  /** Daily recent-incident counts for this zone's locality (real demo data). */
+  series: number[]
+  selected: boolean
+  onView: () => void
+  onSelect: () => void
+}
+
+/** Reference-style risk zone card: severity badge, score ring, trend, stats. */
+export function RiskZoneCard({
+  zone,
+  series,
+  selected,
+  onView,
+  onSelect,
+}: RiskZoneCardProps) {
+  const color = RISK_LEVEL_COLOR[zone.riskLevel]
+  const hasSeries = series.length >= 2 && series.some((count) => count > 0)
+
+  return (
+    <article
+      className="flex min-w-0 flex-col gap-3 rounded-2xl bg-[#06182D] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.35)] ring-1 ring-inset"
+      style={{
+        border: `1px solid ${color}${selected ? 'CC' : '55'}`,
+        boxShadow: selected
+          ? `0 16px 44px rgba(0,0,0,0.4), 0 0 0 1px ${color}66`
+          : '0 16px 40px rgba(0,0,0,0.35)',
+      }}
+      aria-labelledby={`zone-title-${zone.id}`}
+    >
+      <header className="flex items-start justify-between gap-3">
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em]"
+          style={{ color, backgroundColor: `${color}1a`, border: `1px solid ${color}55` }}
+        >
+          {LEVEL_ICON[zone.riskLevel]}
+          {RISK_LEVEL_BADGE[zone.riskLevel]} risk
+        </span>
+        <span className="shrink-0 rounded-md border border-[#123B67] bg-[#0A203B] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#8DB5DE]">
+          {zone.id}
+        </span>
+      </header>
+
+      <button
+        type="button"
+        onClick={onSelect}
+        className="block min-w-0 text-left"
+        aria-label={`View details for ${zone.area} (${RISK_LEVEL_LABEL[zone.riskLevel]}, score ${zone.riskScore})`}
+      >
+        <h3
+          id={`zone-title-${zone.id}`}
+          className="break-words text-[17px] font-semibold leading-snug text-[#F4F7FC]"
+        >
+          {zone.area}
+        </h3>
+        <p className="mt-0.5 text-[11px] text-[#8DB5DE]">
+          {zone.status} · {zone.crimeCount} recent incidents
+        </p>
+      </button>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <RiskScoreRing score={zone.riskScore} level={zone.riskLevel} />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#8DB5DE]">
+              Overall risk
+            </p>
+            <p className="text-[13px] font-semibold" style={{ color }}>
+              {RISK_LEVEL_LABEL[zone.riskLevel]} · {zone.riskScore}/100
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <TrendBadge trend={zone.trend} percent={zone.trendPercent} />
+            <span className="text-[10px] text-[#8DB5DE]">
+              vs {zone.previousCount} previous
+            </span>
+          </div>
+          <p className="flex items-center gap-1 text-[11px] text-[#8DB5DE]">
+            <MapPin className="size-3" aria-hidden />
+            {zone.dominantCrime} offences trend, peak {zone.peakWindow}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <Stat label="Recent incidents" value={zone.crimeCount} hint={`last period ${zone.previousCount}`} />
+        <Stat label="Peak period" value={zone.peakWindow} hint={`${zone.peakShare}% of incidents`} />
+        <Stat label="Dominant crime" value={zone.dominantCrime} hint={`${zone.dominantShare}% share`} />
+        <Stat label="Repeat within 250 m" value={`${zone.repeatShare}%`} hint={`${zone.nearbyCount} nearby`} />
+      </div>
+
+      <div className="flex items-end justify-between gap-3 border-t border-[#123B67]/60 pt-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">
+            <Activity className="size-3" aria-hidden />
+            Trend vs previous period
+          </p>
+          {hasSeries ? (
+            <p className="mt-0.5 text-[10px] text-[#8DB5DE]">
+              Incidents per day · synthetic demo
+            </p>
+          ) : (
+            <p className="mt-0.5 text-[10px] text-[#8DB5DE]">
+              No daily history available for this zone
+            </p>
+          )}
+        </div>
+        <div className="w-28 shrink-0">
+          {hasSeries ? (
+            <MinSparkline
+              data={series}
+              color={color}
+              label={`${zone.area}: incidents per day over the recent window`}
+            />
+          ) : null}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onView}
+        className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#087BFF] px-3 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-[#3b97ff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8DB5DE]"
+      >
+        <Radar className="size-4" aria-hidden />
+        View on map
+      </button>
+    </article>
+  )
+}
