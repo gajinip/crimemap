@@ -1,0 +1,15 @@
+# CRIMEMAP parallel backend (additive; the React app does not import this)
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+SQLAlchemy==2.0.43
+GeoAlchemy2==0.20.0
+psycopg2-binary==2.9.10
+pydantic==2.9.2
+pydantic-settings==2.10.1
+scikit-learn==1.7.2
+numpy==2.3.3
+pandas==2.3.2
+joblib==1.5.2
+pytest==9.1.1
+httpx==0.28.1
+shapely==2.2.0

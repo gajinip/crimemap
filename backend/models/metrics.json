@@ -1,0 +1,83 @@
+{
+  "version": "incident-count-ridge-v1",
+  "target": "next_window_incident_count",
+  "windowDays": 30,
+  "stepDays": 15,
+  "samples": 177,
+  "trainSamples": 118,
+  "testSamples": 59,
+  "testIsHeldOut": true,
+  "features": [
+    "crimeCount",
+    "previousCount",
+    "trendPercent",
+    "repeatShare",
+    "nearbyCount",
+    "dominantShare",
+    "peakShare",
+    "riskScore"
+  ],
+  "models": {
+    "ridge": {
+      "mae": 1.704,
+      "rmse": 2.292
+    },
+    "gradient_boosting": {
+      "mae": 1.826,
+      "rmse": 2.46
+    },
+    "random_forest": {
+      "mae": 1.826,
+      "rmse": 2.416
+    }
+  },
+  "baselines": {
+    "seasonal_naive": {
+      "mae": 1.78,
+      "rmse": 2.439
+    },
+    "historical_mean": {
+      "mae": 1.636,
+      "rmse": 2.121
+    }
+  },
+  "bestModel": "ridge",
+  "detection": {
+    "alarmThreshold": 5.0,
+    "probabilityOfDetection": 0.357,
+    "probabilityOfFalseDetection": 0.0
+  },
+  "calibration": [
+    {
+      "range": "(1.062, 2.153]",
+      "meanPredicted": 1.65,
+      "meanActual": 1.58,
+      "count": 12
+    },
+    {
+      "range": "(2.153, 3.091]",
+      "meanPredicted": 2.57,
+      "meanActual": 2.0,
+      "count": 12
+    },
+    {
+      "range": "(3.091, 3.7]",
+      "meanPredicted": 3.33,
+      "meanActual": 3.45,
+      "count": 11
+    },
+    {
+      "range": "(3.7, 4.527]",
+      "meanPredicted": 3.94,
+      "meanActual": 3.33,
+      "count": 12
+    },
+    {
+      "range": "(4.527, 6.196]",
+      "meanPredicted": 5.19,
+      "meanActual": 7.67,
+      "count": 12
+    }
+  ],
+  "countScaleP95": 8.0
+}
