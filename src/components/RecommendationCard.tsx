@@ -1,4 +1,5 @@
 import { ChevronRight, Navigation, ShieldCheck } from 'lucide-react'
+import { useI18n } from '../i18n/useI18n'
 import type { Recommendation } from '../types'
 
 const PRIORITY_COLORS: Record<Recommendation['priority'], string> = {
@@ -20,6 +21,7 @@ export function RecommendationCard({
   compact = false,
   plain = false,
 }: RecommendationCardProps) {
+  const { t } = useI18n()
   const steps = compact ? recommendation.steps.slice(0, 2) : recommendation.steps
 
   return (
@@ -32,16 +34,16 @@ export function RecommendationCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.16em] text-blue-700">
+          <p className="inline-flex items-center gap-1.5 t-2xs font-bold uppercase tracking-[0.16em] text-blue-700">
             <ShieldCheck className="size-3.5" aria-hidden />
-            Recommended action
+            {t('Recommended action')}
           </p>
-          <p className="mt-1 text-[12px] font-semibold leading-snug text-steel-100">
+          <p className="mt-1 t-base font-semibold leading-snug text-steel-100">
             {recommendation.headline}
           </p>
         </div>
         <span
-          className={`shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-bold ${PRIORITY_COLORS[recommendation.priority]}`}
+          className={`shrink-0 rounded border px-1.5 py-0.5 t-xs font-bold ${PRIORITY_COLORS[recommendation.priority]}`}
         >
           {recommendation.priority}
         </span>
@@ -49,31 +51,31 @@ export function RecommendationCard({
 
       <ul className="mt-2 space-y-1.5">
         {steps.map((step) => (
-          <li key={step} className="flex items-start gap-1.5 text-[11px] leading-snug text-steel-200">
+          <li key={step} className="flex items-start gap-1.5 t-sm leading-snug text-steel-200">
             <ChevronRight className="mt-0.5 size-3.5 shrink-0 text-blue-400" aria-hidden />
             <span>{step}</span>
           </li>
         ))}
       </ul>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-blue-500/20 pt-2 text-[10px] text-steel-400">
+      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-blue-500/20 pt-2 t-xs text-steel-400">
         <span className="inline-flex items-center gap-1">
           <Navigation className="size-3" aria-hidden />
           {recommendation.nearestStation.name} ·{' '}
           {(recommendation.nearestStation.distanceMeters / 1000).toFixed(1)} km
         </span>
-        <span>Window {recommendation.window}</span>
-        <span>{recommendation.units} unit{recommendation.units === 1 ? '' : 's'}</span>
+        <span>{t('Window {window}', { window: recommendation.window })}</span>
+        <span>{recommendation.units} {recommendation.units === 1 ? t('unit') : t('units')}</span>
       </div>
 
       {!compact ? (
         <div className="mt-2 border-t border-blue-500/20 pt-2">
-          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-            Why this recommendation
+          <p className="t-2xs font-bold uppercase tracking-[0.14em] text-steel-500">
+            {t('Why this recommendation')}
           </p>
           <ul className="mt-1 space-y-1">
             {recommendation.rationale.map((item) => (
-              <li key={item} className="text-[10px] leading-snug text-steel-400">
+              <li key={item} className="t-xs leading-snug text-steel-400">
                 • {item}
               </li>
             ))}
@@ -83,17 +85,15 @@ export function RecommendationCard({
 
       {recommendation.prediction ? (
         <div className="mt-2 border-t border-blue-500/20 pt-2">
-          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-blue-700">
-            Forward view
+          <p className="t-2xs font-bold uppercase tracking-[0.14em] text-blue-700">
+            {t('Forward view')}
             <span className="ml-1.5 font-normal normal-case tracking-normal text-steel-500">
-              {recommendation.prediction.adjustment > 0 ? '+' : ''}
-              {recommendation.prediction.adjustment} pts ·{' '}
-              {Math.round(recommendation.prediction.confidence * 100)}% confidence
+              {t('{points} pts · {confidence}% confidence', { points: `${recommendation.prediction.adjustment > 0 ? '+' : ''}${recommendation.prediction.adjustment}`, confidence: Math.round(recommendation.prediction.confidence * 100) })}
             </span>
           </p>
           <ul className="mt-1 space-y-1">
             {recommendation.prediction.rationale.map((item) => (
-              <li key={item} className="text-[10px] leading-snug text-steel-400">
+              <li key={item} className="t-xs leading-snug text-steel-400">
                 • {item}
               </li>
             ))}

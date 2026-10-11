@@ -1,5 +1,6 @@
 import { Crosshair, MapPin, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '../../i18n/useI18n'
 import { DEMO_AREAS } from '../../data/areas'
 import type { CrimeCategory, CrimeIncident, GeoPoint, IncidentStatus } from '../../types'
 import { CRIME_CATEGORIES, INCIDENT_STATUSES } from '../../types'
@@ -16,7 +17,7 @@ interface IncidentEditorProps {
 }
 
 const FIELD_CLASS =
-  'h-10 w-full rounded-lg border border-navy-600 bg-navy-800 px-3 text-[12px] text-steel-200 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40'
+  'h-10 w-full rounded-lg border border-navy-600 bg-navy-800 px-3 t-base text-steel-200 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40'
 
 /** ISO timestamp -> value usable by <input type="datetime-local">. */
 function toLocalInput(iso: string): string {
@@ -39,6 +40,7 @@ export function IncidentEditor({
   onDelete,
   onCancel,
 }: IncidentEditorProps) {
+  const { t } = useI18n()
   const isCreate = mode === 'create'
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [category, setCategory] = useState<CrimeCategory>(incident.category)
@@ -79,15 +81,15 @@ export function IncidentEditor({
   if (picking) {
     return (
       <div className="pointer-events-none absolute inset-x-2 bottom-2 z-[1400] flex justify-center">
-        <div className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-blue-400/70 bg-blue-600/95 px-3.5 py-2 text-center text-[12px] font-semibold text-white shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur">
+        <div className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-blue-400/70 bg-blue-600/95 px-3.5 py-2 text-center t-base font-semibold text-white shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur">
           <Crosshair className="size-4 shrink-0 animate-pulse" aria-hidden />
-          <span>Tap map to place pin</span>
+          <span>{t('Tap map to place pin')}</span>
           <button
             type="button"
             onClick={onTogglePick}
-            className="rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-white/20"
+            className="rounded-full border border-white/30 bg-white/10 px-2.5 py-1 t-sm font-semibold text-white hover:bg-white/20"
           >
-            Cancel
+            {t('Cancel')}
           </button>
         </div>
       </div>
@@ -97,21 +99,21 @@ export function IncidentEditor({
   return (
     <aside
       className="pointer-events-auto scroll-thin absolute inset-x-2 bottom-2 z-[1400] max-h-[82%] overflow-y-auto rounded-xl border border-navy-600 bg-navy-900/97 shadow-[0_18px_50px_rgba(0,0,0,0.6)] backdrop-blur-sm"
-      aria-label={`Update incident ${incident.id}`}
+      aria-label={t('Update incident {id}', { id: incident.id })}
     >
       <header className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-navy-700 bg-navy-900/97 px-3 py-2.5 backdrop-blur">
         <div className="min-w-0">
           <p className="editor-eyebrow font-bold uppercase tracking-[0.16em] text-steel-500">
-            {isCreate ? 'Report new crime' : 'Update incident'}
+            {isCreate ? t('Report new crime') : t('Update incident')}
           </p>
-          <h2 className="truncate text-[14px] font-semibold text-steel-100">
+          <h2 className="truncate t-md font-semibold text-steel-100">
             {incident.id} &middot; {area || incident.area}
           </h2>
         </div>
         <button
           type="button"
           onClick={onCancel}
-          aria-label="Cancel editing"
+          aria-label={t('Cancel editing')}
           className="shrink-0 rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
         >
           <X className="size-4" />
@@ -121,8 +123,8 @@ export function IncidentEditor({
       <div className="flex flex-col gap-3 p-3">
         <div className="grid grid-cols-2 gap-2.5">
           <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-500">
-              Category
+            <span className="t-xs font-bold uppercase tracking-[0.12em] text-steel-500">
+              {t('Category')}
             </span>
             <select
               value={category}
@@ -131,15 +133,15 @@ export function IncidentEditor({
             >
               {CRIME_CATEGORIES.map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {t('category.' + option)}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-500">
-              Status
+            <span className="t-xs font-bold uppercase tracking-[0.12em] text-steel-500">
+              {t('Status')}
             </span>
             <select
               value={status}
@@ -148,15 +150,15 @@ export function IncidentEditor({
             >
               {INCIDENT_STATUSES.map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {t('status.' + option)}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-500">
-              Area
+            <span className="t-xs font-bold uppercase tracking-[0.12em] text-steel-500">
+              {t('Area')}
             </span>
             <select
               value={area}
@@ -173,8 +175,8 @@ export function IncidentEditor({
         </div>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-500">
-            Occurred
+          <span className="t-xs font-bold uppercase tracking-[0.12em] text-steel-500">
+            {t('Occurred')}
           </span>
           <input
             type="datetime-local"
@@ -185,35 +187,35 @@ export function IncidentEditor({
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-steel-500">
-            Description
+          <span className="t-xs font-bold uppercase tracking-[0.12em] text-steel-500">
+            {t('Description')}
           </span>
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={3}
-            className="w-full resize-none rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] text-steel-200 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40"
+            className="w-full resize-none rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 t-base text-steel-200 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40"
           />
         </label>
 
         <div className="rounded-lg border border-navy-600 bg-navy-800 p-2.5">
           <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-steel-400">
-              <MapPin className="size-3.5 text-blue-400" aria-hidden /> Location
+            <span className="inline-flex items-center gap-1.5 t-xs font-bold uppercase tracking-[0.12em] text-steel-400">
+              <MapPin className="size-3.5 text-blue-400" aria-hidden /> {t('Location')}
             </span>
             <button
               type="button"
               onClick={onTogglePick}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-700 px-2.5 py-1.5 text-[11px] font-semibold text-steel-200 transition-colors hover:bg-navy-600 hover:text-steel-100"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-700 px-2.5 py-1.5 t-sm font-semibold text-steel-200 transition-colors hover:bg-navy-600 hover:text-steel-100"
             >
               <Crosshair className="size-3.5" aria-hidden />
-              Pick on map
+              {t('Pick on map')}
             </button>
           </div>
 
           <div className="mt-2.5 grid grid-cols-2 gap-2.5">
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-semibold text-steel-500">Latitude</span>
+              <span className="t-xs font-semibold text-steel-500">{t('Latitude')}</span>
               <input
                 type="number"
                 step="0.000001"
@@ -223,7 +225,7 @@ export function IncidentEditor({
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-[10px] font-semibold text-steel-500">Longitude</span>
+              <span className="t-xs font-semibold text-steel-500">{t('Longitude')}</span>
               <input
                 type="number"
                 step="0.000001"
@@ -239,16 +241,16 @@ export function IncidentEditor({
           <button
             type="button"
             onClick={handleSave}
-            className="flex-1 rounded-lg border border-blue-500/60 bg-blue-600 px-3 py-2 text-[12px] font-semibold text-white hover:bg-blue-500"
+            className="flex-1 rounded-lg border border-blue-500/60 bg-blue-600 px-3 py-2 t-base font-semibold text-white hover:bg-blue-500"
           >
-            {isCreate ? 'Create crime' : 'Save changes'}
+            {isCreate ? t('Create crime') : t('Save changes')}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-200 hover:bg-navy-700 hover:text-steel-100"
+            className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 t-base font-semibold text-steel-200 hover:bg-navy-700 hover:text-steel-100"
           >
-            Cancel
+            {t('Cancel')}
           </button>
         </div>
 
@@ -257,25 +259,25 @@ export function IncidentEditor({
             <button
               type="button"
               onClick={() => onDelete(incident.id)}
-              className="flex-1 rounded-lg border border-risk-critical/60 bg-risk-critical/20 px-3 py-2 text-[12px] font-semibold text-risk-critical hover:bg-risk-critical/30"
+              className="flex-1 rounded-lg border border-risk-critical/60 bg-risk-critical/20 px-3 py-2 t-base font-semibold text-risk-critical hover:bg-risk-critical/30"
             >
-              Confirm delete
+              {t('Confirm delete')}
             </button>
             <button
               type="button"
               onClick={() => setConfirmingDelete(false)}
-              className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-200 hover:bg-navy-700 hover:text-steel-100"
+              className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 t-base font-semibold text-steel-200 hover:bg-navy-700 hover:text-steel-100"
             >
-              Keep
+              {t('Keep')}
             </button>
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setConfirmingDelete(true)}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-risk-critical/50 px-3 py-2 text-[12px] font-semibold text-risk-critical hover:bg-risk-critical/15"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-risk-critical/50 px-3 py-2 t-base font-semibold text-risk-critical hover:bg-risk-critical/15"
           >
-            <Trash2 className="size-4" aria-hidden /> Delete crime
+            <Trash2 className="size-4" aria-hidden /> {t('Delete crime')}
           </button>
         )}
       </div>

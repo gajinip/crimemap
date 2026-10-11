@@ -1,6 +1,7 @@
 import { Maximize2, Minimize2, X } from 'lucide-react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
+import { useI18n } from '../../i18n/useI18n'
 
 interface DetailSheetProps {
   ariaLabel: string
@@ -20,7 +21,7 @@ export function SheetRow({
   mono?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 text-[11px] last:border-b-0">
+    <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm last:border-b-0">
       <span className="shrink-0 text-steel-500">{label}</span>
       <span className={`text-right font-medium text-steel-100${mono ? ' font-mono' : ''}`}>
         {value}
@@ -32,7 +33,7 @@ export function SheetRow({
 /** Amber "demo data" notice shared by the non-incident detail sheets. */
 export function DemoNotice({ children }: { children: ReactNode }) {
   return (
-    <p className="py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-amber-700">
+    <p className="py-1.5 text-center t-xs font-bold uppercase tracking-[0.08em] text-amber-700">
       {children}
     </p>
   )
@@ -43,6 +44,7 @@ export function DemoNotice({ children }: { children: ReactNode }) {
  * from the bottom, can expand to full screen, and can be dismissed.
  */
 export function DetailSheet({ ariaLabel, header, children, onClose }: DetailSheetProps) {
+  const { t } = useI18n()
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -57,7 +59,7 @@ export function DetailSheet({ ariaLabel, header, children, onClose }: DetailShee
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        aria-label={expanded ? 'Collapse details' : 'Expand details'}
+        aria-label={expanded ? t('Collapse details') : t('Expand details')}
         className="mx-auto mt-2 flex h-6 w-12 items-center justify-center rounded-full"
       >
         <span className="h-1 w-9 rounded-full bg-navy-500 transition-colors hover:bg-navy-400" aria-hidden />
@@ -69,8 +71,8 @@ export function DetailSheet({ ariaLabel, header, children, onClose }: DetailShee
           <button
             type="button"
             onClick={() => setExpanded((current) => !current)}
-            aria-label={expanded ? 'Collapse details' : 'Expand details'}
-            title={expanded ? 'Collapse' : 'Expand to full screen'}
+            aria-label={expanded ? t('Collapse details') : t('Expand details')}
+            title={expanded ? t('Collapse') : t('Expand to full screen')}
             className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
@@ -78,7 +80,7 @@ export function DetailSheet({ ariaLabel, header, children, onClose }: DetailShee
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close details"
+            aria-label={t('Close details')}
             className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             <X className="size-4" />

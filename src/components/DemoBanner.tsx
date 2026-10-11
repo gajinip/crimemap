@@ -1,15 +1,18 @@
 import { TriangleAlert } from 'lucide-react'
+import { useI18n } from '../i18n/useI18n'
 
 function TickerText() {
+  const { t } = useI18n()
   return (
     <>
       <span className="inline-flex shrink-0 items-center gap-1.5 px-4 font-extrabold uppercase tracking-[0.14em] text-amber-700">
         <TriangleAlert className="size-3 shrink-0" aria-hidden />
-        Demo data - not real crime information
+        {t('Demo data - not real crime information')}
       </span>
       <span className="demo-banner-note whitespace-nowrap text-amber-700/70">
-        Synthetic sample records for interface demonstration only. No real incidents, victims or
-        police reports are shown.
+        {t(
+          'Synthetic sample records for interface demonstration only. No real incidents, victims or police reports are shown.'
+        )}
       </span>
     </>
   )
@@ -17,11 +20,12 @@ function TickerText() {
 
 /** Persistent, single-line scrolling disclaimer required for every screen of the app. */
 export function DemoBanner() {
+  const { t } = useI18n()
   return (
     <div
-      className="safe-top demo-banner overflow-hidden border-b border-amber-500/40 bg-amber-500/10"
+      className="safe-top demo-banner overflow-hidden border-b border-amber-500/40 bg-amber-500/10 print:hidden"
       role="note"
-      aria-label="Demo data disclaimer - not real crime information"
+      aria-label={t('Demo data disclaimer - not real crime information')}
     >
       <div className="ticker-track flex w-max items-center py-1">
         <TickerText />

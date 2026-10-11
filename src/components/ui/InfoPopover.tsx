@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
+import { useI18n } from '../../i18n/useI18n'
 
 type InfoPopoverTone = 'default' | 'risk'
 
@@ -16,11 +17,13 @@ interface InfoPopoverProps {
  * Small info icon that reveals descriptive copy in a popup when tapped.
  * Replaces long in-page paragraphs with a tap-to-open explanation.
  */
-export function InfoPopover({ text, label = 'About this page', tone = 'default' }: InfoPopoverProps) {
+export function InfoPopover({ text, label, tone = 'default' }: InfoPopoverProps) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLSpanElement>(null)
   const id = useId()
   const isRisk = tone === 'risk'
+  const resolvedLabel = label ?? t('About this page')
 
   useEffect(() => {
     if (!open) return
@@ -44,7 +47,7 @@ export function InfoPopover({ text, label = 'About this page', tone = 'default' 
     <span ref={containerRef} className="relative inline-flex align-middle">
       <button
         type="button"
-        aria-label={label}
+          aria-label={resolvedLabel}
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         onClick={() => setOpen((value) => !value)}
@@ -61,11 +64,11 @@ export function InfoPopover({ text, label = 'About this page', tone = 'default' 
         <div
           id={id}
           role="dialog"
-          aria-label={label}
+        aria-label={resolvedLabel}
           className={
             isRisk
-              ? 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border p-3 text-[12px] leading-relaxed text-[#14233B] shadow-2xl'
-              : 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-navy-600 bg-navy-850 p-3 text-[12px] leading-relaxed text-steel-200 shadow-2xl'
+              ? 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border p-3 t-base leading-relaxed text-[#14233B] shadow-2xl'
+              : 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-navy-600 bg-navy-850 p-3 t-base leading-relaxed text-steel-200 shadow-2xl'
           }
           style={isRisk ? { borderColor: '#DCE4EE', backgroundColor: '#F4F7FB' } : undefined}
         >

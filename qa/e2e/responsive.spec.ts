@@ -89,9 +89,9 @@ test('desktop tables and multi-column grids activate at md/lg', async ({ page })
   await expect(page.locator('[class*="md:block"] table')).toBeVisible()
 
   await gotoView(page, 'Reports')
-  expect(await columns(page, 'md:grid-cols-3')).toBe(3)
-  expect(await columns(page, 'xl:grid-cols-3')).toBe(3)
-  await expect(page.locator('[class*="md:block"] table')).toBeVisible()
+  expect(await columns(page, 'sm:grid-cols-2 xl:grid-cols-4')).toBe(4)
+  expect(await columns(page, 'xl:grid-cols-[minmax(0,64fr)')).toBe(2)
+  await expect(page.locator('table').first()).toBeVisible()
 
   await gotoView(page, 'Crime Trends')
   expect(await columns(page, 'lg:grid-cols-2')).toBe(2)

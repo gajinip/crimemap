@@ -13,6 +13,7 @@ import { DemoBanner } from './components/DemoBanner'
 import { BottomNav } from './components/BottomNav'
 import { Sidebar } from './components/Sidebar'
 import { TopNav } from './components/TopNav'
+import { useI18n } from './i18n/useI18n'
 import { PatrolProvider } from './patrol/PatrolContext'
 import { crimeDataSource } from './services/crimeApi'
 import type {
@@ -35,6 +36,7 @@ import {
 import {
   buildAreaStats,
   buildCategoryStats,
+  buildCategoryTrends,
   buildMonthlySeries,
   buildStatusStats,
   computeDashboardStats,
@@ -76,6 +78,7 @@ interface ZoneSelection {
 }
 
 export default function App() {
+  const { t } = useI18n()
   const [view, setView] = useState<AppView>('map')
   const [filters, setFilters] = useState<CrimeFilterState>(INITIAL_FILTERS)
   const [viewRange, setViewRange] = useState<DateRange | null>(null)
@@ -94,7 +97,7 @@ export default function App() {
       })
       .catch((cause: unknown) => {
         if (active) {
-          setError(cause instanceof Error ? cause.message : 'Unable to load demo dataset')
+          setError(cause instanceof Error ? cause.message : t('Unable to load demo dataset'))
         }
       })
 
@@ -159,6 +162,13 @@ export default function App() {
   const stats = useMemo(
     () => computeDashboardStats(scopedIncidents, zones, viewRange, DEMO_DATE_RANGE, incidents),
     [scopedIncidents, zones, viewRange, incidents],
+  )
+  const categoryTrends = useMemo(
+    () =>
+      viewRange
+        ? buildCategoryTrends(incidents, viewRange)
+        : buildCategoryTrends(incidents, DEMO_DATE_RANGE, 30),
+    [incidents, viewRange],
   )
   const categoryStats = useMemo(() => buildCategoryStats(incidents), [incidents])
   const areaStats = useMemo(() => buildAreaStats(incidents), [incidents])
@@ -304,17 +314,17 @@ export default function App() {
     return (
       <div className="grid h-screen place-items-center bg-navy-950 px-6">
         <div className="max-w-md rounded-xl border border-risk-critical/40 bg-navy-900 p-6 text-center">
-          <p className="text-[13px] font-semibold text-risk-critical">Failed to load demo dataset</p>
-          <p className="mt-2 text-[12px] leading-relaxed text-steel-400">{error}</p>
+          <p className="t-base font-semibold text-risk-critical">{t('Failed to load demo dataset')}</p>
+          <p className="mt-2 t-base leading-relaxed text-steel-400">{error}</p>
           <button
             type="button"
             onClick={() => {
               setError(null)
               setReloadKey((value) => value + 1)
             }}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-[12px] font-semibold text-white hover:bg-blue-500"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 t-base font-semibold text-white hover:bg-blue-500"
           >
-            <RefreshCw className="size-4" /> Retry
+            <RefreshCw className="size-4" /> {t('Retry')}
           </button>
         </div>
       </div>
@@ -326,8 +336,8 @@ export default function App() {
       <div className="grid h-screen place-items-center bg-navy-950">
         <div className="text-center">
           <LoaderCircle className="mx-auto size-7 animate-spin text-blue-400" aria-hidden />
-          <p className="mt-3 text-[12px] uppercase tracking-[0.2em] text-steel-400">
-            Loading demo dataset
+          <p className="mt-3 t-base uppercase tracking-[0.2em] text-steel-400">
+            {t('Loading demo dataset')}
           </p>
         </div>
       </div>
@@ -344,6 +354,9 @@ export default function App() {
             range={DEMO_DATE_RANGE}
             compareRange={viewRange}
             onCompareRangeChange={setViewRange}
+            categoryTrends={categoryTrends}
+            incidents={incidents}
+            stations={stations}
           />
         )
       case 'hotspots':
@@ -443,12 +456,9 @@ export default function App() {
 
   return (
     <PatrolProvider plan={patrolPlan}>
-      <div className="flex h-screen bg-navy-900 text-steel-100">
+      <div className="flex h-screen bg-navy-900 text-steel-100 print:block print:h-auto">
         <Sidebar activeView={view} onNavigate={navigate} />
-        <div
-          style={{ height: '100dvh' }}
-          className="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-navy-950"
-        >
+        <div className="relative flex h-[100dvh] min-w-0 flex-1 flex-col overflow-hidden bg-navy-950 print:h-auto print:overflow-visible">
           <DemoBanner />
           <TopNav
             searchQuery={filters.searchQuery}
@@ -457,7 +467,7 @@ export default function App() {
             }
           />
 
-          <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
+          <div className="scroll-thin min-h-0 flex-1 overflow-y-auto print:overflow-visible">
             <main className={mainClass} key={view}>
               {renderView()}
             </main>

@@ -1,5 +1,6 @@
+import { useI18n } from '../../i18n/useI18n'
 import type { RiskLevel } from '../../types'
-import { RISK_LEVEL_COLOR, RISK_LEVEL_LABEL } from '../../utils/riskPalette'
+import { RISK_LEVEL_COLOR } from '../../utils/riskPalette'
 
 interface RiskScoreRingProps {
   score: number
@@ -19,6 +20,7 @@ export function RiskScoreRing({
   size = 78,
   strokeWidth = 8,
 }: RiskScoreRingProps) {
+  const { t } = useI18n()
   const clamped = Math.max(0, Math.min(100, Math.round(score)))
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
@@ -30,7 +32,7 @@ export function RiskScoreRing({
       className="relative grid shrink-0 place-items-center"
       style={{ width: size, height: size }}
       role="img"
-      aria-label={`Risk score ${clamped} out of 100 (${RISK_LEVEL_LABEL[level]})`}
+      aria-label={t('Risk score {score} out of 100 ({level} risk)', { score: clamped, level: t('risk.' + level) })}
     >
       <svg
         width={size}
@@ -66,7 +68,7 @@ export function RiskScoreRing({
       </svg>
       <div className="absolute inset-0 grid place-items-center">
         <span
-          className="text-[22px] font-bold leading-none"
+          className="t-title font-bold leading-none"
           style={{ color }}
           aria-hidden="true"
         >

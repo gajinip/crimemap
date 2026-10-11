@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
+import { useI18n } from '../../i18n/useI18n'
 import type { CrimeCategory, CrimeIncident } from '../../types'
 import { CrimeMarker } from './CrimeMarker'
 import { CRIME_FALLBACK_COLOR, CRIME_CATEGORY_COLORS } from '../../utils/visuals'
@@ -92,6 +93,7 @@ export function IncidentLayer({
   relatedIds?: Set<string>
   onSelect: (incident: CrimeIncident) => void
 }) {
+  const { t } = useI18n()
   const map = useMap()
   const [zoom, setZoom] = useState(map.getZoom())
 
@@ -172,14 +174,14 @@ export function IncidentLayer({
         >
           <Popup minWidth={230}>
             <div className="popup-title">{group.area}</div>
-            <div className="popup-sub">{group.count} incidents in view (clustered)</div>
+            <div className="popup-sub">{t('{count} incidents in view (clustered)', { count: group.count })}</div>
             {group.counts.slice(0, 5).map((entry) => (
               <div key={entry.category} className="popup-row">
-                <span>{entry.category}</span>
+                <span>{t('category.' + entry.category)}</span>
                 <span>{entry.count}</span>
               </div>
             ))}
-            <div className="popup-demo">DEMO DATA - NOT REAL CRIME INFORMATION</div>
+            <div className="popup-demo">{t('DEMO DATA - NOT REAL CRIME INFORMATION')}</div>
           </Popup>
         </Marker>
       ))}

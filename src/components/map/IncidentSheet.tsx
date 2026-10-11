@@ -1,5 +1,6 @@
 import { Check, Maximize2, Minimize2, Navigation, Pencil, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '../../i18n/useI18n'
 import type { CrimeIncident } from '../../types'
 import { formatDateTime } from '../../utils/format'
 import { CRIME_CATEGORY_COLORS } from '../../utils/visuals'
@@ -19,6 +20,7 @@ export function IncidentSheet({
   onEdit,
   onDelete,
 }: IncidentSheetProps) {
+  const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const accent = CRIME_CATEGORY_COLORS[incident.category]
@@ -30,12 +32,12 @@ export function IncidentSheet({
           ? 'left-0 right-0 top-0 rounded-none'
           : 'left-0 right-0 max-h-[75%] rounded-t-3xl'
       }`}
-      aria-label={`Incident ${incident.id} details`}
+      aria-label={t('Incident {id} details', { id: incident.id })}
     >
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        aria-label={expanded ? 'Collapse incident details' : 'Expand incident details'}
+        aria-label={expanded ? t('Collapse incident details') : t('Expand incident details')}
         className="mx-auto mt-2 flex h-6 w-12 items-center justify-center rounded-full"
       >
         <span className="h-1 w-9 rounded-full bg-navy-500 transition-colors hover:bg-navy-400" aria-hidden />
@@ -45,15 +47,15 @@ export function IncidentSheet({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
             <span
-              className="inline-flex items-center gap-1.5 rounded-full border border-navy-600 px-2 py-0.5 text-[10px] font-bold"
+              className="inline-flex items-center gap-1.5 rounded-full border border-navy-600 px-2 py-0.5 t-xs font-bold"
               style={{ color: accent }}
             >
               <span className="size-1.5 rounded-full" style={{ backgroundColor: accent }} aria-hidden />
-              {incident.category}
+              {t('category.' + incident.category)}
             </span>
             <StatusBadge status={incident.status} />
           </div>
-          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-steel-100">
+          <h2 className="mt-1.5 truncate t-md font-semibold text-steel-100">
             {incident.id} &middot; {incident.area}
           </h2>
         </div>
@@ -61,8 +63,8 @@ export function IncidentSheet({
           <button
             type="button"
             onClick={() => setExpanded((current) => !current)}
-            aria-label={expanded ? 'Collapse incident details' : 'Expand incident details'}
-            title={expanded ? 'Collapse' : 'Expand to full screen'}
+            aria-label={expanded ? t('Collapse incident details') : t('Expand incident details')}
+            title={expanded ? t('Collapse') : t('Expand to full screen')}
             className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
@@ -70,7 +72,7 @@ export function IncidentSheet({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close incident details"
+            aria-label={t('Close incident details')}
             className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             <X className="size-4" />
@@ -80,30 +82,30 @@ export function IncidentSheet({
 
       <div className="px-3.5 pb-3">
         <div className="rounded-xl border border-navy-600 bg-navy-800/70 px-2.5 py-1">
-          <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 text-[11px]">
-            <span className="shrink-0 text-steel-500">Occurred</span>
+          <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm">
+            <span className="shrink-0 text-steel-500">{t('Occurred')}</span>
             <span className="text-right font-medium text-steel-100">
               {formatDateTime(incident.occurredAt)}
             </span>
           </div>
-          <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 text-[11px]">
-            <span className="shrink-0 text-steel-500">Coordinates</span>
+          <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm">
+            <span className="shrink-0 text-steel-500">{t('Coordinates')}</span>
             <span className="text-right font-medium font-mono text-steel-100">
               {incident.lat.toFixed(4)}, {incident.lng.toFixed(4)}
             </span>
           </div>
           {incident.description ? (
-            <div className="flex items-start justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 text-[11px]">
-              <span className="shrink-0 text-steel-500">Details</span>
+            <div className="flex items-start justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm">
+              <span className="shrink-0 text-steel-500">{t('Details')}</span>
               <span className="text-right font-medium text-steel-100">
                 {incident.description}
               </span>
             </div>
           ) : null}
-          <p className="py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-amber-700">
+          <p className="py-1.5 text-center t-xs font-bold uppercase tracking-[0.08em] text-amber-700">
             {incident.isDemo
-              ? 'DEMO DATA - NOT REAL CRIME INFORMATION'
-              : 'USER-REPORTED - NOT VERIFIED'}
+              ? t('DEMO DATA - NOT REAL CRIME INFORMATION')
+              : t('USER-REPORTED - NOT VERIFIED')}
           </p>
         </div>
 
@@ -111,18 +113,18 @@ export function IncidentSheet({
           <button
             type="button"
             onClick={() => onEdit(incident)}
-            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-500/60 bg-amber-500/15 px-3 py-2.5 text-[12px] font-semibold text-amber-700 transition-colors hover:bg-amber-500/25"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-500/60 bg-amber-500/15 px-3 py-2.5 t-base font-semibold text-amber-700 transition-colors hover:bg-amber-500/25"
           >
-            <Pencil className="size-4" aria-hidden /> Edit crime &amp; location
+            <Pencil className="size-4" aria-hidden /> {t('Edit crime & location')}
           </button>
 
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${incident.lat},${incident.lng}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-blue-500"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2.5 t-base font-semibold text-white transition-colors hover:bg-blue-500"
           >
-            <Navigation className="size-4" aria-hidden /> Get directions
+            <Navigation className="size-4" aria-hidden /> {t('Get directions')}
           </a>
 
           {confirming ? (
@@ -130,25 +132,25 @@ export function IncidentSheet({
               <button
                 type="button"
                 onClick={() => onDelete(incident.id)}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-risk-critical/60 bg-risk-critical/20 px-3 py-2.5 text-[12px] font-semibold text-risk-critical transition-colors hover:bg-risk-critical/30"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-risk-critical/60 bg-risk-critical/20 px-3 py-2.5 t-base font-semibold text-risk-critical transition-colors hover:bg-risk-critical/30"
               >
-                <Check className="size-4" aria-hidden /> Confirm delete
+                <Check className="size-4" aria-hidden /> {t('Confirm delete')}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirming(false)}
-                className="rounded-xl border border-navy-600 bg-navy-800 px-3 py-2.5 text-[12px] font-semibold text-steel-200 transition-colors hover:bg-navy-700 hover:text-steel-100"
+                className="rounded-xl border border-navy-600 bg-navy-800 px-3 py-2.5 t-base font-semibold text-steel-200 transition-colors hover:bg-navy-700 hover:text-steel-100"
               >
-                Keep
+                {t('Keep')}
               </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={() => setConfirming(true)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-risk-critical/50 bg-transparent px-3 py-2.5 text-[12px] font-semibold text-risk-critical transition-colors hover:bg-risk-critical/15"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-risk-critical/50 bg-transparent px-3 py-2.5 t-base font-semibold text-risk-critical transition-colors hover:bg-risk-critical/15"
             >
-              <Trash2 className="size-4" aria-hidden /> Delete crime
+              <Trash2 className="size-4" aria-hidden /> {t('Delete crime')}
             </button>
           )}
         </div>

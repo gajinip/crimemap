@@ -1,6 +1,7 @@
 import { MoreHorizontal, X } from 'lucide-react'
 import { useState } from 'react'
 import type { AppView } from '../types'
+import { useI18n } from '../i18n/useI18n'
 import { NAV_ITEMS } from './navItems'
 
 const VISIBLE = NAV_ITEMS.slice(0, 3)
@@ -13,6 +14,7 @@ interface BottomNavProps {
 
 /** Bottom navigation bar pinned while scrolling: first three tabs + a More menu. */
 export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
+  const { t } = useI18n()
   const [moreOpen, setMoreOpen] = useState(false)
   const hasActiveInMore = MORE.some((item) => item.id === activeView)
 
@@ -21,15 +23,15 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
     onNavigate(view)
   }
 
-const navButtonClass = (active: boolean) =>
-  `relative inline-flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-colors ${
-    active ? 'text-blue-600' : 'text-steel-300 hover:text-steel-100'
-  }`
+  const navButtonClass = (active: boolean) =>
+    `relative inline-flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-colors ${
+      active ? 'text-blue-600' : 'text-steel-300 hover:text-steel-100'
+    }`
 
   return (
     <nav
-      className="sticky bottom-0 z-[2000] border-t border-navy-700 bg-navy-900 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
-      aria-label="Primary navigation"
+      className="sticky bottom-0 z-[2000] border-t border-navy-700 bg-navy-900 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden print:hidden"
+      aria-label={t('Primary navigation')}
     >
       <div className="flex items-center justify-between gap-1.5 px-3 py-2">
         {VISIBLE.map((item) => {
@@ -41,8 +43,8 @@ const navButtonClass = (active: boolean) =>
               type="button"
               onClick={() => handleSelect(item.id)}
               aria-current={active ? 'page' : undefined}
-              aria-label={item.label}
-              title={item.label}
+              aria-label={t(item.label)}
+              title={t(item.label)}
               className={navButtonClass(active)}
             >
               <Icon
@@ -50,11 +52,11 @@ const navButtonClass = (active: boolean) =>
                 aria-hidden
               />
               <span
-                className={`w-full truncate text-center text-[10px] font-semibold leading-none ${
+                className={`w-full truncate text-center t-xs font-semibold leading-none ${
                   active ? 'text-blue-400' : 'text-steel-300'
                 }`}
               >
-                {item.label}
+                {t(item.label)}
               </span>
             </button>
           )
@@ -66,8 +68,8 @@ const navButtonClass = (active: boolean) =>
             onClick={() => setMoreOpen((current) => !current)}
             aria-haspopup="menu"
             aria-expanded={moreOpen}
-            aria-label={moreOpen ? 'Close more menu' : 'More'}
-            title="More"
+            aria-label={moreOpen ? t('Close more menu') : t('More')}
+            title={t('More')}
             className={navButtonClass(moreOpen)}
           >
             {moreOpen ? (
@@ -81,8 +83,8 @@ const navButtonClass = (active: boolean) =>
                 aria-hidden
               />
             ) : null}
-            <span className="w-full truncate text-center text-[10px] font-semibold leading-none text-steel-300">
-              More
+            <span className="w-full truncate text-center t-xs font-semibold leading-none text-steel-300">
+              {t('More')}
             </span>
           </button>
 
@@ -112,8 +114,8 @@ const navButtonClass = (active: boolean) =>
                         className={`size-5 ${active ? 'text-blue-400' : 'text-steel-400'}`}
                         aria-hidden
                       />
-                      <span className="w-full truncate text-center text-[10px] font-semibold leading-none">
-                        {item.label}
+                      <span className="w-full truncate text-center t-xs font-semibold leading-none">
+                        {t(item.label)}
                       </span>
                     </button>
                   )

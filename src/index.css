@@ -1,8 +1,13 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: 'Inter', 'Segoe UI', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, monospace;
+  /* Primary UI face is Inter. Noto Sans Tamil sits directly after it so Tamil
+     glyphs (which Inter lacks) fall back per-character without changing the
+     Latin/French rendering. System faces are the final safety net. */
+  --font-sans: 'Inter', 'Noto Sans Tamil', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Numeric/tabular data (KPI values, timestamps, table columns) uses Inter with
+     tabular figures rather than a separate monospace family, for aligned digits. */
+  --font-mono: 'Inter', 'Noto Sans Tamil', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   /* Light theme surfaces. "navy" tokens are surfaces (backgrounds/borders);
      the names are historical but now map to light values. */
@@ -57,6 +62,12 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Align digits in numeric columns, KPI values and timestamps. */
+.font-mono,
+.t-metric {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Keep the app clear of notches/rounded corners on mobile devices. */
@@ -472,14 +483,85 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Typography scale                                                    */
-/* Fine-grained text utilities are used deliberately across the UI. No */
-/* flat remap is applied here - each arbitrary text-[Npx] token renders */
-/* at its declared size so cards, charts and nav stay compact and       */
-/* responsive. A few legacy helpers are kept below.                     */
+/* Typography scale (responsive)                                        */
+/* Mobile-first sizes that step up at lg, so micro-labels stay legible  */
+/* on phones while body and display text scale on laptops. Each t-*     */
+/* class sets font-size only (like the previous arbitrary text-[Npx]    */
+/* tokens) so existing leading-* utilities still apply.                 */
 /* ------------------------------------------------------------------ */
 
-/* Compact top disclaimer — deliberately below the 16px floor. */
+/* micro labels / chips */
+.t-2xs {
+  font-size: 10px;
+}
+.t-xs {
+  font-size: 11px;
+}
+.t-sm {
+  font-size: 12px;
+}
+.t-base {
+  font-size: 13px; /* default body */
+}
+.t-md {
+  font-size: 14px;
+}
+.t-lg {
+  font-size: 15px;
+}
+.t-xl {
+  font-size: 16px;
+}
+.t-title-sm {
+  font-size: 17px;
+}
+.t-title {
+  font-size: 20px;
+}
+.t-metric {
+  font-size: 24px;
+}
+.t-view-title {
+  font-size: clamp(19px, 1rem + 1.2vw, 24px);
+}
+
+@media (min-width: 1024px) {
+  .t-2xs {
+    font-size: 11px;
+  }
+  .t-xs {
+    font-size: 12px;
+  }
+  .t-sm {
+    font-size: 13px;
+  }
+  .t-base {
+    font-size: 14px;
+  }
+  .t-md {
+    font-size: 15px;
+  }
+  .t-lg {
+    font-size: 16px;
+  }
+  .t-xl {
+    font-size: 17px;
+  }
+  .t-title-sm {
+    font-size: 18px;
+  }
+  .t-title {
+    font-size: 22px;
+  }
+  .t-metric {
+    font-size: 27px;
+  }
+  .t-view-title {
+    font-size: 22px;
+  }
+}
+
+/* Compact top disclaimer. */
 .demo-banner {
   font-size: 11px;
   line-height: 1.35;
@@ -513,15 +595,33 @@ body {
   }
 }
 
-/* Small caption deliberately below the 16px floor (e.g. Crime trend period). */
+/* Small caption (e.g. Crime trend period). */
 .text-caption {
   font-size: 12px;
   line-height: 1.35;
 }
 
-/* Extra-small chip/label text (below the 16px floor). */
+/* Extra-small chip/label text. */
 .text-chip {
   font-size: 10px;
+}
+
+@media (min-width: 1024px) {
+  .demo-banner {
+    font-size: 12px;
+  }
+  .demo-banner-note {
+    font-size: 11px;
+  }
+  .text-caption {
+    font-size: 13px;
+  }
+  .text-chip {
+    font-size: 11px;
+  }
+  .editor-eyebrow {
+    font-size: 13px;
+  }
 }
 
 /* Google-Maps-style bottom sheet slide-up */
@@ -536,4 +636,30 @@ body {
 
 .incident-sheet-in {
   animation: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Print output (Reports & Export -> Print / PDF)                      */
+/* ------------------------------------------------------------------ */
+
+@media print {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

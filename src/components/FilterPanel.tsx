@@ -1,5 +1,6 @@
 import { RotateCcw, SlidersHorizontal, X } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '../i18n/useI18n'
 import {
   CRIME_CATEGORIES,
   INCIDENT_STATUSES,
@@ -42,6 +43,7 @@ export function FilterPanel({
   open: openProp,
   onOpenChange,
 }: FilterPanelProps) {
+  const { t } = useI18n()
   const [internalOpen, setInternalOpen] = useState(false)
   const isControlled = openProp !== undefined
   const open = isControlled ? openProp : internalOpen
@@ -94,7 +96,7 @@ export function FilterPanel({
   )?.label
 
   const chipClass = (active: boolean) =>
-    `rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+    `rounded-full border px-2.5 py-1 t-xs font-semibold transition-colors ${
       active ? '' : 'border-navy-600 text-steel-500 hover:border-navy-500'
     }`
 
@@ -103,16 +105,16 @@ export function FilterPanel({
       {open ? (
         <div className="w-[calc(100vw-16px)] max-w-[290px] rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_12px_34px_rgba(0,0,0,0.5)] backdrop-blur-sm">
           <div className="flex items-center justify-between gap-2 border-b border-navy-700 px-3 py-2">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-steel-300">
+            <span className="inline-flex items-center gap-1.5 t-xs font-bold uppercase tracking-[0.16em] text-steel-300">
               <SlidersHorizontal className="size-3.5 text-blue-400" aria-hidden />
-              Crime filters
+              {t('Crime filters')}
             </span>
             <div className="flex items-center gap-1">
               {isDirty ? (
                 <button
                   type="button"
                   onClick={onReset}
-                  title="Reset filters"
+                  title={t('Reset filters')}
                   className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
                 >
                   <RotateCcw className="size-3.5" />
@@ -121,7 +123,7 @@ export function FilterPanel({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close filters"
+                aria-label={t('Close filters')}
                 className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
               >
                 <X className="size-3.5" />
@@ -130,8 +132,8 @@ export function FilterPanel({
           </div>
 
           <div className="scroll-thin max-h-[55vh] overflow-y-auto px-3 py-3 sm:max-h-[68vh]">
-          <div className="mb-1.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-            <span>Time period</span>
+          <div className="mb-1.5 flex items-center justify-between t-2xs font-bold uppercase tracking-[0.14em] text-steel-500">
+            <span>{t('Time period')}</span>
             <span className="normal-case tracking-normal text-steel-600">
               {filters.dateRange.from} → {filters.dateRange.to}
             </span>
@@ -158,14 +160,14 @@ export function FilterPanel({
             })}
           </div>
 
-          <div className="mb-1 mt-4 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-            <span>Crime type</span>
+          <div className="mb-1 mt-4 flex items-center justify-between t-2xs font-bold uppercase tracking-[0.14em] text-steel-500">
+            <span>{t('Crime type')}</span>
             <button
               type="button"
               onClick={() => onChange({ ...filters, categories: [...CRIME_CATEGORIES] })}
               className="text-blue-600 hover:text-blue-500"
             >
-              All
+              {t('All')}
             </button>
           </div>
           <ul className="space-y-0.5">
@@ -179,7 +181,7 @@ export function FilterPanel({
                     type="button"
                     onClick={() => toggleCategory(category)}
                     aria-pressed={active}
-                    className={`flex w-full items-center gap-2 rounded px-1.5 py-1.5 text-left text-[11px] transition-colors ${
+                    className={`flex w-full items-center gap-2 rounded px-1.5 py-1.5 text-left t-sm transition-colors ${
                       active ? 'bg-navy-800 text-steel-100' : 'text-steel-500 hover:bg-navy-800/60'
                     }`}
                   >
@@ -202,22 +204,22 @@ export function FilterPanel({
                         </svg>
                       ) : null}
                     </span>
-                    <span className="flex-1 truncate">{category}</span>
-                    <span className="font-mono text-[10px] text-steel-500">{count}</span>
+                    <span className="flex-1 truncate">{t('category.' + category)}</span>
+                    <span className="font-mono t-xs text-steel-500">{count}</span>
                   </button>
                 </li>
               )
             })}
           </ul>
 
-          <div className="mb-1.5 mt-4 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-            <span>Severity</span>
+          <div className="mb-1.5 mt-4 flex items-center justify-between t-2xs font-bold uppercase tracking-[0.14em] text-steel-500">
+            <span>{t('Severity')}</span>
             <button
               type="button"
               onClick={() => onChange({ ...filters, severities: [...SEVERITIES] })}
               className="text-blue-600 hover:text-blue-500"
             >
-              All
+              {t('All')}
             </button>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -237,20 +239,20 @@ export function FilterPanel({
                     color: active ? color : undefined,
                   }}
                 >
-                  {severity}
+                  {t('severity.' + severity)}
                 </button>
               )
             })}
           </div>
 
-          <div className="mb-1.5 mt-4 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-            <span>Risk level (zones)</span>
+          <div className="mb-1.5 mt-4 flex items-center justify-between t-2xs font-bold uppercase tracking-[0.14em] text-steel-500">
+            <span>{t('Risk level (zones)')}</span>
             <button
               type="button"
               onClick={() => onChange({ ...filters, riskLevels: [...RISK_LEVELS] })}
               className="text-blue-600 hover:text-blue-500"
             >
-              All
+              {t('All')}
             </button>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -270,20 +272,20 @@ export function FilterPanel({
                     color: active ? color : undefined,
                   }}
                 >
-                  {level}
+                  {t('risk.' + level)}
                 </button>
               )
             })}
           </div>
 
-          <div className="mb-1.5 mt-4 flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.14em] text-steel-500">
-            <span>Incident status</span>
+          <div className="mb-1.5 mt-4 flex items-center justify-between t-2xs font-bold uppercase tracking-[0.14em] text-steel-500">
+            <span>{t('Incident status')}</span>
             <button
               type="button"
               onClick={() => onChange({ ...filters, statuses: [...INCIDENT_STATUSES] })}
               className="text-blue-600 hover:text-blue-500"
             >
-              All
+              {t('All')}
             </button>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -295,35 +297,35 @@ export function FilterPanel({
                   type="button"
                   onClick={() => toggleStatus(status)}
                   aria-pressed={active}
-                  className="rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors"
+                  className="rounded-full border px-2.5 py-1 t-xs font-semibold transition-colors"
                   style={{
                     borderColor: active ? '#1A73E8' : '#DCE4EE',
                     backgroundColor: active ? '#1A73E826' : 'transparent',
                     color: active ? '#1A73E8' : '#53647A',
                   }}
                 >
-                  {status}
+                  {t('status.' + status)}
                 </button>
               )
             })}
           </div>
 
           <div className="mt-4 rounded border border-navy-600 bg-navy-800 px-2.5 py-2">
-            <p className="text-[10px] leading-relaxed text-steel-400">
-              Showing{' '}
+            <p className="t-xs leading-relaxed text-steel-400">
+              {t('Showing')}{' '}
               <span className="font-bold text-steel-100">
                 {visibleCount} / {totalCount}
               </span>{' '}
-              demo incidents matching the active filters.
+              {t('demo incidents matching the active filters.')}
             </p>
             {relatedCount > 0 ? (
-              <p className="mt-1.5 flex items-start gap-1.5 text-[10px] leading-relaxed text-sky-700">
+              <p className="mt-1.5 flex items-start gap-1.5 t-xs leading-relaxed text-sky-700">
                 <span className="mt-1 size-1.5 shrink-0 rounded-full bg-sky-400" aria-hidden />
                 <span>
-                  Includes{' '}
-                  <span className="font-bold text-sky-800">{relatedCount}</span> linked
-                  {' '}incident{relatedCount === 1 ? '' : 's'} from nearby areas — same crime
-                  type, within 1.5 km and 72 h.
+                  {t('Includes')}{' '}
+                  <span className="font-bold text-sky-800">{relatedCount}</span>{' '}
+                  {t('linked incident')}{relatedCount === 1 ? '' : 's'}{' '}
+                  {t('from nearby areas — same crime type, within 1.5 km and 72 h.')}
                 </span>
               </p>
             ) : null}
@@ -331,9 +333,9 @@ export function FilterPanel({
               <button
                 type="button"
                 onClick={onReset}
-                className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 hover:text-blue-500"
+                className="mt-1.5 inline-flex items-center gap-1 t-xs font-semibold text-blue-600 hover:text-blue-500"
               >
-                <X className="size-3" /> Clear filters
+                <X className="size-3" /> {t('Clear filters')}
               </button>
             ) : null}
           </div>
@@ -343,8 +345,8 @@ export function FilterPanel({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open crime filters"
-          title="Crime filters"
+          aria-label={t('Open crime filters')}
+          title={t('Crime filters')}
           className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-steel-100"
         >
           <SlidersHorizontal className="size-5" aria-hidden />

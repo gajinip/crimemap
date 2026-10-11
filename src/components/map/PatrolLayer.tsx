@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import { Marker, useMap, useMapEvents } from 'react-leaflet'
 import { useMemo, useState } from 'react'
+import { useI18n } from '../../i18n/useI18n'
 import type { GeoPoint } from '../../types'
 import { usePatrol } from '../../patrol/usePatrol'
 import type { DisplayPatrolUnit } from '../../patrol/patrolStore'
@@ -14,12 +15,12 @@ const STATUS_COLORS: Record<string, string> = {
   Patrolling: '#22c55e',
 }
 
-function patrolIcon(status: string): L.DivIcon {
+function patrolIcon(status: string, label: string): L.DivIcon {
   const color = STATUS_COLORS[status] ?? '#94a3b8'
   return L.divIcon({
     className: 'patrol-marker-wrap',
     html:
-      `<div class="patrol-marker" style="--patrol-color:${color}" role="img" aria-label="Patrol unit">` +
+      `<div class="patrol-marker" style="--patrol-color:${color}" role="img" aria-label="${label}">` +
       `<svg viewBox="0 0 24 24" aria-hidden="true">` +
       `<path d="M3 11 5 5h14l2 6v6h-3v-2H6v2H3v-6z"/>` +
       `<circle cx="7.5" cy="15.5" r="1.6" fill="#0d1526"/>` +
@@ -50,6 +51,7 @@ interface PatrolLayerProps {
 
 /** Animated patrol units driven by the simulation context. */
 export function PatrolLayer({ isInside, onSelect }: PatrolLayerProps) {
+  const { t } = useI18n()
   const { units } = usePatrol()
   const map = useMap()
   const [zoom, setZoom] = useState(map.getZoom())
@@ -64,17 +66,18 @@ export function PatrolLayer({ isInside, onSelect }: PatrolLayerProps) {
   )
 
   const showLabel = zoom >= PATROL_LABEL_ZOOM
+  const patrolUnitLabel = t('Patrol unit')
   const icons = useMemo(
     () =>
       new Map(
         visibleUnits.map((unit) => [
           unit.id,
           showLabel
-            ? patrolIcon(unit.displayStatus)
+            ? patrolIcon(unit.displayStatus, patrolUnitLabel)
             : patrolDotIcon(unit.displayStatus),
         ]),
       ),
-    [visibleUnits, showLabel],
+    [visibleUnits, showLabel, patrolUnitLabel],
   )
 
   return (

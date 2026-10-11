@@ -1,9 +1,12 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { CalendarDays } from 'lucide-react'
-import type { DashboardStats, DateRange, RiskZone, TrendDirection } from '../types'
+import { useI18n } from '../i18n/useI18n'
+import type { CategoryTrend } from '../utils/stats'
+import type { CrimeCategory, DashboardStats, DateRange, RiskZone, TrendDirection } from '../types'
 import { formatNumber, formatPercent } from '../utils/format'
 import { CRIME_CATEGORY_COLORS, RISK_LEVEL_COLORS, trendGlyph } from '../utils/visuals'
-import { DemoChip, RiskBadge, TrendIndicator } from './ui/Badge'
+import { DeltaBadge, RiskBadge, TrendIndicator } from './ui/Badge'
+import { InfoPopover } from './ui/InfoPopover'
 
 interface StatisticsPanelProps {
   stats: DashboardStats
@@ -11,6 +14,7 @@ interface StatisticsPanelProps {
   range: DateRange
   compareRange: DateRange | null
   onCompareRangeChange: (range: DateRange | null) => void
+  categoryTrends: CategoryTrend[]
   className?: string
 }
 
@@ -20,65 +24,76 @@ const TREND_COLORS: Record<DashboardStats['trendDirection'], string> = {
   Declining: '#22c55e',
 }
 
-/** Compact table. Sparkline placeholder: "▲ +12% / ▼ -8% / ~0%". */
-function DeltaBadge({
-  percent,
-  direction,
-  className = '',
-}: {
-  percent: number
-  direction: TrendDirection
-  className?: string
-}) {
-  if (direction === 'Stable') {
-    return (
-      <span className={`font-mono text-[13px] font-bold text-steel-400 ${className}`}>
-        ~{Math.abs(percent)}%
-      </span>
-    )
-  }
-  const rising = direction === 'Rising'
-  return (
-    <span
-      className={`font-mono text-[13px] font-bold ${className}`}
-      style={{ color: rising ? '#ef4444' : '#22c55e' }}
-    >
-      {rising ? '▲' : '▼'} {Math.abs(percent)}%
-    </span>
-  )
+interface CrimeDivision {
+  id: 'property' | 'violent'
+  label: string
+  description: string
+  accent: string
+  categories: CrimeCategory[]
 }
 
-/** Minimal "label — count" situation cell (no border or background). */
-function OverviewRow({
-  label,
-  value,
-  trend,
+/** The seven crime types split into two divisions for the dashboard mix. */
+const CRIME_DIVISIONS: CrimeDivision[] = [
+  {
+    id: 'property',
+    label: 'Property & economic',
+    description: 'Theft, burglary, vehicle theft, fraud and other',
+    accent: '#1a73e8',
+    categories: ['Theft', 'Burglary', 'Vehicle Theft', 'Fraud', 'Other'],
+  },
+  {
+    id: 'violent',
+    label: 'Violent & person',
+    description: 'Robbery and assault',
+    accent: '#ea4335',
+    categories: ['Robbery', 'Assault'],
+  },
+]
+
+function divisionTrend(
+  rows: CategoryTrend[],
+): { percent: number | null; direction: TrendDirection; hasBaseline: boolean } {
+  const current = rows.reduce((sum, row) => sum + row.current, 0)
+  const previous = rows.reduce((sum, row) => sum + row.previous, 0)
+  if (previous <= 0) {
+    return {
+      percent: null,
+      direction: 'Stable',
+      hasBaseline: false,
+    }
+  }
+  const percent = Math.round(((current - previous) / previous) * 10) / 10
+  const direction: TrendDirection =
+    percent > 5 ? 'Rising' : percent < -5 ? 'Declining' : 'Stable'
+  return { percent, direction, hasBaseline: true }
+}
+
+function ChangePct({
+  percent,
+  direction,
+  hasBaseline,
   className = '',
 }: {
-  label: string
-  value: ReactNode
-  trend?: { percent: number; direction: TrendDirection }
+  percent: number | null
+  direction: TrendDirection
+  hasBaseline: boolean
   className?: string
 }) {
-  return (
-    <div className={`flex flex-col gap-0.5 py-0.5 ${className}`}>
-      <span className="text-[15px] font-bold uppercase tracking-[0.12em] text-steel-400">
-        {label}
-      </span>
-      <span className="font-mono text-[25px] font-bold leading-none text-steel-100">{value}</span>
-      {trend ? <DeltaBadge percent={trend.percent} direction={trend.direction} /> : null}
-    </div>
-  )
+  const { t } = useI18n()
+  if (!hasBaseline) {
+    return <span className={`shrink-0 t-xs text-steel-500 ${className}`}>{t('n/a')}</span>
+  }
+  return <DeltaBadge percent={percent ?? 0} direction={direction} className={className} />
 }
 
 /** Uppercase section heading sharing the Panel title styling. */
 function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <>
-      <h2 className="text-[18px] font-bold uppercase tracking-[0.14em] text-steel-300">
+      <h2 className="t-xs font-bold uppercase tracking-[0.14em] text-steel-500">
         {title}
       </h2>
-      {subtitle ? <p className="mt-0.5 text-[16px] text-steel-500">{subtitle}</p> : null}
+      {subtitle ? <p className="mt-0.5 t-xs text-steel-500">{subtitle}</p> : null}
     </>
   )
 }
@@ -90,8 +105,11 @@ export function StatisticsPanel({
   range,
   compareRange,
   onCompareRangeChange,
+  categoryTrends,
   className = '',
 }: StatisticsPanelProps) {
+  const { t } = useI18n()
+  const byCategory = new Map(categoryTrends.map((entry) => [entry.category, entry]))
   const trendColor = TREND_COLORS[stats.trendDirection]
   const watchlist = [...zones]
     .sort((a, b) => b.riskScore - a.riskScore || b.crimeCount - a.crimeCount)
@@ -145,55 +163,54 @@ export function StatisticsPanel({
 
   return (
     <aside
-      className={`w-full ${className}`}
-      aria-label="Situation statistics"
+      className={`flex w-full flex-col ${className}`}
+      aria-label={t('Situation statistics')}
     >
-      <div className="flex flex-col p-3 xl:p-4">
-        <header className="flex items-center justify-between gap-2">
-          <h2 className="text-[16px] font-bold uppercase tracking-[0.14em] text-steel-300">
-            Situation overview
-          </h2>
-          <DemoChip />
-        </header>
+      <header className="border-b border-navy-700 px-4 py-3">
+        <h2 className="t-sm font-bold uppercase tracking-[0.16em] text-steel-300">
+          {t('Situation overview')}
+        </h2>
+      </header>
 
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-steel-500">
-            vs previous
+      <div className="flex flex-col p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="t-base font-bold uppercase tracking-[0.12em] text-steel-500">
+            {t('vs previous')}
           </span>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={selectDay}
               aria-pressed={customActive && mode === 'day'}
-              title="View a single day"
-              className={`rounded-full px-2.5 py-1 text-[12px] font-bold transition-colors ${
+              title={t('View a single day')}
+              className={`rounded-full px-2.5 py-1 t-base font-bold transition-colors ${
                 customActive && mode === 'day'
                   ? 'bg-blue-600 text-white'
                   : 'bg-navy-800 text-steel-300 hover:text-steel-100'
               }`}
             >
-              Day
+              {t('Day')}
             </button>
             <button
               type="button"
               onClick={selectRange}
               aria-pressed={customActive && mode === 'range'}
-              title="View a date range"
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-bold transition-colors ${
+              title={t('View a date range')}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 t-base font-bold transition-colors ${
                 customActive && mode === 'range'
                   ? 'bg-blue-600 text-white'
                   : 'bg-navy-800 text-steel-300 hover:text-steel-100'
               }`}
             >
-              <CalendarDays className="size-3.5" aria-hidden /> Range
+              <CalendarDays className="size-3.5" aria-hidden /> {t('Range')}
             </button>
             {customActive ? (
               <button
                 type="button"
                 onClick={clearCustom}
-                aria-label="Clear date filter"
-                title="Clear"
-                className="rounded-full bg-navy-800 px-2 py-1 text-[12px] font-bold text-steel-300 transition-colors hover:text-steel-100"
+                aria-label={t('Clear date filter')}
+                title={t('Clear')}
+                className="rounded-full bg-navy-800 px-2 py-1 t-base font-bold text-steel-300 transition-colors hover:text-steel-100"
               >
                 ✕
               </button>
@@ -209,8 +226,8 @@ export function StatisticsPanel({
               min={range.from}
               max={range.to}
               onChange={(event) => applyDay(event.target.value)}
-              aria-label="View date"
-              className="min-w-0 flex-1 rounded-lg border border-navy-600 bg-navy-950 px-2 py-1.5 text-[12px] text-steel-100 focus:border-blue-500 focus:outline-none"
+              aria-label={t('View date')}
+              className="min-w-0 flex-1 rounded-lg border border-navy-600 bg-navy-950 px-2 py-1.5 t-base text-steel-100 focus:border-blue-500 focus:outline-none"
             />
           </div>
         ) : null}
@@ -223,94 +240,122 @@ export function StatisticsPanel({
               min={range.from}
               max={customTo}
               onChange={(event) => applyCustom(event.target.value, customTo)}
-              aria-label="View from date"
-              className="min-w-0 flex-1 rounded-lg border border-navy-600 bg-navy-950 px-2 py-1.5 text-[12px] text-steel-100 focus:border-blue-500 focus:outline-none"
+              aria-label={t('View from date')}
+              className="min-w-0 flex-1 rounded-lg border border-navy-600 bg-navy-950 px-2 py-1.5 t-base text-steel-100 focus:border-blue-500 focus:outline-none"
             />
-            <span className="shrink-0 text-[11px] text-steel-500">to</span>
+            <span className="shrink-0 t-sm text-steel-500">{t('to')}</span>
             <input
               type="date"
               value={customTo}
               min={customFrom}
               max={range.to}
               onChange={(event) => applyCustom(customFrom, event.target.value)}
-              aria-label="View to date"
-              className="min-w-0 flex-1 rounded-lg border border-navy-600 bg-navy-950 px-2 py-1.5 text-[12px] text-steel-100 focus:border-blue-500 focus:outline-none"
+              aria-label={t('View to date')}
+              className="min-w-0 flex-1 rounded-lg border border-navy-600 bg-navy-950 px-2 py-1.5 t-base text-steel-100 focus:border-blue-500 focus:outline-none"
             />
           </div>
         ) : null}
 
-        <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-4">
-          <OverviewRow
-            label="Total incidents"
-            value={formatNumber(stats.totalIncidents)}
-            trend={stats.compare.hasBaseline ? stats.compare : undefined}
-          />
-          <OverviewRow label="Active zones" value={stats.activeHotspots} />
-          <OverviewRow label="Emerging zones" value={stats.emergingHotspots} />
-          <OverviewRow label="High-risk zones" value={stats.highRiskZones} />
-          <OverviewRow
-            label="Avg risk score"
-            value={`${stats.averageRiskScore}/100`}
-            className="col-span-2"
-          />
-        </div>
-
         <section className="mt-2.5 border-t border-navy-700 pt-2.5">
           <div className="flex items-start justify-between gap-3">
-            <h2 className="text-[18px] font-bold uppercase tracking-[0.14em] text-steel-300">
-              Crime trend
+            <h2 className="t-xs font-bold uppercase tracking-[0.14em] text-steel-500">
+              {t('Change summary')}
             </h2>
             <div className="shrink-0 text-right">
               <span
-                className="inline-flex items-center gap-1 font-mono text-[25px] font-bold leading-none"
+                className="inline-flex items-center gap-1 font-mono t-metric font-bold leading-none"
                 style={{ color: trendColor }}
               >
                 <span aria-hidden>{trendGlyph(stats.trendDirection)}</span>
                 {formatPercent(stats.trendPercent, 1)}
               </span>
-              <p className="mt-1 text-caption text-steel-500">Last 30 days vs previous 30 days</p>
+              <p className="mt-1 text-caption text-steel-500">{t('Last 30 days vs previous 30 days')}</p>
             </div>
           </div>
         </section>
 
         <section className="mt-2.5 border-t border-navy-700 pt-2.5">
           <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <SectionTitle
-                title="Most common crime type"
-                subtitle={
-                  compareRange ? 'Share within selected window' : 'Share of filtered demo incidents'
-                }
-              />
-            </div>
-            {stats.mostCommonCategory ? (
-              <div className="min-w-0 text-right">
-                <span className="flex items-center justify-end gap-1.5 text-[21px] font-bold text-steel-100">
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: CRIME_CATEGORY_COLORS[stats.mostCommonCategory] }}
-                    aria-hidden
-                  />
-                  <span className="truncate">{stats.mostCommonCategory}</span>
-                </span>
-                <div className="mt-1 text-[17px] text-steel-400">
-                  {formatNumber(stats.mostCommonCount)} incidents &middot;{' '}
-                  {stats.totalIncidents > 0
-                    ? Math.round((stats.mostCommonCount / stats.totalIncidents) * 100)
-                    : 0}
-                  %
+            <SectionTitle
+              title={t('Crime mix by division')}
+              subtitle={
+                compareRange
+                  ? t('Counts in selected window; trend vs previous window')
+                  : t('Counts in dataset; trend vs previous 30 days')
+              }
+            />
+            <InfoPopover
+              text={t('The seven crime types are split into two divisions — Property & economic (theft, burglary, vehicle theft, fraud and other) and Violent & person (robbery and assault). Each trend compares the most recent window with the immediately preceding window of the same length; n/a means the previous window had no records of that type.')}
+              label={t('About crime divisions')}
+            />
+          </div>
+          <div className="mt-2 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {CRIME_DIVISIONS.map((division) => {
+              const rows = division.categories
+                .map((category) => byCategory.get(category))
+                .filter((row): row is CategoryTrend => row !== undefined)
+                .sort((a, b) => b.total - a.total)
+              const groupTotal = rows.reduce((sum, row) => sum + row.total, 0)
+              const trend = divisionTrend(rows)
+              return (
+                <div
+                  key={division.id}
+                  className="rounded-lg border border-navy-700 bg-navy-800 p-2.5"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-1.5 t-base font-bold uppercase tracking-[0.1em] text-steel-200">
+                        <span
+                          className="size-2.5 shrink-0 rounded-sm"
+                          style={{ backgroundColor: division.accent }}
+                          aria-hidden
+                        />
+                        <span className="truncate">{t(division.label)}</span>
+                      </span>
+                      <span className="mt-0.5 block t-xs text-steel-500">
+                        {t(division.description)}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="font-mono t-sm font-bold text-steel-100">
+                        {formatNumber(groupTotal)}
+                      </span>
+                      <ChangePct {...trend} className="mt-0.5 block" />
+                    </span>
+                  </div>
+                  <ul className="mt-1.5 divide-y divide-navy-700/70">
+                    {rows.map((row) => (
+                      <li
+                        key={row.category}
+                        className="flex items-center gap-2 py-1 first:pt-1 last:pb-0"
+                      >
+                        <span
+                          className="size-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: CRIME_CATEGORY_COLORS[row.category] }}
+                          aria-hidden
+                        />
+                        <span className="min-w-0 flex-1 truncate t-base text-steel-200">
+                          {t('category.' + row.category)}
+                        </span>
+                        <span className="shrink-0 font-mono t-base font-semibold tabular-nums text-steel-100">
+                          {formatNumber(row.total)}
+                        </span>
+                        <ChangePct
+                          percent={row.percent}
+                          direction={row.direction}
+                          hasBaseline={row.hasBaseline}
+                        />
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-            ) : (
-              <p className="text-[12px] text-steel-500">
-                No incidents match the current filters.
-              </p>
-            )}
+              )
+            })}
           </div>
         </section>
 
         <section className="mt-2.5 border-t border-navy-700 pt-2.5">
-          <SectionTitle title="Zone watchlist" subtitle="Highest risk score first" />
+          <SectionTitle title={t('Zone watchlist')} subtitle={t('Highest risk score first')} />
           {watchlist.length > 0 ? (
             <ul className="mt-2 divide-y divide-navy-700">
               {watchlist.map((zone) => (
@@ -322,23 +367,23 @@ export function StatisticsPanel({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-[18px] font-semibold text-steel-100">
+                      <span className="truncate t-title-sm font-semibold text-steel-100">
                         {zone.area}
                       </span>
                       <RiskBadge level={zone.riskLevel} />
                     </div>
-                    <div className="mt-0.5 flex items-center gap-2 text-[16px] text-steel-500">
+                    <div className="mt-0.5 flex items-center gap-2 t-xl text-steel-500">
                       <span>{zone.id}</span>
                       <span>&middot;</span>
-                      <span>{zone.dominantCrime}</span>
+                      <span>{t('category.' + zone.dominantCrime)}</span>
                       <span>&middot;</span>
-                      <span>{zone.crimeCount} reports</span>
+                      <span>{t('{count} reports', { count: zone.crimeCount })}</span>
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
                     <span className="inline-flex items-center justify-end gap-1.5">
                       <span
-                        className="font-mono text-[27px] font-bold"
+                        className="font-mono t-metric font-bold"
                         style={{ color: RISK_LEVEL_COLORS[zone.riskLevel] }}
                       >
                         {zone.riskScore}
@@ -350,13 +395,12 @@ export function StatisticsPanel({
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-[11px] text-steel-500">No zones match the current filters.</p>
+            <p className="mt-3 t-sm text-steel-500">{t('No zones match the current filters.')}</p>
           )}
         </section>
 
-        <p className="mt-2.5 border-t border-navy-700 pt-2.5 text-[12px] leading-relaxed text-steel-600">
-          All figures derive from synthetic demo records bundled with the app. They are not
-          statistics from any police department or government source.
+        <p className="mt-2.5 border-t border-navy-700 pt-2.5 t-base leading-relaxed text-steel-600">
+          {t('All figures derive from synthetic demo records bundled with the app. They are not statistics from any police department or government source.')}
         </p>
       </div>
     </aside>

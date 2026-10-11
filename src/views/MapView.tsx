@@ -1,5 +1,6 @@
 import { Plus, X } from 'lucide-react'
 import { useCallback, useState } from 'react'
+import { useI18n } from '../i18n/useI18n'
 import { CrimeMap } from '../components/map/CrimeMap'
 import { IncidentEditor } from '../components/map/IncidentEditor'
 import { IncidentSheet } from '../components/map/IncidentSheet'
@@ -81,6 +82,7 @@ export function MapView({
   onCreateIncident,
   onDeleteIncident,
 }: MapViewProps) {
+  const { t } = useI18n()
   const [editor, setEditor] = useState<EditorState | null>(null)
   const [pickingLocation, setPickingLocation] = useState(false)
   const [pickedPoint, setPickedPoint] = useState<GeoPoint | null>(null)
@@ -270,8 +272,8 @@ export function MapView({
           <button
             type="button"
             onClick={openCreate}
-            aria-label="Report a new crime incident"
-            title="Report a new crime incident"
+            aria-label={t('Report a new crime incident')}
+            title={t('Report a new crime incident')}
             className="pointer-events-auto absolute bottom-28 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-blue-500/60 bg-blue-600 text-white shadow-[0_10px_30px_rgba(0,0,0,0.55)] transition-colors hover:bg-blue-500"
           >
             <Plus className="size-6" aria-hidden />
@@ -305,7 +307,7 @@ export function MapView({
       {selectedZone ? (
         <aside
           className="hidden w-[380px] shrink-0 flex-col border-l border-navy-700 bg-navy-900 xl:flex"
-          aria-label={`Risk analysis for ${selectedZone.area}`}
+          aria-label={t('Risk analysis for {area}', { area: selectedZone.area })}
         >
           <header className="flex items-start justify-between gap-2 border-b border-navy-700 p-3">
             <div className="min-w-0">
@@ -314,7 +316,7 @@ export function MapView({
             <button
               type="button"
               onClick={onCloseZone}
-              aria-label="Close details"
+              aria-label={t('Close details')}
               className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
             >
               <X className="size-4" />

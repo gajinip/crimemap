@@ -13,6 +13,7 @@ import {
   useMap,
 } from 'react-leaflet'
 import type { LeafletMouseEvent } from 'leaflet'
+import { useI18n } from '../../i18n/useI18n'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../../data/areas'
 import boundary from '../../data/puducherry-boundary.json'
 import type { DisplayPatrolUnit } from '../../patrol/patrolStore'
@@ -361,6 +362,7 @@ export function CrimeMap({
   pickingLocation,
   onPickLocation,
 }: CrimeMapProps) {
+  const { t } = useI18n()
   const selectedAreaRing =
     selectedArea === ALL_AREAS ? null : areaBoundaryRing(selectedArea)
 
@@ -383,7 +385,7 @@ export function CrimeMap({
       <LayersControl position="topright">
         <LayersControl.BaseLayer
           checked
-          name="OpenStreetMap Standard"
+          name={t('OpenStreetMap Standard')}
         >
           <TileLayer
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -392,7 +394,7 @@ export function CrimeMap({
           />
         </LayersControl.BaseLayer>
 
-        <LayersControl.BaseLayer name="OSM Humanitarian (HOT)">
+        <LayersControl.BaseLayer name={t('OSM Humanitarian (HOT)')}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors, tiles style by HOT hosted by OSM France"
@@ -403,7 +405,7 @@ export function CrimeMap({
         {/* Puducherry district outline */}
         <LayersControl.Overlay
           checked
-          name="Puducherry boundary"
+          name={t('Puducherry boundary')}
         >
           <LayerGroup>
             <Polygon
@@ -422,7 +424,7 @@ export function CrimeMap({
         {/* Crime incidents */}
         <LayersControl.Overlay
           checked
-          name="Crime incidents"
+          name={t('Crime incidents')}
         >
           <LayerGroup>
             <IncidentLayer
@@ -436,7 +438,7 @@ export function CrimeMap({
         {/* Risk zones */}
         <LayersControl.Overlay
           checked
-          name="Risk zones"
+          name={t('Risk zones')}
         >
           <LayerGroup>
             <RiskZoneLayer
@@ -450,7 +452,7 @@ export function CrimeMap({
         {/* Police stations */}
         <LayersControl.Overlay
           checked
-          name="Police stations"
+          name={t('Police stations')}
         >
           <LayerGroup>
             {stations.map((station) => (
@@ -466,7 +468,7 @@ export function CrimeMap({
         {/* Simulated patrol units */}
         <LayersControl.Overlay
           checked
-          name="Patrol units (simulated)"
+          name={t('Patrol units (simulated)')}
         >
           <LayerGroup>
             <PatrolLayer onSelect={onSelectPatrol} />

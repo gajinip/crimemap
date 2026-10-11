@@ -1,24 +1,25 @@
 import { ChartPie, TrendingUp } from 'lucide-react'
+import { useI18n } from '../i18n/useI18n'
 import type { CategoryStat, MonthPoint } from '../types'
 import { CRIME_CATEGORY_COLORS } from '../utils/visuals'
 import { Panel } from './ui/Panel'
 import { BarRow } from './ui/StatTile'
-import { DemoChip } from './ui/Badge'
 
 interface CategoryChartProps {
   data: CategoryStat[]
 }
 
 export function CategoryChart({ data }: CategoryChartProps) {
+  const { t } = useI18n()
   const max = Math.max(1, ...data.map((item) => item.count))
 
   return (
-    <Panel title="Incidents by crime category" subtitle="Distribution across filtered demo set">
+    <Panel title={t('Incidents by crime category')} subtitle={t('Distribution across filtered demo set')}>
       <div className="space-y-1.5">
         {data.map((item) => (
           <BarRow
             key={item.category}
-            label={item.category}
+            label={t('category.' + item.category)}
             value={item.count}
             max={max}
             color={CRIME_CATEGORY_COLORS[item.category]}
@@ -26,8 +27,8 @@ export function CategoryChart({ data }: CategoryChartProps) {
           />
         ))}
       </div>
-      <div className="mt-3 flex items-center justify-between border-t border-navy-700 pt-2 text-[10px] text-steel-500">
-        <span>Based on synthetic demo data</span>
+      <div className="mt-3 flex items-center justify-between border-t border-navy-700 pt-2 t-xs text-steel-500">
+        <span>{t('Based on synthetic demo data')}</span>
         <ChartPie className="size-4 text-steel-500" aria-hidden />
       </div>
     </Panel>
@@ -39,13 +40,13 @@ interface TrendsChartProps {
 }
 
 export function TrendsChart({ data }: TrendsChartProps) {
+  const { t } = useI18n()
   const max = Math.max(1, ...data.map((item) => item.count))
 
   return (
     <Panel
-      title="Monthly crime trend"
-      subtitle="Rolling by month for selected demo range"
-      actions={<DemoChip compact />}
+      title={t('Monthly crime trend')}
+      subtitle={t('Rolling by month for selected demo range')}
     >
       <div className="flex items-end gap-1.5">
         {data.length > 0 ? (
@@ -60,19 +61,19 @@ export function TrendsChart({ data }: TrendsChartProps) {
                     title={`${point.label}: ${point.count}`}
                   />
                 </div>
-                <div className="mt-1 truncate text-center text-[9px] uppercase tracking-[0.14em] text-steel-500">
+                <div className="mt-1 truncate text-center t-2xs uppercase tracking-[0.14em] text-steel-500">
                   {point.label}
                 </div>
               </div>
             )
           })
         ) : (
-          <p className="py-6 text-center text-[11px] text-steel-500">No monthly points in range</p>
+          <p className="py-6 text-center t-sm text-steel-500">{t('No monthly points in range')}</p>
         )}
       </div>
-      <div className="mt-3 flex items-center gap-1 text-[10px] text-steel-500">
+      <div className="mt-3 flex items-center gap-1 t-xs text-steel-500">
         <TrendingUp className="size-3.5" />
-        Comparison values are demo-only approximations.
+        {t('Comparison values are demo-only approximations.')}
       </div>
     </Panel>
   )
