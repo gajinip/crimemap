@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { RiskZoneCard } from '../components/risk/RiskZoneCard'
 import { RiskBreakdown } from '../components/RiskBreakdown'
 import { RecommendationCard } from '../components/RecommendationCard'
+import { InfoPopover } from '../components/ui/InfoPopover'
 import type { Recommendation, RiskZone } from '../types'
 import {
   RISK_ACTION_BLUE,
@@ -90,18 +91,20 @@ export function HotspotsView({
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-          <h1 className="min-w-0 break-words text-[clamp(20px,4vw,26px)] font-bold leading-tight text-[#F4F7FC]">
-            Risk Zones
-          </h1>
+          <div className="flex min-w-0 items-center gap-2">
+            <h1 className="min-w-0 break-words text-[clamp(20px,4vw,26px)] font-bold leading-tight text-[#F4F7FC]">
+              Risk Zones
+            </h1>
+            <InfoPopover
+              tone="risk"
+              label="About risk zones"
+              text="Monitor high-risk areas and stay informed about potential crime activity. Scores are deterministic and explainable, derived from incident frequency, trend, severity, repeat activity, time of day and proximity."
+            />
+          </div>
           <span className="shrink-0 rounded-lg border border-[#123B67] bg-[#0A203B] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8DB5DE]">
             Synthetic demo data
           </span>
         </div>
-        <p className="max-w-3xl text-[12px] leading-relaxed text-[#8DB5DE]">
-          Monitor high-risk areas and stay informed about potential crime activity. Scores
-          are deterministic and explainable, derived from incident frequency, trend,
-          severity, repeat activity, time of day and proximity.
-        </p>
         <div
           className="flex gap-1 rounded-xl border p-1"
           style={{ backgroundColor: RISK_ELEVATED_BG, borderColor: '#123B67' }}

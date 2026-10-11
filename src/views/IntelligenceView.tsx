@@ -1,6 +1,7 @@
 import { Brain, Send, Sparkles, Zap } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { DemoChip } from '../components/ui/Badge'
+import { InfoPopover } from '../components/ui/InfoPopover'
 import { answerQuestion, SUGGESTED_PROMPTS, type AssistantContext } from '../analytics/assistant'
 import {
   assistantSources,
@@ -131,17 +132,22 @@ export function IntelligenceView({
     <div className="flex h-full flex-col bg-navy-950">
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-navy-800 px-3 pb-3 pt-3 xl:px-4">
         <div className="min-w-0 flex-1">
-          <h1 className="flex items-center gap-2 text-[18px] font-bold leading-tight text-white xl:text-[22px]">
-            <span className="grid size-6 place-items-center rounded bg-blue-600/20 text-blue-300">
-              <Brain className="size-4" aria-hidden />
-            </span>
-            Intelligence Assistant
-          </h1>
-          <p className="text-caption mt-1 max-w-3xl text-steel-400">
-            {live
-              ? `Answers stream live from ${liveModelLabel()}, grounded in the current incidents, risk zones and changes.`
-              : 'Rule-based, explainable assistant. Ask about any incident, area, crime type, status, trend, related crimes or recommendation in the dataset.'}
-          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="flex items-center gap-2 text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+              <span className="grid size-6 place-items-center rounded bg-blue-600/20 text-blue-300">
+                <Brain className="size-4" aria-hidden />
+              </span>
+              Intelligence Assistant
+            </h1>
+            <InfoPopover
+              label="About the assistant"
+              text={
+                live
+                  ? `Answers stream live from ${liveModelLabel()}, grounded in the current incidents, risk zones and changes.`
+                  : 'Rule-based, explainable assistant. Ask about any incident, area, crime type, status, trend, related crimes or recommendation in the dataset.'
+              }
+            />
+          </div>
         </div>
         <DemoChip />
       </header>

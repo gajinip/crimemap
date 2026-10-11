@@ -8,6 +8,7 @@ import type {
 } from '../types'
 import { usePatrol } from '../patrol/usePatrol'
 import { DemoChip } from '../components/ui/Badge'
+import { InfoPopover } from '../components/ui/InfoPopover'
 import { Panel } from '../components/ui/Panel'
 import { RecommendationCard } from '../components/RecommendationCard'
 import { RiskBreakdown } from '../components/RiskBreakdown'
@@ -36,13 +37,17 @@ export function PatrolView({
     <div className="scroll-thin flex flex-col gap-3 bg-navy-950 p-3 pb-8 xl:p-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
-            Patrol Operations
-          </h1>
-          <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-steel-400">
-            Deterministic dispatch plan built from {usingPredicted ? 'forward-adjusted predictions' : 'current risk zones'}.
-            The live unit simulation is a demo and does not reflect real patrol movements.
-          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+              Patrol Operations
+            </h1>
+            <InfoPopover
+              label="About patrol operations"
+              text={`Deterministic dispatch plan built from ${
+                usingPredicted ? 'forward-adjusted predictions' : 'current risk zones'
+              }. The live unit simulation is a demo and does not reflect real patrol movements.`}
+            />
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <DemoChip />

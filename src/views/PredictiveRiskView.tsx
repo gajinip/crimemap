@@ -1,6 +1,7 @@
 import { ShieldAlert, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 import { DemoChip, RiskBadge, TrendIndicator } from '../components/ui/Badge'
+import { InfoPopover } from '../components/ui/InfoPopover'
 import { Panel } from '../components/ui/Panel'
 import type { RiskForecastResponse, RiskLevel } from '../types'
 import { formatPercent } from '../utils/format'
@@ -38,14 +39,15 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
     <div className="scroll-thin flex flex-col gap-3 bg-navy-950 p-3 pb-8 xl:p-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
-            Risk Forecast
-          </h1>
-          <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-steel-400">
-            Deterministic, explainable outlook derived from current risk zones (trend, emerging
-            status, peak activity). This is a situational forecast - not a probabilistic crime
-            prediction model.
-          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+              Risk Forecast
+            </h1>
+            <InfoPopover
+              label="About risk forecast"
+              text="Deterministic, explainable outlook derived from current risk zones (trend, emerging status, peak activity). This is a situational forecast - not a probabilistic crime prediction model."
+            />
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <DemoChip />
