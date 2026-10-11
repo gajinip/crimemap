@@ -120,6 +120,35 @@ function makeUnit(
   }
 }
 
+/** Turns per-zone unit counts into simulated patrol units, padded with standby. */
+function assembleUnits(
+  zones: RiskZone[],
+  stations: PoliceStation[],
+  recommendations: Recommendation[],
+  assigned: Map<string, number>,
+): PatrolUnit[] {
+  const units: PatrolUnit[] = []
+  for (const recommendation of recommendations) {
+    const count = assigned.get(recommendation.zoneId) ?? 0
+    if (count === 0) continue
+    const zone = zoneById(zones, recommendation.zoneId)
+    if (!zone) continue
+    const station =
+      stations.find((entry) => entry.id === recommendation.nearestStation.id) ?? stations[0]
+    if (!station) continue
+    for (let index = 0; index < count; index += 1) {
+      units.push(makeUnit(units.length, station, zone))
+    }
+  }
+
+  let fallback = 0
+  while (units.length < UNIT_COUNT && fallback < stations.length) {
+    units.push(makeUnit(units.length, stations[fallback], undefined))
+    fallback += 1
+  }
+  return units
+}
+
 /**
  * Builds a simulated dispatch plan: the unit pool is dealt round-robin across
  * the staffed recommendations (one unit per zone first, then a second unit per
@@ -149,26 +178,48 @@ export function buildPatrolPlan(
     }
   }
 
-  const units: PatrolUnit[] = []
+  const units = assembleUnits(zones, stations, staffed, assigned)
+  const covered = new Set(units.map((unit) => unit.zoneId).filter((id) => id !== ''))
+
+  return {
+    units,
+    coveredZones: covered.size,
+    generatedAt,
+    isDemo: true,
+  }
+}
+
+const PRIORITY_RANK: Record<Recommendation['priority'], number> = { P1: 0, P2: 1, P3: 2 }
+
+/**
+ * Priority-weighted dispatch plan.
+ *
+ * Instead of dealing one unit to every zone before any zone gets a second, the
+ * unit pool is filled greedily from the top of the ranked list: the highest
+ * priority (then highest risk score) zone is staffed to its recommended strength
+ * before the next zone is considered, concentrating units where the effective
+ * risk is highest. Left-over units stay at base.
+ */
+export function buildPatrolPlanWeighted(
+  zones: RiskZone[],
+  stations: PoliceStation[],
+  recommendations: Recommendation[],
+  generatedAt: string,
+): PatrolPlan {
+  const staffed = recommendations
+    .filter((recommendation) => recommendation.units > 0)
+    .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority])
+
+  const assigned = new Map<string, number>()
+  let remaining = UNIT_COUNT
   for (const recommendation of staffed) {
-    const count = assigned.get(recommendation.zoneId) ?? 0
-    if (count === 0) continue
-    const zone = zoneById(zones, recommendation.zoneId)
-    if (!zone) continue
-    const station =
-      stations.find((entry) => entry.id === recommendation.nearestStation.id) ?? stations[0]
-    if (!station) continue
-    for (let index = 0; index < count; index += 1) {
-      units.push(makeUnit(units.length, station, zone))
-    }
+    if (remaining <= 0) break
+    const take = Math.min(recommendation.units, remaining)
+    assigned.set(recommendation.zoneId, take)
+    remaining -= take
   }
 
-  let fallback = 0
-  while (units.length < UNIT_COUNT && fallback < stations.length) {
-    units.push(makeUnit(units.length, stations[fallback], undefined))
-    fallback += 1
-  }
-
+  const units = assembleUnits(zones, stations, staffed, assigned)
   const covered = new Set(units.map((unit) => unit.zoneId).filter((id) => id !== ''))
 
   return {

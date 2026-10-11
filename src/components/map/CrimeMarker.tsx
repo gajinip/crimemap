@@ -5,6 +5,7 @@ import { getCrimeIcon } from '../../utils/crimeMapIcon'
 interface CrimeMarkerProps {
   incident: CrimeIncident
   onSelect: (incident: CrimeIncident) => void
+  related?: boolean
 }
 
 /**
@@ -14,13 +15,13 @@ interface CrimeMarkerProps {
  * `bubblingMouseEvents={false}` keeps the tap from reaching the map so the
  * tap-to-dismiss handler does not close the sheet immediately.
  */
-export function CrimeMarker({ incident, onSelect }: CrimeMarkerProps) {
+export function CrimeMarker({ incident, onSelect, related = false }: CrimeMarkerProps) {
   const handleSelect = () => onSelect(incident)
 
   return (
     <Marker
       position={[incident.lat, incident.lng]}
-      icon={getCrimeIcon(incident)}
+      icon={getCrimeIcon(incident, related)}
       bubblingMouseEvents={false}
       eventHandlers={{ click: handleSelect }}
     />

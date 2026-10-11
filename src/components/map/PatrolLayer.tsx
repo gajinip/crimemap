@@ -5,7 +5,7 @@ import type { GeoPoint } from '../../types'
 import { usePatrol } from '../../patrol/usePatrol'
 import type { DisplayPatrolUnit } from '../../patrol/patrolStore'
 
-/** At or above this zoom every unit shows its callsign chip; below it, a dot. */
+/** At or above this zoom every unit shows its full icon; below it, a dot. */
 const PATROL_LABEL_ZOOM = 13
 
 const STATUS_COLORS: Record<string, string> = {
@@ -14,13 +14,20 @@ const STATUS_COLORS: Record<string, string> = {
   Patrolling: '#22c55e',
 }
 
-function patrolIcon(callsign: string, status: string): L.DivIcon {
+function patrolIcon(status: string): L.DivIcon {
   const color = STATUS_COLORS[status] ?? '#94a3b8'
   return L.divIcon({
     className: 'patrol-marker-wrap',
-    html: `<span class="patrol-marker" style="--patrol-color:${color}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 5 5h14l2 6v6h-3v-2H6v2H3v-6z"/><circle cx="7.5" cy="15.5" r="1.6" fill="#050a14"/><circle cx="16.5" cy="15.5" r="1.6" fill="#050a14"/></svg><b>${callsign}</b></span>`,
-    iconSize: [54, 24],
-    iconAnchor: [27, 12],
+    html:
+      `<div class="patrol-marker" style="--patrol-color:${color}" role="img" aria-label="Patrol unit">` +
+      `<svg viewBox="0 0 24 24" aria-hidden="true">` +
+      `<path d="M3 11 5 5h14l2 6v6h-3v-2H6v2H3v-6z"/>` +
+      `<circle cx="7.5" cy="15.5" r="1.6" fill="#0d1526"/>` +
+      `<circle cx="16.5" cy="15.5" r="1.6" fill="#0d1526"/>` +
+      `</svg></div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15],
   })
 }
 
@@ -63,7 +70,7 @@ export function PatrolLayer({ isInside, onSelect }: PatrolLayerProps) {
         visibleUnits.map((unit) => [
           unit.id,
           showLabel
-            ? patrolIcon(unit.callsign, unit.displayStatus)
+            ? patrolIcon(unit.displayStatus)
             : patrolDotIcon(unit.displayStatus),
         ]),
       ),

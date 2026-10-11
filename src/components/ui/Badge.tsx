@@ -68,7 +68,7 @@ export function TrendIndicator({
 export function DemoChip({ compact = false }: { compact?: boolean }) {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded border border-amber-500/50 bg-amber-500/10 px-1.5 py-[1px] text-[9px] font-extrabold uppercase tracking-[0.14em] text-amber-300"
+      className="text-chip inline-flex items-center gap-1 rounded border border-amber-500/50 bg-amber-500/10 px-1.5 py-[1px] font-extrabold uppercase tracking-[0.14em] text-amber-300"
       title="Synthetic sample data - not real crime information"
     >
       DEMO{compact ? '' : ' DATA'}

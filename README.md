@@ -122,10 +122,18 @@ re-fetched on map re-render.
   is never shown without why it was produced.
 - `changes.ts` — **"What changed?"**: rising (≥ 25%), emerging (no incidents previously) and
   declining (≥ 15%) signals between the two windows, with significance thresholds.
+- `prediction.ts` — conservative, explainable forward view: a small, capped adjustment on top of
+  each measured score from emerging status and trend direction, blended by confidence (declines
+  are withheld below a confidence floor) and itemised as rationale. The measured score is retained
+  as `baseScore`/`baseLevel`, and `riskScore`/`riskLevel` expose the predicted values so existing
+  consumers transparently operate on the forward view.
 - `recommend.ts` — patrol recommendation per zone: units, priority, focus window derived from
-  the peak hours, patrol focus from the dominant crime, nearest station and rationale.
-- `patrol.ts` — deterministic dispatch plan (units dealt round-robin across staffed zones) and
-  the position/status projection used by the simulation clock in `src/patrol/`.
+  the peak hours, patrol focus from the dominant crime, nearest station and rationale. Predicted
+  variants keep high-confidence, high-risk zones from being demoted below their measured need.
+- `patrol.ts` — deterministic dispatch plan and the position/status projection used by the
+  simulation clock in `src/patrol/`. The priority-weighted plan fills the highest-priority
+  (then highest predicted score) zones to their recommended strength first, concentrating units
+  where future risk is elevated.
 - `assistant.ts` — rule-based answers over the same outputs; it only ever quotes the current
   data and windows and never claims to predict exact crimes.
 

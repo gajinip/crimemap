@@ -44,6 +44,7 @@ interface MapViewProps {
   categoryCounts: Record<string, number>
   totalIncidents: number
   selectedArea: string
+  relatedIncidentIds?: Set<string>
   selectedZone: RiskZone | null
   selectedRecommendation: Recommendation | null
   onSelectZone: (zoneId: string) => void
@@ -64,6 +65,7 @@ export function MapView({
   categoryCounts,
   totalIncidents,
   selectedArea,
+  relatedIncidentIds,
   selectedZone,
   selectedRecommendation,
   onSelectZone,
@@ -201,6 +203,7 @@ export function MapView({
         stations={stations}
         selectedArea={selectedArea}
         searchQuery={filters.searchQuery}
+        relatedIncidentIds={relatedIncidentIds}
         selectedZoneId={selectedZone ? selectedZone.id : null}
         onSelectZone={handleSelectZone}
         onSelectIncident={handleSelectIncident}
@@ -215,6 +218,7 @@ export function MapView({
         categoryCounts={categoryCounts}
         visibleCount={incidents.length}
         totalCount={totalIncidents}
+        relatedCount={relatedIncidentIds?.size ?? 0}
         onChange={onFiltersChange}
         onReset={onResetFilters}
       />

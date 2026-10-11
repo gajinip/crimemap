@@ -85,9 +85,11 @@ function groupIncidents(incidents: CrimeIncident[]): ClusterGroup[] {
  */
 export function IncidentLayer({
   incidents,
+  relatedIds,
   onSelect,
 }: {
   incidents: CrimeIncident[]
+  relatedIds?: Set<string>
   onSelect: (incident: CrimeIncident) => void
 }) {
   const map = useMap()
@@ -97,15 +99,34 @@ export function IncidentLayer({
     zoomend: () => setZoom(map.getZoom()),
   })
 
+  const isRelated = (incident: CrimeIncident) => relatedIds?.has(incident.id) ?? false
+
+  // Linked incidents are always called out as individual markers, even when
+  // zoomed out, so a related crime in a neighbouring locality stays visible.
+  const related = useMemo(
+    () => incidents.filter((incident) => relatedIds?.has(incident.id) ?? false),
+    [incidents, relatedIds],
+  )
+
   // User-reported crimes always render as their own pointer marker.
-  const userReported = useMemo(() => incidents.filter((incident) => !incident.isDemo), [incidents])
+  const userReported = useMemo(
+    () =>
+      incidents.filter(
+        (incident) => !incident.isDemo && !(relatedIds?.has(incident.id) ?? false),
+      ),
+    [incidents, relatedIds],
+  )
 
   const groups = useMemo(
     () =>
       zoom < CLUSTER_ZOOM
-        ? groupIncidents(incidents.filter((incident) => incident.isDemo))
+        ? groupIncidents(
+            incidents.filter(
+              (incident) => incident.isDemo && !(relatedIds?.has(incident.id) ?? false),
+            ),
+          )
         : [],
-    [zoom, incidents],
+    [zoom, incidents, relatedIds],
   )
 
   if (zoom >= CLUSTER_ZOOM) {
@@ -115,6 +136,7 @@ export function IncidentLayer({
           <CrimeMarker
             key={incident.id}
             incident={incident}
+            related={isRelated(incident)}
             onSelect={onSelect}
           />
         ))}
@@ -124,6 +146,14 @@ export function IncidentLayer({
 
   return (
     <>
+      {related.map((incident) => (
+        <CrimeMarker
+          key={incident.id}
+          incident={incident}
+          related
+          onSelect={onSelect}
+        />
+      ))}
       {userReported.map((incident) => (
         <CrimeMarker
           key={incident.id}

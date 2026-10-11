@@ -1,5 +1,11 @@
 import { Activity, Clock, MapPin, Navigation, ShieldCheck } from 'lucide-react'
-import type { PatrolPlan, Recommendation, RiskZone, PoliceStation } from '../types'
+import type {
+  PatrolPlan,
+  PredictionSource,
+  Recommendation,
+  RiskZone,
+  PoliceStation,
+} from '../types'
 import { usePatrol } from '../patrol/usePatrol'
 import { DemoChip } from '../components/ui/Badge'
 import { Panel } from '../components/ui/Panel'
@@ -12,22 +18,30 @@ interface PatrolViewProps {
   stations: PoliceStation[]
   zones: RiskZone[]
   recommendations: Recommendation[]
+  /** Whether dispatch inputs came from the forward view or measured zones. */
+  predictionSource?: PredictionSource
 }
 
 /** Patrol operations view: dispatch plan, simulated units, zone priorities. */
-export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewProps) {
+export function PatrolView({
+  dispatchPlan,
+  zones,
+  recommendations,
+  predictionSource = 'measured',
+}: PatrolViewProps) {
   const { units, running, speed, changeSpeed, toggleRunning, reset } = usePatrol()
+  const usingPredicted = predictionSource === 'predicted'
 
   return (
-    <div className="scroll-thin flex h-full flex-col gap-3 overflow-y-auto bg-navy-950 p-3 pb-6 xl:p-4">
+    <div className="scroll-thin flex h-full flex-col gap-3 overflow-y-auto overflow-x-hidden bg-navy-950 p-3 pb-6 xl:p-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
             Patrol Operations
           </h1>
           <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-steel-400">
-            Deterministic dispatch plan built from current risk zones. The live unit simulation is a
-            demo and does not reflect real patrol movements.
+            Deterministic dispatch plan built from {usingPredicted ? 'forward-adjusted predictions' : 'current risk zones'}.
+            The live unit simulation is a demo and does not reflect real patrol movements.
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -49,9 +63,16 @@ export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewP
         </div>
       </header>
 
-      <div className="grid gap-3 lg:grid-cols-12">
-        <section className="grid gap-3 lg:col-span-5 xl:col-span-4">
-          <Panel title="Dispatch plan" subtitle="Priority order by highest risk zone">
+      <div className="grid w-full grid-cols-1 min-w-0 gap-3 lg:grid-cols-12">
+        <section className="grid grid-cols-1 min-w-0 gap-3 lg:col-span-5 xl:col-span-4">
+          <Panel
+            title="Dispatch plan"
+            subtitle={
+              usingPredicted
+                ? 'Priority-weighted by predicted risk'
+                : 'Priority order by highest risk zone'
+            }
+          >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-steel-500">
               <span className="inline-flex items-center gap-1">
                 <Activity className="size-3" /> Units: {dispatchPlan.units.length}
@@ -62,10 +83,15 @@ export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewP
               <span className="inline-flex items-center gap-1">
                 <Clock className="size-3" /> {formatDateTime(dispatchPlan.generatedAt)}
               </span>
+              <span className="inline-flex items-center gap-1 rounded bg-blue-600/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.12em] text-blue-300">
+                {usingPredicted ? 'Predicted view' : 'Measured view'}
+              </span>
             </div>
             <p className="mt-2 text-[11px] leading-relaxed text-steel-400">
-              The unit pool is dealt round-robin across staffed recommendations, so every top-priority
-              zone gets coverage before any zone gets a second unit.
+              The unit pool is allocated priority-weighted: higher-priority zones (and, within a
+              priority, higher predicted scores) are staffed to their recommended strength first, so
+              units concentrate where future risk is elevated. High-confidence high-risk zones are
+              never demoted below their measured need.
             </p>
             <ul className="mt-2 space-y-1.5">
               {recommendations.map((recommendation, index) => {
@@ -84,7 +110,7 @@ export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewP
                         {recommendation.units === 1 ? '' : 's'} · {recommendation.window}
                       </p>
                     </div>
-                    <span className="text-[10px] font-semibold text-blue-300">
+                    <span className="shrink-0 text-[10px] font-semibold text-blue-300">
                       {recommendation.priority}
                     </span>
                   </li>
@@ -137,8 +163,8 @@ export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewP
                     <div className="min-w-0">
                       <p className="text-[12px] font-semibold text-white">{unit.callsign}</p>
                       <p className="mt-0.5 flex items-center gap-1 text-[10px] text-steel-400">
-                        <MapPin className="size-3" />
-                        <span className="truncate">
+                        <MapPin className="size-3 shrink-0" />
+                        <span className="min-w-0 truncate">
                           {unit.zoneArea} · Base {unit.stationName}
                         </span>
                       </p>
@@ -160,13 +186,13 @@ export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewP
           </Panel>
         </section>
 
-        <section className="grid gap-3 lg:col-span-7 xl:col-span-8">
+        <section className="grid grid-cols-1 min-w-0 gap-3 lg:col-span-7 xl:col-span-8">
           {recommendations.length > 0 ? (
             <Panel
               title="Operational recommendations"
               subtitle={`${recommendations.length} actionable items`}
             >
-              <div className="grid gap-2.5 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
                 {recommendations.map((recommendation) => (
                   <RecommendationCard key={recommendation.zoneId} recommendation={recommendation} />
                 ))}
@@ -179,7 +205,7 @@ export function PatrolView({ dispatchPlan, zones, recommendations }: PatrolViewP
               title="Zone risk breakdown"
               subtitle={`${formatNumber(zones.length)} active risk zones (0–100)`}
             >
-              <div className="grid gap-2.5 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
                 {zones.slice(0, 4).map((zone) => (
                   <RiskBreakdown key={zone.id} zone={zone} compact />
                 ))}

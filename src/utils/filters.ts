@@ -8,7 +8,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 /** Upper bound of the bundled demo dataset. */
 export const DATA_MAX_DATE = '2026-10-08'
 
-function withinDateRange(iso: string, range: DateRange): boolean {
+export function withinDateRange(iso: string, range: DateRange): boolean {
   const time = new Date(iso).getTime()
   const from = new Date(`${range.from}T00:00:00+05:30`).getTime()
   const to = new Date(`${range.to}T23:59:59+05:30`).getTime()

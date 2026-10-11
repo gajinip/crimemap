@@ -1,4 +1,11 @@
-import type { CrimeCategory, PoliceStation, Recommendation, RiskZone } from '../types'
+import type {
+  CrimeCategory,
+  PoliceStation,
+  PredictedRiskZone,
+  Recommendation,
+  RiskLevel,
+  RiskZone,
+} from '../types'
 import { haversineMeters } from '../utils/geo'
 
 /**
@@ -19,11 +26,30 @@ const FOCUS_BY_CRIME: Record<CrimeCategory, string> = {
   Other: 'general preventive patrol and beat verification',
 }
 
-function unitsFor(zone: RiskZone): number {
-  if (zone.riskLevel === 'Critical') return 3
-  if (zone.riskLevel === 'High') return 2
-  if (zone.riskLevel === 'Medium') return 1
+/** A confidence floor below which forward signals are not trusted to demote. */
+const HIGH_CONFIDENCE = 0.6
+/** Measured score at/above which a zone is treated as "already high risk". */
+const HIGH_RISK_SCORE = 55
+
+function unitsForLevel(level: RiskLevel): number {
+  if (level === 'Critical') return 3
+  if (level === 'High') return 2
+  if (level === 'Medium') return 1
   return 0
+}
+
+function unitsFor(zone: RiskZone): number {
+  return unitsForLevel(zone.riskLevel)
+}
+
+/**
+ * Guards against a forward view silently demoting an already-serious zone.
+ * A high-confidence, high-risk zone keeps at least the units its *measured*
+ * level warrants, even if the predicted level dipped.
+ */
+function protectedUnits(zone: PredictedRiskZone): number {
+  if (zone.baseScore < HIGH_RISK_SCORE || zone.confidence < HIGH_CONFIDENCE) return 0
+  return unitsForLevel(zone.baseLevel)
 }
 
 function priorityFor(zone: RiskZone): Recommendation['priority'] {
@@ -52,12 +78,21 @@ function nearestStation(
   }
 }
 
+/** Optional overrides when a recommendation is built from the predicted view. */
+export interface RecommendationOptions {
+  /** Explicit unit count (e.g. a protected minimum that must not be demoted). */
+  units?: number
+  /** Forward-view context to attach and surface in the UI. */
+  prediction?: Recommendation['prediction']
+}
+
 export function buildRecommendation(
   zone: RiskZone,
   stations: PoliceStation[],
   days = 30,
+  options?: RecommendationOptions,
 ): Recommendation {
-  const units = unitsFor(zone)
+  const units = options?.units ?? unitsFor(zone)
   const priority = priorityFor(zone)
   const focus = FOCUS_BY_CRIME[zone.dominantCrime]
   const window = zone.peakWindow === '—' ? '18:00-21:00' : zone.peakWindow
@@ -101,6 +136,7 @@ export function buildRecommendation(
     steps,
     rationale,
     nearestStation: nearest,
+    ...(options?.prediction ? { prediction: options.prediction } : {}),
     isDemo: true,
   }
 }
@@ -116,4 +152,47 @@ export function buildDispatchPlan(
   const staffed = ranked.filter((zone) => unitsFor(zone) > 0)
   const plan = (staffed.length >= 3 ? staffed : ranked.slice(0, 3)).slice(0, limit)
   return plan.map((zone) => buildRecommendation(zone, stations, days))
+}
+
+/**
+ * Recommendation for a predicted zone. Units are the greater of the predicted
+ * level's strength and the protected minimum for an already high-risk zone, so
+ * a forward dip can never strip coverage from a serious, well-supported zone.
+ */
+export function buildRecommendationFromPredicted(
+  zone: PredictedRiskZone,
+  stations: PoliceStation[],
+  days = 30,
+): Recommendation {
+  const units = Math.max(unitsFor(zone), protectedUnits(zone))
+  return buildRecommendation(zone, stations, days, {
+    units,
+    prediction: {
+      source: 'predicted',
+      adjustment: zone.adjustment,
+      confidence: zone.confidence,
+      rationale: zone.rationale,
+    },
+  })
+}
+
+/**
+ * Dispatch plan built from the forward view. Selection and ordering follow the
+ * predicted scores, while the protected minimum keeps high-confidence,
+ * high-risk zones from being demoted. Falls back to the measured plan when no
+ * predicted zones are supplied.
+ */
+export function buildDispatchPlanFromPredicted(
+  predicted: PredictedRiskZone[],
+  stations: PoliceStation[],
+  days = 30,
+  limit = 6,
+): Recommendation[] {
+  if (predicted.length === 0) return []
+  const ranked = [...predicted].sort((a, b) => b.riskScore - a.riskScore)
+  const staffed = ranked.filter(
+    (zone) => Math.max(unitsFor(zone), protectedUnits(zone)) > 0,
+  )
+  const plan = (staffed.length >= 3 ? staffed : ranked.slice(0, 3)).slice(0, limit)
+  return plan.map((zone) => buildRecommendationFromPredicted(zone, stations, days))
 }

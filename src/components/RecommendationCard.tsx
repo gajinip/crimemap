@@ -80,6 +80,26 @@ export function RecommendationCard({
           </ul>
         </div>
       ) : null}
+
+      {recommendation.prediction ? (
+        <div className="mt-2 border-t border-blue-500/20 pt-2">
+          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-blue-300">
+            Forward view
+            <span className="ml-1.5 font-normal normal-case tracking-normal text-steel-500">
+              {recommendation.prediction.adjustment > 0 ? '+' : ''}
+              {recommendation.prediction.adjustment} pts ·{' '}
+              {Math.round(recommendation.prediction.confidence * 100)}% confidence
+            </span>
+          </p>
+          <ul className="mt-1 space-y-1">
+            {recommendation.prediction.rationale.map((item) => (
+              <li key={item} className="text-[10px] leading-snug text-steel-400">
+                • {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   )
 }

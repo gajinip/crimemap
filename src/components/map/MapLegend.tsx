@@ -125,13 +125,12 @@ export function MapLegend() {
                 Locality cluster (zoom out)
               </li>
               <li className="flex items-center gap-2 text-[10px] text-steel-200">
-                <span className="patrol-marker scale-90" aria-hidden>
+                <span className="patrol-marker scale-75" aria-hidden>
                   <svg viewBox="0 0 24 24">
                     <path d="M3 11 5 5h14l2 6v6h-3v-2H6v2H3v-6z" />
-                    <circle cx="7.5" cy="15.5" r="1.6" fill="#050a14" />
-                    <circle cx="16.5" cy="15.5" r="1.6" fill="#050a14" />
+                    <circle cx="7.5" cy="15.5" r="1.6" fill="#0d1526" />
+                    <circle cx="16.5" cy="15.5" r="1.6" fill="#0d1526" />
                   </svg>
-                  <b>PCR-1</b>
                 </span>
                 Simulated patrol unit
               </li>

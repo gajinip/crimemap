@@ -2,8 +2,13 @@ import { LoaderCircle, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { buildAnalysisWindow, buildRiskForecast, computeRiskZones } from './analytics/risk'
 import { detectChanges } from './analytics/changes'
-import { buildDispatchPlan, buildRecommendation } from './analytics/recommend'
-import { buildPatrolPlan } from './analytics/patrol'
+import { computePredictedZones } from './analytics/prediction'
+import {
+  buildDispatchPlan,
+  buildDispatchPlanFromPredicted,
+  buildRecommendation,
+} from './analytics/recommend'
+import { buildPatrolPlan, buildPatrolPlanWeighted } from './analytics/patrol'
 import { DemoBanner } from './components/DemoBanner'
 import { BottomNav } from './components/BottomNav'
 import { Header } from './components/Header'
@@ -12,7 +17,6 @@ import { PatrolProvider } from './patrol/PatrolContext'
 import { crimeDataSource } from './services/crimeApi'
 import type {
   AppView,
-  ComparePeriod,
   CrimeFilterState,
   CrimeIncident,
   DateRange,
@@ -26,6 +30,7 @@ import {
   applyCrimeFilters,
   countByCategory,
   filterRiskZones,
+  withinDateRange,
 } from './utils/filters'
 import {
   buildAreaStats,
@@ -34,6 +39,7 @@ import {
   buildStatusStats,
   computeDashboardStats,
 } from './utils/stats'
+import { findRelatedIncidents } from './utils/relatedIncidents'
 import { DashboardView } from './views/DashboardView'
 import { HotspotsView } from './views/HotspotsView'
 import { IntelligenceView } from './views/IntelligenceView'
@@ -45,6 +51,8 @@ import { StationsView } from './views/StationsView'
 import { TrendsView } from './views/TrendsView'
 
 const DEMO_DATE_RANGE: DateRange = { from: '2026-04-01', to: '2026-10-08' }
+
+const EMPTY_INCIDENT_IDS: Set<string> = new Set()
 
 const INITIAL_FILTERS: CrimeFilterState = {
   categories: [...CRIME_CATEGORIES],
@@ -70,7 +78,7 @@ interface ZoneSelection {
 export default function App() {
   const [view, setView] = useState<AppView>('map')
   const [filters, setFilters] = useState<CrimeFilterState>(INITIAL_FILTERS)
-  const [comparePeriod, setComparePeriod] = useState<ComparePeriod>('Week')
+  const [viewRange, setViewRange] = useState<DateRange | null>(null)
   const [data, setData] = useState<LoadState | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -98,41 +106,37 @@ export default function App() {
   const incidents = useMemo(() => data?.incidents ?? [], [data])
   const stations = useMemo(() => data?.stations ?? [], [data])
 
-  const contextIncidents = useMemo(
-    () => applyContextFilters(incidents, filters),
-    [incidents, filters],
-  )
-  const filteredIncidents = useMemo(
-    () => applyCrimeFilters(incidents, filters),
-    [incidents, filters],
-  )
-  const categoryCounts = useMemo(() => countByCategory(incidents, filters), [incidents, filters])
+  // ---------------------------------------------------------------------------
+  // Global dataset. Every view except the map ignores the map's filter state
+  // and works from the full incident set over the default date range.
+  // ---------------------------------------------------------------------------
+  const analysisWindow = useMemo(() => buildAnalysisWindow(DEMO_DATE_RANGE), [])
 
-  const analysisWindow = useMemo(
-    () => buildAnalysisWindow(filters.dateRange),
-    [filters.dateRange],
+  const zones = useMemo(() => computeRiskZones(incidents, DEMO_DATE_RANGE), [incidents])
+  const changes = useMemo(() => detectChanges(incidents, DEMO_DATE_RANGE), [incidents])
+  const forecast = useMemo(() => buildRiskForecast(zones, generatedAt), [zones, generatedAt])
+  const predictedZones = useMemo(
+    () => computePredictedZones(zones, forecast),
+    [zones, forecast],
   )
-
-  const zones = useMemo(
-    () => computeRiskZones(contextIncidents, filters.dateRange),
-    [contextIncidents, filters.dateRange],
-  )
-  const visibleZones = useMemo(() => filterRiskZones(zones, filters), [zones, filters])
-  const changes = useMemo(
-    () => detectChanges(contextIncidents, filters.dateRange),
-    [contextIncidents, filters.dateRange],
-  )
+  const usingPredictions = predictedZones.length > 0
   const recommendations = useMemo(
-    () => buildDispatchPlan(zones, stations),
-    [zones, stations],
+    () =>
+      usingPredictions
+        ? buildDispatchPlanFromPredicted(predictedZones, stations)
+        : buildDispatchPlan(zones, stations),
+    [usingPredictions, predictedZones, zones, stations],
   )
-  const forecast = useMemo(
-    () => buildRiskForecast(zones, generatedAt),
-    [zones, generatedAt],
+  const patrolZones = useMemo(
+    () => (usingPredictions ? predictedZones : zones),
+    [usingPredictions, predictedZones, zones],
   )
   const patrolPlan = useMemo(
-    () => buildPatrolPlan(zones, stations, recommendations, generatedAt),
-    [zones, stations, recommendations, generatedAt],
+    () =>
+      usingPredictions
+        ? buildPatrolPlanWeighted(patrolZones, stations, recommendations, generatedAt)
+        : buildPatrolPlan(patrolZones, stations, recommendations, generatedAt),
+    [usingPredictions, patrolZones, stations, recommendations, generatedAt],
   )
 
   const selectedZone = useMemo<RiskZone | null>(() => {
@@ -144,31 +148,91 @@ export default function App() {
     )
   }, [zones, selection])
 
-  const selectedRecommendation = useMemo(() => {
-    if (!selectedZone) return null
-    return (
-      recommendations.find(
-        (entry) => entry.zoneId === selectedZone.id || entry.area === selectedZone.area,
-      ) ?? buildRecommendation(selectedZone, stations)
-    )
-  }, [selectedZone, recommendations, stations])
+  const scopedIncidents = useMemo(
+    () =>
+      viewRange
+        ? incidents.filter((incident) => withinDateRange(incident.occurredAt, viewRange))
+        : incidents,
+    [incidents, viewRange],
+  )
 
   const stats = useMemo(
-    () => computeDashboardStats(filteredIncidents, visibleZones, filters.dateRange, comparePeriod),
-    [filteredIncidents, visibleZones, filters.dateRange, comparePeriod],
+    () => computeDashboardStats(scopedIncidents, zones, viewRange, DEMO_DATE_RANGE, incidents),
+    [scopedIncidents, zones, viewRange, incidents],
   )
-  const categoryStats = useMemo(() => buildCategoryStats(filteredIncidents), [filteredIncidents])
-  const areaStats = useMemo(() => buildAreaStats(filteredIncidents), [filteredIncidents])
-  const monthly = useMemo(
-    () => buildMonthlySeries(filteredIncidents, filters.dateRange),
-    [filteredIncidents, filters.dateRange],
-  )
-  const statusStats = useMemo(() => buildStatusStats(filteredIncidents), [filteredIncidents])
+  const categoryStats = useMemo(() => buildCategoryStats(incidents), [incidents])
+  const areaStats = useMemo(() => buildAreaStats(incidents), [incidents])
+  const monthly = useMemo(() => buildMonthlySeries(incidents, DEMO_DATE_RANGE), [incidents])
+  const statusStats = useMemo(() => buildStatusStats(incidents), [incidents])
   const zoneRiskCounts = useMemo(() => {
     const counts: Record<string, number> = { Low: 0, Medium: 0, High: 0, Critical: 0 }
-    for (const zone of visibleZones) counts[zone.riskLevel] += 1
+    for (const zone of zones) counts[zone.riskLevel] += 1
     return counts
-  }, [visibleZones])
+  }, [zones])
+
+  // ---------------------------------------------------------------------------
+  // Map dataset. Derived from the map's own filter state only, so filtering the
+  // map never changes any other view.
+  // ---------------------------------------------------------------------------
+  const mapContextIncidents = useMemo(
+    () => applyContextFilters(incidents, filters),
+    [incidents, filters],
+  )
+  const mapCategoryCounts = useMemo(() => countByCategory(incidents, filters), [incidents, filters])
+  const mapZones = useMemo(
+    () => computeRiskZones(mapContextIncidents, filters.dateRange),
+    [mapContextIncidents, filters.dateRange],
+  )
+  const mapVisibleZones = useMemo(() => filterRiskZones(mapZones, filters), [mapZones, filters])
+  const mapForecast = useMemo(() => buildRiskForecast(mapZones, generatedAt), [mapZones, generatedAt])
+  const mapPredictedZones = useMemo(
+    () => computePredictedZones(mapZones, mapForecast),
+    [mapZones, mapForecast],
+  )
+  const mapRecommendations = useMemo(
+    () =>
+      mapPredictedZones.length > 0
+        ? buildDispatchPlanFromPredicted(mapPredictedZones, stations)
+        : buildDispatchPlan(mapZones, stations),
+    [mapPredictedZones, mapZones, stations],
+  )
+
+  // When a single locality is selected, also surface crimes in other areas that
+  // are linked to one there (same type, within 1.5 km and 72 h).
+  const { mapIncidents, mapRelatedIds } = useMemo(() => {
+    if (filters.area === ALL_AREAS) {
+      return {
+        mapIncidents: applyCrimeFilters(incidents, filters),
+        mapRelatedIds: EMPTY_INCIDENT_IDS,
+      }
+    }
+
+    const pool = applyCrimeFilters(incidents, { ...filters, area: ALL_AREAS })
+    const seeds = pool.filter((incident) => incident.area === filters.area)
+    const related = findRelatedIncidents(pool, seeds)
+    return {
+      mapIncidents: [...seeds, ...related],
+      mapRelatedIds: new Set(related.map((incident) => incident.id)),
+    }
+  }, [incidents, filters])
+
+  const mapSelectedZone = useMemo<RiskZone | null>(() => {
+    if (!selection) return null
+    return (
+      mapZones.find((zone) => zone.id === selection.id) ??
+      mapZones.find((zone) => zone.area === selection.area) ??
+      null
+    )
+  }, [mapZones, selection])
+
+  const mapSelectedRecommendation = useMemo(() => {
+    if (!mapSelectedZone) return null
+    return (
+      mapRecommendations.find(
+        (entry) => entry.zoneId === mapSelectedZone.id || entry.area === mapSelectedZone.area,
+      ) ?? buildRecommendation(mapSelectedZone, stations)
+    )
+  }, [mapSelectedZone, mapRecommendations, stations])
 
   const resetAllFilters = useCallback(() => {
     setFilters((current) => ({
@@ -223,11 +287,13 @@ export default function App() {
 
   const selectZone = useCallback(
     (zoneId: string) => {
-      const zone = zones.find((entry) => entry.id === zoneId)
+      const zone =
+        mapZones.find((entry) => entry.id === zoneId) ??
+        zones.find((entry) => entry.id === zoneId)
       if (!zone) return
       setSelection({ id: zone.id, area: zone.area })
     },
-    [zones],
+    [mapZones, zones],
   )
 
   const selectZoneObject = useCallback((zone: RiskZone) => {
@@ -274,15 +340,16 @@ export default function App() {
         return (
           <DashboardView
             stats={stats}
-            zones={visibleZones}
-            comparePeriod={comparePeriod}
-            onComparePeriodChange={setComparePeriod}
+            zones={zones}
+            range={DEMO_DATE_RANGE}
+            compareRange={viewRange}
+            onCompareRangeChange={setViewRange}
           />
         )
       case 'hotspots':
         return (
           <HotspotsView
-            zones={visibleZones}
+            zones={zones}
             recommendations={recommendations}
             selectedZone={selectedZone}
             onFocusArea={focusArea}
@@ -306,8 +373,8 @@ export default function App() {
       case 'intelligence':
         return (
           <IntelligenceView
-            incidents={filteredIncidents}
-            zones={visibleZones}
+            incidents={incidents}
+            zones={zones}
             changes={changes}
             recommendations={recommendations}
             stations={stations}
@@ -321,8 +388,9 @@ export default function App() {
           <PatrolView
             dispatchPlan={patrolPlan}
             stations={stations}
-            zones={visibleZones}
+            zones={patrolZones}
             recommendations={recommendations}
+            predictionSource={usingPredictions ? 'predicted' : 'measured'}
           />
         )
       case 'stations':
@@ -330,28 +398,29 @@ export default function App() {
       case 'reports':
         return (
           <ReportsView
-            incidents={filteredIncidents}
-            zones={visibleZones}
+            incidents={incidents}
+            zones={zones}
             changes={changes}
             stations={stations}
             stats={stats}
             categoryStats={categoryStats}
-            filters={filters}
+            filters={INITIAL_FILTERS}
           />
         )
       case 'map':
       default:
         return (
           <MapView
-            incidents={filteredIncidents}
-            zones={visibleZones}
+            incidents={mapIncidents}
+            zones={mapVisibleZones}
             stations={stations}
             filters={filters}
-            categoryCounts={categoryCounts}
+            categoryCounts={mapCategoryCounts}
             totalIncidents={incidents.length}
             selectedArea={filters.area}
-            selectedZone={selectedZone}
-            selectedRecommendation={selectedRecommendation}
+            relatedIncidentIds={mapRelatedIds}
+            selectedZone={mapSelectedZone}
+            selectedRecommendation={mapSelectedRecommendation}
             onSelectZone={selectZone}
             onCloseZone={() => setSelection(null)}
             onFocusArea={focusArea}
@@ -368,7 +437,9 @@ export default function App() {
   const mainClass =
     view === 'map'
       ? 'relative h-full min-h-[320px]'
-      : 'relative min-w-0 pb-14 xl:min-h-0 xl:flex-1'
+      : view === 'intelligence'
+        ? 'relative flex h-full min-h-[320px] min-w-0 flex-col'
+        : 'relative min-w-0 pb-14 xl:min-h-0 xl:flex-1'
 
   return (
     <PatrolProvider plan={patrolPlan}>

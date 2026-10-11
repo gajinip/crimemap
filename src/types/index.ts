@@ -117,6 +117,50 @@ export interface RiskZone extends GeoPoint {
   isDemo: boolean
 }
 
+/**
+ * Which dataset a downstream computation (recommendation, patrol plan) was
+ * built from: the measured risk zones, or the forward-adjusted prediction view.
+ */
+export type PredictionSource = 'predicted' | 'measured'
+
+/** One explainable component of a zone's forward score adjustment. */
+export interface PredictionAdjustment {
+  key: 'emerging' | 'trend' | 'confidence'
+  label: string
+  /** Signed points this signal (after confidence blending) added to the score. */
+  points: number
+  /** Human-readable evidence behind the adjustment. */
+  detail: string
+}
+
+/**
+ * A risk zone extended with a conservative, explainable forward view.
+ *
+ * `riskScore`/`riskLevel` are overridden with the predicted values so every
+ * existing consumer (recommendations, patrol, cards) automatically works on the
+ * forward view. The measured values remain available in `baseScore`/`baseLevel`
+ * and every movement is broken down in `adjustments`/`rationale`.
+ */
+export interface PredictedRiskZone extends RiskZone {
+  baseScore: number
+  baseLevel: RiskLevel
+  predictedScore: number
+  predictedLevel: RiskLevel
+  /** Signed movement applied to the measured score (predicted - base). */
+  adjustment: number
+  /** 0-1 heuristic confidence in the zone's data coverage. */
+  confidence: number
+  adjustments: PredictionAdjustment[]
+  rationale: string[]
+}
+
+/** The full predicted zone view plus the metadata needed to label it. */
+export interface PredictionResult {
+  zones: PredictedRiskZone[]
+  source: PredictionSource
+  modelVersion: string
+}
+
 /** The recent/previous comparison windows used across the analytics engine. */
 export interface AnalysisWindow {
   days: number
@@ -169,7 +213,19 @@ export interface Recommendation {
   steps: string[]
   rationale: string[]
   nearestStation: { id: string; name: string; distanceMeters: number }
+  /** Present when the recommendation was derived from the predicted view. */
+  prediction?: RecommendationPrediction
   isDemo: boolean
+}
+
+/** Forward-view context attached to a recommendation built from predictions. */
+export interface RecommendationPrediction {
+  source: PredictionSource
+  /** Signed forward adjustment applied to the zone's measured score. */
+  adjustment: number
+  /** 0-1 heuristic confidence behind the adjustment. */
+  confidence: number
+  rationale: string[]
 }
 
 export type PatrolStatus = 'Standby' | 'Deploying' | 'Patrolling'
@@ -245,7 +301,13 @@ export interface CrimeFilterState {
   searchQuery: string
 }
 
-export type ComparePeriod = 'Day' | 'Week' | 'Month' | 'Year'
+export type ComparePeriod = 'Day' | 'Week' | 'Month' | 'Year' | 'Total'
+
+export interface TrendCompare {
+  percent: number
+  direction: TrendDirection
+  hasBaseline: boolean
+}
 
 export interface DashboardStats {
   totalIncidents: number
@@ -255,10 +317,7 @@ export interface DashboardStats {
   averageRiskScore: number
   trendPercent: number
   trendDirection: TrendDirection
-  compare: {
-    percent: number
-    direction: TrendDirection
-  }
+  compare: TrendCompare
   mostCommonCategory: CrimeCategory | null
   mostCommonCount: number
 }

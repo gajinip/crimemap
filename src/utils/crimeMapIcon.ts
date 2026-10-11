@@ -68,14 +68,16 @@ function crimeSymbol(symbol: string): string {
  * the exact coordinate, so `iconAnchor` is the bottom tip and `popupAnchor`
  * opens above the head.
  */
-export function createCrimeMapIcon(category: string): L.DivIcon {
+export function createCrimeMapIcon(category: string, related = false): L.DivIcon {
   const color =
     CRIME_CATEGORY_COLORS[category as CrimeCategory] ?? CRIME_FALLBACK_COLOR
   const symbol = CRIME_SYMBOLS[category as CrimeCategory] ?? CRIME_SYMBOLS.Other
   const innerIcon = crimeSymbol(symbol)
 
   const html =
-    `<div class="crime-pin" style="--crime-color:${color}">` +
+    `<div class="crime-pin${related ? ' crime-pin--related' : ''}" ` +
+    `style="--crime-color:${color}">` +
+    (related ? `<span class="crime-pin__halo"></span>` : '') +
     `<svg class="crime-pin__shape" xmlns="http://www.w3.org/2000/svg" ` +
     `viewBox="0 0 40 48" aria-hidden="true">` +
     `<path d="M20 46C16 39 2 26 2 17A18 18 0 1 1 38 17C38 26 24 39 20 46Z" ` +
@@ -101,6 +103,6 @@ export function getCrimeColor(category: string): string {
 }
 
 /** Build the map pin for a single incident. */
-export function getCrimeIcon(incident: CrimeIncident): L.DivIcon {
-  return createCrimeMapIcon(incident.category)
+export function getCrimeIcon(incident: CrimeIncident, related = false): L.DivIcon {
+  return createCrimeMapIcon(incident.category, related)
 }

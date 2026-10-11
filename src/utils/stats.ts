@@ -2,25 +2,18 @@ import { CRIME_CATEGORIES } from '../types'
 import type {
   AreaStat,
   CategoryStat,
-  ComparePeriod,
   CrimeCategory,
   CrimeIncident,
   DashboardStats,
   DateRange,
   MonthPoint,
   RiskZone,
+  TrendCompare,
 } from '../types'
 import { formatMonth } from './format'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const WINDOW_DAYS = 30
-
-const COMPARE_DAYS: Record<ComparePeriod, number> = {
-  Day: 1,
-  Week: 7,
-  Month: 30,
-  Year: 365,
-}
 
 function countBetween(incidents: CrimeIncident[], from: number, to: number): number {
   return incidents.filter((incident) => {
@@ -29,53 +22,53 @@ function countBetween(incidents: CrimeIncident[], from: number, to: number): num
   }).length
 }
 
-export function computePeriodCompare(
-  incidents: CrimeIncident[],
-  range: DateRange,
-  period: ComparePeriod,
-): { percent: number; direction: 'Rising' | 'Stable' | 'Declining' } {
-  const to = new Date(`${range.to}T23:59:59+05:30`).getTime()
-  const width = COMPARE_DAYS[period] * DAY_MS
-  const currentFrom = to - width
-  const previousFrom = currentFrom - width
-
-  const current = countBetween(incidents, currentFrom, to)
-  const previous = countBetween(incidents, previousFrom, currentFrom)
-
+function toCompare(current: number, previous: number): TrendCompare {
   if (previous === 0) {
-    return { percent: current > 0 ? 100 : 0, direction: current > 0 ? 'Rising' : 'Stable' }
+    return { percent: 0, direction: 'Stable', hasBaseline: false }
   }
-
   const percent = ((current - previous) / previous) * 100
   const direction = percent > 5 ? 'Rising' : percent < -5 ? 'Declining' : 'Stable'
-  return { percent: Math.round(percent * 10) / 10, direction }
+  return { percent: Math.round(percent * 10) / 10, direction, hasBaseline: true }
 }
 
-export function computeTrend(
+/**
+ * Compares the incidents inside `range` with the immediately preceding window of
+ * the same length. A single-day range (from === to) therefore compares against
+ * the previous day.
+ */
+export function computeRangeCompare(
   incidents: CrimeIncident[],
   range: DateRange,
-): { percent: number; direction: 'Rising' | 'Stable' | 'Declining' } {
+): TrendCompare {
+  const to = new Date(`${range.to}T23:59:59+05:30`).getTime()
+  const from = new Date(`${range.from}T00:00:00+05:30`).getTime()
+  const width = Math.max(DAY_MS, to - from)
+  const previousFrom = from - width
+
+  return toCompare(
+    countBetween(incidents, from, to),
+    countBetween(incidents, previousFrom, from),
+  )
+}
+
+/** Rolling 30-day trend: the last 30 days of `range` vs the previous 30 days. */
+export function computeTrend(incidents: CrimeIncident[], range: DateRange): TrendCompare {
   const to = new Date(`${range.to}T23:59:59+05:30`).getTime()
   const recentFrom = to - WINDOW_DAYS * DAY_MS
   const previousFrom = recentFrom - WINDOW_DAYS * DAY_MS
 
-  const recent = countBetween(incidents, recentFrom, to)
-  const previous = countBetween(incidents, previousFrom, recentFrom)
-
-  if (previous === 0) {
-    return { percent: recent > 0 ? 100 : 0, direction: recent > 0 ? 'Rising' : 'Stable' }
-  }
-
-  const percent = ((recent - previous) / previous) * 100
-  const direction = percent > 5 ? 'Rising' : percent < -5 ? 'Declining' : 'Stable'
-  return { percent: Math.round(percent * 10) / 10, direction }
+  return toCompare(
+    countBetween(incidents, recentFrom, to),
+    countBetween(incidents, previousFrom, recentFrom),
+  )
 }
 
 export function computeDashboardStats(
   incidents: CrimeIncident[],
   zones: RiskZone[],
-  range: DateRange,
-  comparePeriod: ComparePeriod,
+  viewRange: DateRange | null,
+  fullRange: DateRange,
+  compareIncidents: CrimeIncident[] = incidents,
 ): DashboardStats {
   const categoryCounts = incidents.reduce<Record<string, number>>((acc, incident) => {
     acc[incident.category] = (acc[incident.category] ?? 0) + 1
@@ -91,8 +84,11 @@ export function computeDashboardStats(
     }
   }
 
-  const trend = computeTrend(incidents, range)
-  const compare = computePeriodCompare(incidents, range, comparePeriod)
+  // No explicit day/range -> compare the last 30 days vs the previous 30 days.
+  const compare = viewRange
+    ? computeRangeCompare(compareIncidents, viewRange)
+    : computeTrend(compareIncidents, fullRange)
+  const trend = computeTrend(compareIncidents, fullRange)
   const averageRiskScore =
     zones.length > 0
       ? Math.round(zones.reduce((sum, zone) => sum + zone.riskScore, 0) / zones.length)

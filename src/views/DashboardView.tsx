@@ -1,26 +1,29 @@
 ﻿import { StatisticsPanel } from '../components/StatisticsPanel'
-import type { ComparePeriod, DashboardStats, RiskZone } from '../types'
+import type { DashboardStats, DateRange, RiskZone } from '../types'
 
 interface DashboardViewProps {
   stats: DashboardStats
   zones: RiskZone[]
-  comparePeriod: ComparePeriod
-  onComparePeriodChange: (period: ComparePeriod) => void
+  range: DateRange
+  compareRange: DateRange | null
+  onCompareRangeChange: (range: DateRange | null) => void
 }
 
 export function DashboardView({
   stats,
   zones,
-  comparePeriod,
-  onComparePeriodChange,
+  range,
+  compareRange,
+  onCompareRangeChange,
 }: DashboardViewProps) {
   return (
-    <div className="flex h-full flex-col gap-3 overflow-hidden overscroll-none bg-navy-950 p-3 pb-6 xl:p-4">
+    <div className="flex flex-col gap-3 bg-navy-950 p-3 pb-6 xl:p-4">
       <StatisticsPanel
         stats={stats}
         zones={zones}
-        comparePeriod={comparePeriod}
-        onComparePeriodChange={onComparePeriodChange}
+        range={range}
+        compareRange={compareRange}
+        onCompareRangeChange={onCompareRangeChange}
       />
     </div>
   )

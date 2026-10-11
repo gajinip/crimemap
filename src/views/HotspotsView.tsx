@@ -32,23 +32,23 @@ export function HotspotsView({
 
   return (
     <div className="scroll-thin flex h-full flex-col gap-3 overflow-y-auto bg-navy-950 p-3 pb-6 xl:p-4">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+      <header className="flex flex-col gap-1">
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="min-w-0 text-[18px] font-bold leading-tight text-white xl:text-[22px]">
             Dynamic Risk Zones
           </h1>
-          <p className="mt-1 max-w-3xl text-[11px] leading-relaxed text-steel-400">
-            Deterministic, explainable risk zones derived from incident frequency, trend, severity,
-            repeat activity, time-of-day and proximity. Scores are reproducible and always
-            accompanied by their breakdown.
-          </p>
+          <div className="flex shrink-0 items-center gap-2">
+            <DemoChip />
+            <span className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-300">
+              {sorted.length} active zones
+            </span>
+          </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <DemoChip />
-          <span className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-300">
-            {sorted.length} active zones
-          </span>
-        </div>
+        <p className="text-caption max-w-3xl text-steel-400">
+          Deterministic, explainable risk zones derived from incident frequency, trend, severity,
+          repeat activity, time-of-day and proximity. Scores are reproducible and always accompanied
+          by their breakdown.
+        </p>
       </header>
 
       {sorted.length === 0 ? (

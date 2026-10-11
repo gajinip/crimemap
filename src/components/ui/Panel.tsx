@@ -11,7 +11,7 @@ interface PanelProps {
 
 export function Panel({ title, subtitle, actions, children, className = '', bodyClassName = 'p-4' }: PanelProps) {
   return (
-    <section className={`rounded-xl border border-navy-700 bg-navy-850 ${className}`}>
+    <section className={`min-w-0 rounded-xl border border-navy-700 bg-navy-850 ${className}`}>
       <header className="flex items-start justify-between gap-3 border-b border-navy-700 px-4 py-3">
         <div className="min-w-0">
           <h2 className="text-[11px] font-bold uppercase tracking-[0.16em] text-steel-300">

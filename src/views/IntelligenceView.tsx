@@ -129,18 +129,18 @@ export function IntelligenceView({
 
   return (
     <div className="flex h-full flex-col bg-navy-950">
-      <header className="flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-navy-800 px-3 pb-3 pt-3 xl:px-4">
-        <div className="min-w-0">
+      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-navy-800 px-3 pb-3 pt-3 xl:px-4">
+        <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-2 text-[18px] font-bold leading-tight text-white xl:text-[22px]">
             <span className="grid size-6 place-items-center rounded bg-blue-600/20 text-blue-300">
               <Brain className="size-4" aria-hidden />
             </span>
             Intelligence Assistant
           </h1>
-          <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-steel-400">
+          <p className="text-caption mt-1 max-w-3xl text-steel-400">
             {live
-              ? `Answers stream live from ${liveModelLabel()}, grounded in the current risk zones, incidents and changes.`
-              : 'Rule-based, explainable assistant. Answers cite concrete values from the current demo dataset.'}
+              ? `Answers stream live from ${liveModelLabel()}, grounded in the current incidents, risk zones and changes.`
+              : 'Rule-based, explainable assistant. Ask about any incident, area, crime type, status, trend, related crimes or recommendation in the dataset.'}
           </p>
         </div>
         <DemoChip />
@@ -154,7 +154,8 @@ export function IntelligenceView({
               How can I help?
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-steel-400">
-              Ask about risk zones, trends, hotspots, patrol timing or recommendations.
+              Ask about any incident, area, crime type, status, trend, related crimes, patrol
+              timing or recommendations.
             </p>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {SUGGESTED_PROMPTS.map((prompt) => (
@@ -248,8 +249,8 @@ export function IntelligenceView({
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={onComposerKeyDown}
             rows={1}
-            placeholder="Ask about risk zones, trends, hotspots, recommendations..."
-            className="max-h-32 min-h-[42px] flex-1 resize-none rounded-xl border border-navy-600 bg-navy-950 px-3 py-2.5 text-[13px] text-steel-100 placeholder:text-steel-600 focus:border-blue-500 focus:outline-none"
+            placeholder="Ask anything about the data — areas, crime types, statuses, related crimes..."
+            className="scroll-thin max-h-32 min-h-[42px] flex-1 resize-none rounded-xl border border-navy-600 bg-navy-950 px-3 py-2.5 text-[13px] text-steel-100 placeholder:text-steel-600 focus:border-blue-500 focus:outline-none"
           />
           <button
             type="submit"

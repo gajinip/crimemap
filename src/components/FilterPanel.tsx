@@ -19,6 +19,7 @@ interface FilterPanelProps {
   categoryCounts: Record<string, number>
   visibleCount: number
   totalCount: number
+  relatedCount?: number
   onChange: (filters: CrimeFilterState) => void
   onReset: () => void
   placement?: 'top-left' | 'bottom-right'
@@ -32,6 +33,7 @@ export function FilterPanel({
   categoryCounts,
   visibleCount,
   totalCount,
+  relatedCount = 0,
   onChange,
   onReset,
   placement = 'top-left',
@@ -304,6 +306,17 @@ export function FilterPanel({
               </span>{' '}
               demo incidents matching the active filters.
             </p>
+            {relatedCount > 0 ? (
+              <p className="mt-1.5 flex items-start gap-1.5 text-[10px] leading-relaxed text-sky-300">
+                <span className="mt-1 size-1.5 shrink-0 rounded-full bg-sky-400" aria-hidden />
+                <span>
+                  Includes{' '}
+                  <span className="font-bold text-sky-200">{relatedCount}</span> linked
+                  {' '}incident{relatedCount === 1 ? '' : 's'} from nearby areas — same crime
+                  type, within 1.5 km and 72 h.
+                </span>
+              </p>
+            ) : null}
             {isDirty ? (
               <button
                 type="button"

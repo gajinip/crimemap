@@ -23,6 +23,7 @@ import type {
   RiskZone,
 } from '../../types'
 import { ALL_AREAS } from '../../utils/filters'
+import { areaBoundaryRing, ringBounds } from '../../utils/areaBoundary'
 import { IncidentLayer } from './ClusterLayer'
 import { PatrolLayer } from './PatrolLayer'
 import { PoliceStationMarker } from './PoliceStationMarker'
@@ -122,9 +123,17 @@ function isInsidePuducherry(lat: number, lng: number): boolean {
  * Build the inner hole of the outside mask.
  *
  * All Areas: reveal the complete district.
- * One locality: reveal a spotlight around that locality.
+ * One locality: reveal the locality's boundary polygon when available,
+ * otherwise a spotlight around that locality.
  */
-function maskHole(selectedArea: string): [number, number][] {
+function maskHole(
+  selectedArea: string,
+  boundary: [number, number][] | null,
+): [number, number][] {
+  if (boundary) {
+    return boundary
+  }
+
   if (selectedArea !== ALL_AREAS) {
     const area = DEMO_AREAS.find(
       (entry) => entry.name === selectedArea,
@@ -151,6 +160,7 @@ interface CrimeMapProps {
   stations: PoliceStation[]
   selectedArea: string
   searchQuery: string
+  relatedIncidentIds?: Set<string>
   selectedZoneId: string | null
   onSelectZone: (zoneId: string) => void
   onSelectIncident: (incident: CrimeIncident) => void
@@ -166,12 +176,23 @@ interface CrimeMapProps {
  */
 function AreaCameraController({
   selectedArea,
+  boundary,
 }: {
   selectedArea: string
+  boundary: [number, number][] | null
 }) {
   const map = useMap()
 
   useEffect(() => {
+    if (boundary) {
+      map.flyToBounds(ringBounds(boundary), {
+        duration: 0.5,
+        maxZoom: 14,
+        padding: [28, 28],
+      })
+      return
+    }
+
     if (selectedArea === ALL_AREAS) {
       map.flyToBounds(PUDUCHERRY_BOUNDS, {
         duration: 0.35,
@@ -188,11 +209,11 @@ function AreaCameraController({
     if (area && isInsidePuducherry(area.lat, area.lng)) {
       map.flyTo(
         [area.lat, area.lng],
-        Math.max(map.getZoom(), 14),
+        Math.max(map.getZoom(), 13),
         { duration: 0.35 },
       )
     }
-  }, [map, selectedArea])
+  }, [map, selectedArea, boundary])
 
   return null
 }
@@ -311,6 +332,7 @@ export function CrimeMap({
   stations,
   selectedArea,
   searchQuery,
+  relatedIncidentIds,
   selectedZoneId,
   onSelectZone,
   onSelectIncident,
@@ -320,6 +342,9 @@ export function CrimeMap({
   pickingLocation,
   onPickLocation,
 }: CrimeMapProps) {
+  const selectedAreaRing =
+    selectedArea === ALL_AREAS ? null : areaBoundaryRing(selectedArea)
+
   return (
     <MapContainer
       center={[PUDUCHERRY_CENTER.lat, PUDUCHERRY_CENTER.lng]}
@@ -383,6 +408,7 @@ export function CrimeMap({
           <LayerGroup>
             <IncidentLayer
               incidents={incidents}
+              relatedIds={relatedIncidentIds}
               onSelect={onSelectIncident}
             />
           </LayerGroup>
@@ -437,7 +463,7 @@ export function CrimeMap({
         <Polygon
           positions={[
             MASK_RING,
-            maskHole(selectedArea),
+            maskHole(selectedArea, selectedAreaRing),
           ]}
           pathOptions={{
             stroke: false,
@@ -451,6 +477,25 @@ export function CrimeMap({
         />
       </Pane>
 
+      {/* Selected locality boundary outline, styled like the district border */}
+      {selectedAreaRing ? (
+        <Pane
+          name="area-outline"
+          style={{ zIndex: 360 }}
+        >
+          <Polygon
+            positions={selectedAreaRing}
+            pathOptions={{
+              color: '#38bdf8',
+              weight: 2,
+              dashArray: '8 6',
+              fill: false,
+              interactive: false,
+            }}
+          />
+        </Pane>
+      ) : null}
+
       {/* Map controls */}
       <ZoomControl position="bottomright" />
       <ScaleControl
@@ -461,6 +506,7 @@ export function CrimeMap({
       {/* Map camera and interaction controllers */}
       <AreaCameraController
         selectedArea={selectedArea}
+        boundary={selectedAreaRing}
       />
 
       <SearchFocusController
