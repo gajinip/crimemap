@@ -23,7 +23,7 @@ export function CrimeTable({ incidents, maxRows = 8 }: CrimeTableProps) {
           <button
             type="button"
             onClick={() => setExpanded((value) => !value)}
-            className="text-[10px] font-semibold uppercase tracking-[0.1em] text-blue-400 hover:text-blue-300"
+            className="text-[10px] font-semibold uppercase tracking-[0.1em] text-blue-400 hover:text-blue-600"
           >
             {expanded ? 'Show less' : `Show all ${formatNumber(incidents.length)}`}
           </button>

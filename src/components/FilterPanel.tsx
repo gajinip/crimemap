@@ -103,7 +103,7 @@ export function FilterPanel({
                   type="button"
                   onClick={onReset}
                   title="Reset filters"
-                  className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+                  className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
                 >
                   <RotateCcw className="size-3.5" />
                 </button>
@@ -112,7 +112,7 @@ export function FilterPanel({
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close filters"
-                className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+                className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
               >
                 <X className="size-3.5" />
               </button>
@@ -138,7 +138,7 @@ export function FilterPanel({
                   className={chipClass(active)}
                   style={
                     active
-                      ? { borderColor: '#60a5fa', backgroundColor: '#60a5fa26', color: '#60a5fa' }
+                      ? { borderColor: '#1A73E8', backgroundColor: '#1A73E826', color: '#1A73E8' }
                       : undefined
                   }
                 >
@@ -153,7 +153,7 @@ export function FilterPanel({
             <button
               type="button"
               onClick={() => onChange({ ...filters, categories: [...CRIME_CATEGORIES] })}
-              className="text-blue-400 hover:text-blue-300"
+              className="text-blue-600 hover:text-blue-500"
             >
               All
             </button>
@@ -205,7 +205,7 @@ export function FilterPanel({
             <button
               type="button"
               onClick={() => onChange({ ...filters, severities: [...SEVERITIES] })}
-              className="text-blue-400 hover:text-blue-300"
+              className="text-blue-600 hover:text-blue-500"
             >
               All
             </button>
@@ -238,7 +238,7 @@ export function FilterPanel({
             <button
               type="button"
               onClick={() => onChange({ ...filters, riskLevels: [...RISK_LEVELS] })}
-              className="text-blue-400 hover:text-blue-300"
+              className="text-blue-600 hover:text-blue-500"
             >
               All
             </button>
@@ -271,7 +271,7 @@ export function FilterPanel({
             <button
               type="button"
               onClick={() => onChange({ ...filters, statuses: [...INCIDENT_STATUSES] })}
-              className="text-blue-400 hover:text-blue-300"
+              className="text-blue-600 hover:text-blue-500"
             >
               All
             </button>
@@ -287,9 +287,9 @@ export function FilterPanel({
                   aria-pressed={active}
                   className="rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors"
                   style={{
-                    borderColor: active ? '#60a5fa' : '#24344f',
-                    backgroundColor: active ? '#60a5fa26' : 'transparent',
-                    color: active ? '#60a5fa' : '#64748b',
+                    borderColor: active ? '#1A73E8' : '#DCE4EE',
+                    backgroundColor: active ? '#1A73E826' : 'transparent',
+                    color: active ? '#1A73E8' : '#53647A',
                   }}
                 >
                   {status}
@@ -301,17 +301,17 @@ export function FilterPanel({
           <div className="mt-4 rounded border border-navy-600 bg-navy-800 px-2.5 py-2">
             <p className="text-[10px] leading-relaxed text-steel-400">
               Showing{' '}
-              <span className="font-bold text-white">
+              <span className="font-bold text-steel-100">
                 {visibleCount} / {totalCount}
               </span>{' '}
               demo incidents matching the active filters.
             </p>
             {relatedCount > 0 ? (
-              <p className="mt-1.5 flex items-start gap-1.5 text-[10px] leading-relaxed text-sky-300">
+              <p className="mt-1.5 flex items-start gap-1.5 text-[10px] leading-relaxed text-sky-700">
                 <span className="mt-1 size-1.5 shrink-0 rounded-full bg-sky-400" aria-hidden />
                 <span>
                   Includes{' '}
-                  <span className="font-bold text-sky-200">{relatedCount}</span> linked
+                  <span className="font-bold text-sky-800">{relatedCount}</span> linked
                   {' '}incident{relatedCount === 1 ? '' : 's'} from nearby areas — same crime
                   type, within 1.5 km and 72 h.
                 </span>
@@ -321,7 +321,7 @@ export function FilterPanel({
               <button
                 type="button"
                 onClick={onReset}
-                className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-300"
+                className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 hover:text-blue-500"
               >
                 <X className="size-3" /> Clear filters
               </button>
@@ -335,7 +335,7 @@ export function FilterPanel({
           onClick={() => setOpen(true)}
           aria-label="Open crime filters"
           title="Crime filters"
-          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-white"
+          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-steel-100"
         >
           <SlidersHorizontal className="size-5" aria-hidden />
           {isDirty ? (

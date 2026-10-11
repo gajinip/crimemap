@@ -49,7 +49,7 @@ export function AreaDatePanel({
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close area and date filters"
-              className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+              className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
             >
               <X className="size-3.5" />
             </button>
@@ -104,7 +104,7 @@ export function AreaDatePanel({
                     }`}
                     style={
                       active
-                        ? { backgroundColor: '#60a5fa1f', color: '#60a5fa' }
+                        ? { backgroundColor: '#1A73E81f', color: '#1A73E8' }
                         : undefined
                     }
                   >
@@ -180,9 +180,9 @@ export function AreaDatePanel({
                     style={
                       active
                         ? {
-                            borderColor: '#60a5fa',
-                            backgroundColor: '#60a5fa26',
-                            color: '#60a5fa',
+                            borderColor: '#1A73E8',
+                            backgroundColor: '#1A73E826',
+                            color: '#1A73E8',
                           }
                         : undefined
                     }
@@ -200,7 +200,7 @@ export function AreaDatePanel({
           onClick={() => setOpen(true)}
           aria-label="Open area and date filters"
           title="Area & date filters"
-          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-white"
+          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-steel-100"
         >
           <MapPin className="size-5" aria-hidden />
           {isAreaFiltered ? (

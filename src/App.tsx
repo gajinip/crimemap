@@ -442,10 +442,10 @@ export default function App() {
 
   return (
     <PatrolProvider plan={patrolPlan}>
-      <div className="flex h-screen justify-center bg-black text-steel-100">
+      <div className="flex h-screen justify-center bg-navy-900 text-steel-100">
         <div
           style={{ height: '100dvh' }}
-          className="relative flex h-screen w-full max-w-[430px] flex-col overflow-hidden bg-navy-950 shadow-[0_0_60px_rgba(0,0,0,0.8)]"
+          className="relative flex h-screen w-full max-w-[430px] flex-col overflow-hidden bg-navy-950 shadow-[0_0_60px_rgba(20,35,59,0.18)]"
         >
           <DemoBanner />
           <TopNav

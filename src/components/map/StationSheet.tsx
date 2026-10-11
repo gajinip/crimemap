@@ -15,11 +15,11 @@ export function StationSheet({ station, onClose }: StationSheetProps) {
       onClose={onClose}
       header={
         <>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/60 px-2 py-0.5 text-[10px] font-bold text-blue-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/60 px-2 py-0.5 text-[10px] font-bold text-blue-700">
             <span className="size-1.5 rounded-full bg-blue-400" aria-hidden />
             Police station
           </span>
-          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-white">
+          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-steel-100">
             {station.name}
           </h2>
         </>

@@ -28,7 +28,7 @@ export function MapLegend() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close legend"
-              className="rounded p-0.5 text-steel-400 hover:bg-navy-700 hover:text-white"
+              className="rounded p-0.5 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
             >
               <X className="size-2.5" />
             </button>
@@ -126,7 +126,7 @@ export function MapLegend() {
                     style={{ backgroundColor: CRIME_CATEGORY_COLORS.Other }}
                   >
                     <IncidentMarkerIcon className="size-2" strokeWidth={2.25} aria-hidden />
-                    <span className="absolute -right-1.5 -top-1.5 grid h-2.5 min-w-2.5 place-items-center rounded-full border border-white bg-navy-950 px-[2px] text-[5px] font-bold leading-none text-white">
+                    <span className="absolute -right-1.5 -top-1.5 grid h-2.5 min-w-2.5 place-items-center rounded-full border border-navy-500 bg-white px-[2px] text-[5px] font-bold leading-none text-steel-100">
                       12
                     </span>
                   </span>
@@ -156,7 +156,7 @@ export function MapLegend() {
           onClick={() => setOpen(true)}
           aria-label="Open map legend"
           title="Map legend"
-          className="grid size-9 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-white"
+          className="grid size-9 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-steel-100"
         >
           <Crosshair className="size-3.5" aria-hidden />
         </button>

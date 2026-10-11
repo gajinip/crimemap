@@ -32,11 +32,11 @@ export function RecommendationCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.16em] text-blue-300">
+          <p className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.16em] text-blue-700">
             <ShieldCheck className="size-3.5" aria-hidden />
             Recommended action
           </p>
-          <p className="mt-1 text-[12px] font-semibold leading-snug text-white">
+          <p className="mt-1 text-[12px] font-semibold leading-snug text-steel-100">
             {recommendation.headline}
           </p>
         </div>
@@ -83,7 +83,7 @@ export function RecommendationCard({
 
       {recommendation.prediction ? (
         <div className="mt-2 border-t border-blue-500/20 pt-2">
-          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-blue-300">
+          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-blue-700">
             Forward view
             <span className="ml-1.5 font-normal normal-case tracking-normal text-steel-500">
               {recommendation.prediction.adjustment > 0 ? '+' : ''}

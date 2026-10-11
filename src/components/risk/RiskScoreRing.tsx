@@ -44,7 +44,7 @@ export function RiskScoreRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#123B67"
+          stroke="#DCE4EE"
           strokeWidth={strokeWidth}
         />
         <circle

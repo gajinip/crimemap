@@ -38,7 +38,7 @@ export function PatrolView({
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+            <h1 className="text-[18px] font-bold leading-tight text-steel-100 xl:text-[22px]">
               Patrol Operations
             </h1>
             <InfoPopover
@@ -88,7 +88,7 @@ export function PatrolView({
               <span className="inline-flex items-center gap-1">
                 <Clock className="size-3" /> {formatDateTime(dispatchPlan.generatedAt)}
               </span>
-              <span className="inline-flex items-center gap-1 rounded bg-blue-600/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.12em] text-blue-300">
+              <span className="inline-flex items-center gap-1 rounded bg-blue-600/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.12em] text-blue-700">
                 {usingPredicted ? 'Predicted view' : 'Measured view'}
               </span>
             </div>
@@ -109,13 +109,13 @@ export function PatrolView({
                   >
                     <div className="min-w-0">
                       <span className="text-[10px] font-mono text-steel-500">#{index + 1}</span>
-                      <p className="truncate text-[12px] font-semibold text-white">{zone.area}</p>
+                      <p className="truncate text-[12px] font-semibold text-steel-100">{zone.area}</p>
                       <p className="text-[10px] text-steel-500">
                         Risk {zone.riskScore}/100 · {recommendation.units} unit
                         {recommendation.units === 1 ? '' : 's'} · {recommendation.window}
                       </p>
                     </div>
-                    <span className="shrink-0 text-[10px] font-semibold text-blue-300">
+                    <span className="shrink-0 text-[10px] font-semibold text-blue-700">
                       {recommendation.priority}
                     </span>
                   </li>
@@ -166,7 +166,7 @@ export function PatrolView({
                     className="flex items-start justify-between gap-2 rounded-lg border border-navy-600 bg-navy-800 px-2.5 py-2"
                   >
                     <div className="min-w-0">
-                      <p className="text-[12px] font-semibold text-white">{unit.callsign}</p>
+                      <p className="text-[12px] font-semibold text-steel-100">{unit.callsign}</p>
                       <p className="mt-0.5 flex items-center gap-1 text-[10px] text-steel-400">
                         <MapPin className="size-3 shrink-0" />
                         <span className="min-w-0 truncate">
@@ -180,7 +180,7 @@ export function PatrolView({
                     </div>
                     <div className="shrink-0 text-right">
                       <span className="font-mono text-[10px] text-steel-400">{unit.id}</span>
-                      <div className="mt-1 inline-flex items-center gap-1 rounded bg-blue-600/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.12em] text-blue-300">
+                      <div className="mt-1 inline-flex items-center gap-1 rounded bg-blue-600/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.12em] text-blue-700">
                         <ShieldCheck className="size-3" /> Demo
                       </div>
                     </div>

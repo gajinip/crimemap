@@ -52,12 +52,12 @@ function Stat({
   hint?: string
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-[#123B67]/60 bg-[#0A203B]/70 px-2.5 py-2">
-      <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">
+    <div className="min-w-0 rounded-lg border border-[#DCE4EE]/60 bg-[#F4F7FB]/70 px-2.5 py-2">
+      <p className="truncate text-[9px] font-bold uppercase tracking-[0.12em] text-[#53647A]">
         {label}
       </p>
-      <p className="mt-0.5 truncate text-[13px] font-semibold text-[#F4F7FC]">{value}</p>
-      {hint ? <p className="truncate text-[10px] text-[#8DB5DE]">{hint}</p> : null}
+      <p className="mt-0.5 truncate text-[13px] font-semibold text-[#14233B]">{value}</p>
+      {hint ? <p className="truncate text-[10px] text-[#53647A]">{hint}</p> : null}
     </div>
   )
 }
@@ -80,12 +80,9 @@ export function RiskZoneCard({
 
   return (
     <article
-      className="flex min-w-0 flex-col gap-3 rounded-2xl bg-[#06182D] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.35)] ring-1 ring-inset"
+      className="flex min-w-0 flex-col gap-3 rounded-2xl bg-[#FFFFFF] p-4"
       style={{
         border: `1px solid ${color}${selected ? 'CC' : '55'}`,
-        boxShadow: selected
-          ? `0 16px 44px rgba(0,0,0,0.4), 0 0 0 1px ${color}66`
-          : '0 16px 40px rgba(0,0,0,0.35)',
       }}
       aria-labelledby={`zone-title-${zone.id}`}
     >
@@ -97,7 +94,7 @@ export function RiskZoneCard({
           {LEVEL_ICON[zone.riskLevel]}
           {RISK_LEVEL_BADGE[zone.riskLevel]} risk
         </span>
-        <span className="shrink-0 rounded-md border border-[#123B67] bg-[#0A203B] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#8DB5DE]">
+        <span className="shrink-0 rounded-md border border-[#DCE4EE] bg-[#F4F7FB] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#53647A]">
           {zone.id}
         </span>
       </header>
@@ -110,11 +107,11 @@ export function RiskZoneCard({
       >
         <h3
           id={`zone-title-${zone.id}`}
-          className="break-words text-[17px] font-semibold leading-snug text-[#F4F7FC]"
+          className="break-words text-[17px] font-semibold leading-snug text-[#14233B]"
         >
           {zone.area}
         </h3>
-        <p className="mt-0.5 text-[11px] text-[#8DB5DE]">
+        <p className="mt-0.5 text-[11px] text-[#53647A]">
           {zone.status} · {zone.crimeCount} recent incidents
         </p>
       </button>
@@ -123,7 +120,7 @@ export function RiskZoneCard({
         <RiskScoreRing score={zone.riskScore} level={zone.riskLevel} />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#8DB5DE]">
+            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#53647A]">
               Overall risk
             </p>
             <p className="text-[13px] font-semibold" style={{ color }}>
@@ -132,11 +129,11 @@ export function RiskZoneCard({
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <TrendBadge trend={zone.trend} change={zone.crimeCount - zone.previousCount} />
-            <span className="text-[10px] text-[#8DB5DE]">
+            <span className="text-[10px] text-[#53647A]">
               vs {zone.previousCount} previous
             </span>
           </div>
-          <p className="flex items-center gap-1 text-[11px] text-[#8DB5DE]">
+          <p className="flex items-center gap-1 text-[11px] text-[#53647A]">
             <MapPin className="size-3" aria-hidden />
             {zone.dominantCrime} offences trend, peak {zone.peakWindow}
           </p>
@@ -150,8 +147,8 @@ export function RiskZoneCard({
         <Stat label="Repeat within 250 m" value={`${zone.repeatShare}%`} hint={`${zone.nearbyCount} nearby`} />
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-[#123B67]/60 pt-3">
-        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">
+      <div className="flex items-center justify-between gap-3 border-t border-[#DCE4EE]/60 pt-3">
+        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#53647A]">
           <Activity className="size-3" aria-hidden />
           Recent incidents
         </p>
@@ -159,14 +156,14 @@ export function RiskZoneCard({
           <span className="text-[20px] font-bold leading-none" style={{ color }}>
             {zone.crimeCount}
           </span>
-          <span className="text-[10px] text-[#8DB5DE]">this period</span>
+          <span className="text-[10px] text-[#53647A]">this period</span>
         </span>
       </div>
 
       <button
         type="button"
         onClick={onView}
-        className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#087BFF] px-3 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-[#3b97ff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8DB5DE]"
+        className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#1A73E8] px-3 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-[#4285F4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A73E8]"
       >
         <Radar className="size-4" aria-hidden />
         View on map

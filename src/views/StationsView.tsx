@@ -20,7 +20,7 @@ export function StationsView({ stations, onFocusArea }: StationsViewProps) {
               className="rounded-lg border border-navy-700 bg-navy-800/60 p-3"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="text-[13px] font-semibold text-white">{station.name}</span>
+                <span className="text-[13px] font-semibold text-steel-100">{station.name}</span>
                 <span className="shrink-0 font-mono text-[10px] text-steel-400">{station.id}</span>
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-steel-400">
@@ -38,7 +38,7 @@ export function StationsView({ stations, onFocusArea }: StationsViewProps) {
               <button
                 type="button"
                 onClick={() => onFocusArea(station.area)}
-                className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-300"
+                className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-600"
               >
                 <MapPin className="size-3.5" /> Show on map
               </button>
@@ -72,7 +72,7 @@ export function StationsView({ stations, onFocusArea }: StationsViewProps) {
                     <button
                       type="button"
                       onClick={() => onFocusArea(station.area)}
-                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-300"
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-600"
                     >
                       <MapPin className="size-3.5" /> Show on map
                     </button>

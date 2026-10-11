@@ -104,7 +104,7 @@ export function IncidentEditor({
           <p className="editor-eyebrow font-bold uppercase tracking-[0.16em] text-steel-500">
             {isCreate ? 'Report new crime' : 'Update incident'}
           </p>
-          <h2 className="truncate text-[14px] font-semibold text-white">
+          <h2 className="truncate text-[14px] font-semibold text-steel-100">
             {incident.id} &middot; {area || incident.area}
           </h2>
         </div>
@@ -112,7 +112,7 @@ export function IncidentEditor({
           type="button"
           onClick={onCancel}
           aria-label="Cancel editing"
-          className="shrink-0 rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+          className="shrink-0 rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
         >
           <X className="size-4" />
         </button>
@@ -204,7 +204,7 @@ export function IncidentEditor({
             <button
               type="button"
               onClick={onTogglePick}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-700 px-2.5 py-1.5 text-[11px] font-semibold text-steel-200 transition-colors hover:bg-navy-600 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-700 px-2.5 py-1.5 text-[11px] font-semibold text-steel-200 transition-colors hover:bg-navy-600 hover:text-steel-100"
             >
               <Crosshair className="size-3.5" aria-hidden />
               Pick on map
@@ -246,7 +246,7 @@ export function IncidentEditor({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-200 hover:bg-navy-700 hover:text-white"
+            className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-200 hover:bg-navy-700 hover:text-steel-100"
           >
             Cancel
           </button>
@@ -264,7 +264,7 @@ export function IncidentEditor({
             <button
               type="button"
               onClick={() => setConfirmingDelete(false)}
-              className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-200 hover:bg-navy-700 hover:text-white"
+              className="rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 text-[12px] font-semibold text-steel-200 hover:bg-navy-700 hover:text-steel-100"
             >
               Keep
             </button>

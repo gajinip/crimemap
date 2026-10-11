@@ -4,28 +4,39 @@
   --font-sans: 'Inter', 'Segoe UI', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, monospace;
 
-  --color-navy-950: #050a14;
-  --color-navy-900: #0a1120;
-  --color-navy-850: #0d1526;
-  --color-navy-800: #111c31;
-  --color-navy-700: #1a2740;
-  --color-navy-600: #24344f;
-  --color-navy-500: #344a6e;
+  /* Light theme surfaces. "navy" tokens are surfaces (backgrounds/borders);
+     the names are historical but now map to light values. */
+  --color-navy-950: #ffffff; /* app / page background */
+  --color-navy-900: #f4f7fb; /* secondary background (header, nav) */
+  --color-navy-850: #eef3f9;
+  --color-navy-800: #ffffff; /* cards, inputs */
+  --color-navy-700: #dce4ee; /* borders */
+  --color-navy-600: #cbd6e4; /* stronger borders */
+  --color-navy-500: #b3c2d6;
 
-  --color-steel-100: #e2e8f0;
-  --color-steel-200: #cbd5e1;
-  --color-steel-300: #94a3b8;
-  --color-steel-400: #64748b;
-  --color-steel-500: #475569;
-  --color-steel-600: #334155;
+  /* Text ramp (110 = strongest / darkest). */
+  --color-steel-100: #14233b; /* primary text */
+  --color-steel-200: #2c3e58;
+  --color-steel-300: #53647a; /* secondary text */
+  --color-steel-400: #66788f; /* muted */
+  --color-steel-500: #7b8ba1;
+  --color-steel-600: #9fadbf;
 
-  --color-risk-low: #22c55e;
-  --color-risk-medium: #eab308;
-  --color-risk-high: #f97316;
-  --color-risk-critical: #ef4444;
+  /* Google-style accent palette. */
+  --color-risk-low: #34a853; /* Google green */
+  --color-risk-medium: #f9ab00; /* Google amber */
+  --color-risk-high: #fa7b17; /* Google orange */
+  --color-risk-critical: #ea4335; /* Google red */
 
-  --color-signal-blue: #3b82f6;
-  --color-signal-cyan: #22d3ee;
+  --color-signal-blue: #1a73e8;
+  --color-signal-cyan: #12b5cb;
+
+  /* Override Tailwind's blue scale with Google blues. */
+  --color-blue-300: #aecbfa;
+  --color-blue-400: #4285f4;
+  --color-blue-500: #4285f4;
+  --color-blue-600: #1a73e8;
+  --color-blue-700: #174ea6;
 
   /* Force the mobile layout at every viewport width by disabling the
      responsive breakpoints (sm/md/lg/xl/2xl can never match). */
@@ -37,7 +48,7 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,
@@ -95,33 +106,33 @@ body {
 /* ------------------------------------------------------------------ */
 
 .leaflet-container {
-  background: #0a1120;
+  background: #eef3f9;
   font-family: var(--font-sans);
   outline: none;
 }
 
 .leaflet-control-zoom a {
-  background-color: #111c31 !important;
-  border-color: #24344f !important;
-  color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+  border-color: #dce4ee !important;
+  color: #53647a !important;
 }
 
 .leaflet-control-zoom a:hover {
-  background-color: #1a2740 !important;
-  color: #ffffff !important;
+  background-color: #f4f7fb !important;
+  color: #14233b !important;
 }
 
 .leaflet-control-zoom,
 .leaflet-control-layers {
-  border: 1px solid #24344f !important;
+  border: 1px solid #dce4ee !important;
   border-radius: 8px !important;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(20, 35, 59, 0.12);
 }
 
 .leaflet-control-layers {
-  background: #111c31 !important;
-  color: #cbd5e1;
+  background: #ffffff !important;
+  color: #53647a;
   font-size: 16px;
 }
 
@@ -137,23 +148,23 @@ body {
 }
 
 .leaflet-control-layers-separator {
-  border-color: #24344f !important;
+  border-color: #dce4ee !important;
 }
 
 .leaflet-control-attribution {
-  background: rgba(5, 10, 20, 0.78) !important;
-  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  color: #53647a !important;
   font-size: 16px;
 }
 
 .leaflet-control-attribution a {
-  color: #60a5fa !important;
+  color: #1a73e8 !important;
 }
 
 .leaflet-control-scale-line {
-  background: rgba(5, 10, 20, 0.7) !important;
-  border-color: #344a6e !important;
-  color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: #b3c2d6 !important;
+  color: #14233b !important;
 }
 
 /* Outside-boundary mask: captures clicks (so they do not reach overlays
@@ -180,11 +191,11 @@ body {
 }
 
 .leaflet-popup-content-wrapper {
-  background: #0d1526 !important;
-  color: #e2e8f0 !important;
-  border: 1px solid #24344f;
+  background: #ffffff !important;
+  color: #14233b !important;
+  border: 1px solid #dce4ee;
   border-radius: 10px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 18px 40px rgba(20, 35, 59, 0.18);
 }
 
 .leaflet-popup-content {
@@ -194,29 +205,29 @@ body {
 }
 
 .leaflet-popup-tip {
-  background: #0d1526 !important;
-  border: 1px solid #24344f;
+  background: #ffffff !important;
+  border: 1px solid #dce4ee;
 }
 
 .leaflet-popup-close-button {
-  color: #94a3b8 !important;
+  color: #6b7c93 !important;
 }
 
 .leaflet-popup-close-button:hover {
-  color: #ffffff !important;
+  color: #14233b !important;
 }
 
 .popup-title {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #f8fafc;
+  color: #14233b;
   margin-bottom: 2px;
 }
 
 .popup-sub {
   font-size: 16px;
-  color: #94a3b8;
+  color: #6b7c93;
   margin-bottom: 8px;
 }
 
@@ -225,16 +236,16 @@ body {
   justify-content: space-between;
   gap: 14px;
   padding: 3px 0;
-  border-top: 1px dashed #1f2e4a;
+  border-top: 1px dashed #e2e8f0;
   font-size: 16px;
 }
 
 .popup-row span:first-child {
-  color: #64748b;
+  color: #8a99ad;
 }
 
 .popup-row span:last-child {
-  color: #e2e8f0;
+  color: #14233b;
   text-align: right;
   font-weight: 500;
 }
@@ -243,9 +254,9 @@ body {
   margin-top: 8px;
   padding: 4px 6px;
   border-radius: 4px;
-  background: rgba(234, 179, 8, 0.12);
-  border: 1px solid rgba(234, 179, 8, 0.4);
-  color: #fde047;
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  color: #b45309;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -272,7 +283,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  background: linear-gradient(160deg, #2563eb, #1e3a8a);
+  background: linear-gradient(160deg, #1a73e8, #174ea6);
   border: 2px solid #bfdbfe;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
 }
@@ -301,7 +312,7 @@ body {
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  background: var(--cluster-color, #60a5fa);
+  background: var(--cluster-color, #4285f4);
   border: 2px solid #ffffff;
   color: #ffffff;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
@@ -329,9 +340,10 @@ body {
   height: 16px;
   padding: 0 3px;
   border-radius: 999px;
-  background: #0d1526;
-  border: 1.5px solid #ffffff;
-  color: #ffffff;
+  background: #ffffff;
+  border: 1.5px solid #cbd6e4;
+  color: #14233b;
+  box-shadow: 0 1px 3px rgba(20, 35, 59, 0.25);
   font-size: 9px;
   font-weight: 700;
   line-height: 1;
@@ -426,14 +438,14 @@ body {
   height: 30px;
   border-radius: 999px;
   background: rgba(13, 21, 38, 0.94);
-  border: 2px solid var(--patrol-color, #60a5fa);
+  border: 2px solid var(--patrol-color, #4285f4);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
 .patrol-marker svg {
   width: 15px;
   height: 15px;
-  fill: var(--patrol-color, #60a5fa);
+  fill: var(--patrol-color, #4285f4);
 }
 
 /* Zoomed-out patrol unit: compact status dot */
@@ -447,7 +459,7 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  background: var(--patrol-color, #60a5fa);
+  background: var(--patrol-color, #4285f4);
   border: 1.5px solid #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }

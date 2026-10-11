@@ -65,7 +65,7 @@ function OverviewRow({
       <span className="text-[15px] font-bold uppercase tracking-[0.12em] text-steel-400">
         {label}
       </span>
-      <span className="font-mono text-[25px] font-bold leading-none text-white">{value}</span>
+      <span className="font-mono text-[25px] font-bold leading-none text-steel-100">{value}</span>
       {trend ? <DeltaBadge percent={trend.percent} direction={trend.direction} /> : null}
     </div>
   )
@@ -169,7 +169,7 @@ export function StatisticsPanel({
               className={`rounded-full px-2.5 py-1 text-[12px] font-bold transition-colors ${
                 customActive && mode === 'day'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-navy-800 text-steel-300 hover:text-white'
+                  : 'bg-navy-800 text-steel-300 hover:text-steel-100'
               }`}
             >
               Day
@@ -182,7 +182,7 @@ export function StatisticsPanel({
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-bold transition-colors ${
                 customActive && mode === 'range'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-navy-800 text-steel-300 hover:text-white'
+                  : 'bg-navy-800 text-steel-300 hover:text-steel-100'
               }`}
             >
               <CalendarDays className="size-3.5" aria-hidden /> Range
@@ -193,7 +193,7 @@ export function StatisticsPanel({
                 onClick={clearCustom}
                 aria-label="Clear date filter"
                 title="Clear"
-                className="rounded-full bg-navy-800 px-2 py-1 text-[12px] font-bold text-steel-300 transition-colors hover:text-white"
+                className="rounded-full bg-navy-800 px-2 py-1 text-[12px] font-bold text-steel-300 transition-colors hover:text-steel-100"
               >
                 ✕
               </button>
@@ -285,7 +285,7 @@ export function StatisticsPanel({
             </div>
             {stats.mostCommonCategory ? (
               <div className="shrink-0 text-right">
-                <span className="flex items-center justify-end gap-1.5 text-[21px] font-bold text-white">
+                <span className="flex items-center justify-end gap-1.5 text-[21px] font-bold text-steel-100">
                   <span
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: CRIME_CATEGORY_COLORS[stats.mostCommonCategory] }}

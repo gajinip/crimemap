@@ -31,8 +31,8 @@ export function WhatChangedPanel({ report, onFocusArea, onClose }: WhatChangedPa
     <section className="border-t border-navy-700 pt-3">
       <header className="flex items-start justify-between gap-3 border-b border-navy-700 px-1 pb-3">
         <div className="min-w-0">
-          <h2 className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white">
-            <span className="grid size-5 place-items-center rounded bg-amber-400/15 text-amber-300">
+          <h2 className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-steel-100">
+            <span className="grid size-5 place-items-center rounded bg-amber-400/15 text-amber-700">
               <Radar className="size-3.5" aria-hidden />
             </span>
             Significant changes
@@ -59,7 +59,7 @@ export function WhatChangedPanel({ report, onFocusArea, onClose }: WhatChangedPa
               type="button"
               onClick={onClose}
               aria-label="Close changes panel"
-              className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-white"
+              className="rounded p-1 text-steel-400 hover:bg-navy-700 hover:text-steel-100"
             >
               <X className="size-4" />
             </button>
@@ -93,7 +93,7 @@ export function WhatChangedPanel({ report, onFocusArea, onClose }: WhatChangedPa
                   <span className={`size-2.5 shrink-0 rounded-full ${style.dot}`} aria-hidden />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[12px] font-bold text-white">{signal.area}</span>
+                      <span className="text-[12px] font-bold text-steel-100">{signal.area}</span>
                       <span
                         className={`rounded border border-navy-600 px-1.5 py-px text-[9px] font-bold uppercase tracking-[0.12em] ${style.text}`}
                       >
@@ -113,7 +113,7 @@ export function WhatChangedPanel({ report, onFocusArea, onClose }: WhatChangedPa
                   <button
                     type="button"
                     onClick={() => onFocusArea(signal.area)}
-                    className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-300"
+                    className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-blue-400 hover:text-blue-600"
                   >
                     View on map <ArrowRight className="size-3" aria-hidden />
                   </button>

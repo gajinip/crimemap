@@ -53,7 +53,7 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
 
 const navButtonClass = (active: boolean) =>
   `relative inline-flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-colors ${
-    active ? 'text-white' : 'text-steel-300 hover:text-white'
+    active ? 'text-blue-600' : 'text-steel-300 hover:text-steel-100'
   }`
 
   return (
@@ -134,8 +134,8 @@ const navButtonClass = (active: boolean) =>
                       aria-current={active ? 'page' : undefined}
                       className={`flex flex-col items-center gap-1 rounded-lg px-2 py-2.5 transition-colors ${
                         active
-                          ? 'bg-navy-700 text-white'
-                          : 'text-steel-300 hover:bg-navy-700 hover:text-white'
+                          ? 'bg-navy-700 text-blue-600'
+                          : 'text-steel-300 hover:bg-navy-700 hover:text-steel-100'
                       }`}
                     >
                       <Icon

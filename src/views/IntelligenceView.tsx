@@ -133,8 +133,8 @@ export function IntelligenceView({
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-navy-800 px-3 pb-3 pt-3 xl:px-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="flex items-center gap-2 text-[18px] font-bold leading-tight text-white xl:text-[22px]">
-              <span className="grid size-6 place-items-center rounded bg-blue-600/20 text-blue-300">
+            <h1 className="flex items-center gap-2 text-[18px] font-bold leading-tight text-steel-100 xl:text-[22px]">
+              <span className="grid size-6 place-items-center rounded bg-blue-600/20 text-blue-700">
                 <Brain className="size-4" aria-hidden />
               </span>
               Intelligence Assistant
@@ -155,8 +155,8 @@ export function IntelligenceView({
       <div ref={scrollRef} className="scroll-thin min-h-0 flex-1 overflow-y-auto px-3 py-3 xl:px-4">
         {messages.length === 0 ? (
           <div className="mt-3 rounded-2xl rounded-bl-md border border-navy-700 bg-navy-900 px-3 py-3">
-            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
-              <Sparkles className="size-4 text-blue-300" aria-hidden />
+            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-steel-100">
+              <Sparkles className="size-4 text-blue-700" aria-hidden />
               How can I help?
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-steel-400">
@@ -169,7 +169,7 @@ export function IntelligenceView({
                   key={prompt}
                   type="button"
                   onClick={() => void handleAsk(prompt)}
-                  className="rounded-full border border-navy-600 px-2.5 py-1 text-[11px] text-steel-300 hover:border-blue-500/60 hover:text-blue-300"
+                  className="rounded-full border border-navy-600 px-2.5 py-1 text-[11px] text-steel-300 hover:border-blue-500/60 hover:text-blue-600"
                 >
                   {prompt}
                 </button>
@@ -192,7 +192,7 @@ export function IntelligenceView({
                 <div
                   className={`whitespace-pre-wrap rounded-2xl rounded-bl-md border px-3 py-2 text-[13px] leading-relaxed ${
                     message.error
-                      ? 'border-amber-500/40 bg-amber-500/10 text-amber-100'
+                      ? 'border-amber-500/40 bg-amber-500/10 text-amber-800'
                       : 'border-navy-700 bg-navy-800 text-steel-100'
                   }`}
                 >
@@ -205,7 +205,7 @@ export function IntelligenceView({
                     message.text
                   )}
                   {message.streaming && message.text.length > 0 ? (
-                    <span className="ml-0.5 inline-block h-3.5 w-[6px] translate-y-[2px] animate-pulse bg-blue-300 align-middle" />
+                    <span className="ml-0.5 inline-block h-3.5 w-[6px] translate-y-[2px] animate-pulse bg-blue-600 align-middle" />
                   ) : null}
                 </div>
 
@@ -229,7 +229,7 @@ export function IntelligenceView({
                         key={prompt}
                         type="button"
                         onClick={() => void handleAsk(prompt)}
-                        className="rounded-full border border-navy-600 px-2 py-0.5 text-[10px] text-steel-300 hover:border-blue-500/60 hover:text-blue-300"
+                        className="rounded-full border border-navy-600 px-2 py-0.5 text-[10px] text-steel-300 hover:border-blue-500/60 hover:text-blue-600"
                       >
                         {prompt}
                       </button>

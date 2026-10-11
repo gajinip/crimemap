@@ -1,14 +1,14 @@
 import type { RiskLevel, TrendDirection } from '../types'
 
 /**
- * Reference-style palette for the Risk Zones redesign.
+ * Palette for the Risk Zones redesign (light theme).
  * These stay local to the risk UI so the rest of the app keeps its branding.
  */
 export const RISK_LEVEL_COLOR: Record<RiskLevel, string> = {
-  Critical: '#FF304F',
-  High: '#FF304F',
-  Medium: '#FFAA00',
-  Low: '#00D69A',
+  Critical: '#EA4335',
+  High: '#FA7B17',
+  Medium: '#F9AB00',
+  Low: '#34A853',
 }
 
 export const RISK_LEVEL_LABEL: Record<RiskLevel, string> = {
@@ -26,9 +26,9 @@ export const RISK_LEVEL_BADGE: Record<RiskLevel, string> = {
 }
 
 export const TREND_COLOR: Record<TrendDirection, string> = {
-  Rising: '#FF304F',
-  Declining: '#00D69A',
-  Stable: '#8DB5DE',
+  Rising: '#EA4335',
+  Declining: '#34A853',
+  Stable: '#5F6368',
 }
 
 export const TREND_LABEL: Record<TrendDirection, string> = {
@@ -37,16 +37,16 @@ export const TREND_LABEL: Record<TrendDirection, string> = {
   Stable: 'Stable',
 }
 
-/** Page background for the Risk Zones redesign. */
-export const RISK_BG = '#031225'
+/** Page background for the Risk Zones page. */
+export const RISK_BG = '#FFFFFF'
 /** Card surface. */
-export const RISK_CARD_BG = '#06182D'
+export const RISK_CARD_BG = '#FFFFFF'
 /** Elevated surface (segmented control rail, chips). */
-export const RISK_ELEVATED_BG = '#0A203B'
+export const RISK_ELEVATED_BG = '#F4F7FB'
 /** Primary action blue. */
-export const RISK_ACTION_BLUE = '#087BFF'
-/** Quiet blue border used across the risk UI. */
-export const RISK_BORDER = '#123B67'
+export const RISK_ACTION_BLUE = '#1A73E8'
+/** Quiet border used across the risk UI. */
+export const RISK_BORDER = '#DCE4EE'
 /** Primary / secondary text. */
-export const RISK_TEXT = '#F4F7FC'
-export const RISK_TEXT_MUTED = '#8DB5DE'
+export const RISK_TEXT = '#14233B'
+export const RISK_TEXT_MUTED = '#53647A'

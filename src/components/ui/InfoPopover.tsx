@@ -50,10 +50,10 @@ export function InfoPopover({ text, label = 'About this page', tone = 'default' 
         onClick={() => setOpen((value) => !value)}
         className={
           isRisk
-            ? 'grid size-7 shrink-0 place-items-center rounded-full border text-[#8DB5DE] transition-colors hover:text-[#F4F7FC]'
-            : 'grid size-7 shrink-0 place-items-center rounded-full border border-navy-600 bg-navy-800 text-steel-300 transition-colors hover:border-blue-500/60 hover:text-white'
+            ? 'grid size-7 shrink-0 place-items-center rounded-full border text-[#53647A] transition-colors hover:text-[#14233B]'
+            : 'grid size-7 shrink-0 place-items-center rounded-full border border-navy-600 bg-navy-800 text-steel-300 transition-colors hover:border-blue-500/60 hover:text-steel-100'
         }
-        style={isRisk ? { borderColor: '#123B67', backgroundColor: '#0A203B' } : undefined}
+        style={isRisk ? { borderColor: '#DCE4EE', backgroundColor: '#F4F7FB' } : undefined}
       >
         <Info className="size-4" aria-hidden />
       </button>
@@ -64,10 +64,10 @@ export function InfoPopover({ text, label = 'About this page', tone = 'default' 
           aria-label={label}
           className={
             isRisk
-              ? 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border p-3 text-[12px] leading-relaxed text-[#F4F7FC] shadow-2xl'
+              ? 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border p-3 text-[12px] leading-relaxed text-[#14233B] shadow-2xl'
               : 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-navy-600 bg-navy-850 p-3 text-[12px] leading-relaxed text-steel-200 shadow-2xl'
           }
-          style={isRisk ? { borderColor: '#123B67', backgroundColor: '#0A203B' } : undefined}
+          style={isRisk ? { borderColor: '#DCE4EE', backgroundColor: '#F4F7FB' } : undefined}
         >
           {text}
         </div>

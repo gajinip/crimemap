@@ -32,7 +32,7 @@ export function SheetRow({
 /** Amber "demo data" notice shared by the non-incident detail sheets. */
 export function DemoNotice({ children }: { children: ReactNode }) {
   return (
-    <p className="py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-amber-300">
+    <p className="py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-amber-700">
       {children}
     </p>
   )
@@ -71,7 +71,7 @@ export function DetailSheet({ ariaLabel, header, children, onClose }: DetailShee
             onClick={() => setExpanded((current) => !current)}
             aria-label={expanded ? 'Collapse details' : 'Expand details'}
             title={expanded ? 'Collapse' : 'Expand to full screen'}
-            className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-white"
+            className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
@@ -79,7 +79,7 @@ export function DetailSheet({ ariaLabel, header, children, onClose }: DetailShee
             type="button"
             onClick={onClose}
             aria-label="Close details"
-            className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-white"
+            className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             <X className="size-4" />
           </button>

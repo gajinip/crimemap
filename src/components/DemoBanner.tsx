@@ -3,11 +3,11 @@ import { TriangleAlert } from 'lucide-react'
 function TickerText() {
   return (
     <>
-      <span className="inline-flex shrink-0 items-center gap-1.5 px-4 font-extrabold uppercase tracking-[0.14em] text-amber-300">
+      <span className="inline-flex shrink-0 items-center gap-1.5 px-4 font-extrabold uppercase tracking-[0.14em] text-amber-700">
         <TriangleAlert className="size-3 shrink-0" aria-hidden />
         Demo data - not real crime information
       </span>
-      <span className="demo-banner-note whitespace-nowrap text-amber-200/70">
+      <span className="demo-banner-note whitespace-nowrap text-amber-700/70">
         Synthetic sample records for interface demonstration only. No real incidents, victims or
         police reports are shown.
       </span>

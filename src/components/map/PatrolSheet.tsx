@@ -38,7 +38,7 @@ export function PatrolSheet({ unitId, onClose }: PatrolSheetProps) {
             <span className="size-1.5 rounded-full" style={{ backgroundColor: color }} aria-hidden />
             {unit.displayStatus}
           </span>
-          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-white">
+          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-steel-100">
             {unit.callsign} &middot; {unit.id}
           </h2>
         </>

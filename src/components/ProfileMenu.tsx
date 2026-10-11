@@ -38,7 +38,7 @@ export function ProfileMenu() {
               DA
             </span>
             <div className="min-w-0">
-              <div className="truncate text-[12px] font-semibold text-white">Demo Analyst</div>
+              <div className="truncate text-[12px] font-semibold text-steel-100">Demo Analyst</div>
               <div className="truncate text-[10px] text-steel-400">Analysis Cell</div>
               <div className="truncate text-[10px] text-steel-500">demo.analyst@police.gov.in</div>
             </div>
@@ -48,7 +48,7 @@ export function ProfileMenu() {
               type="button"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] text-steel-200 transition-colors hover:bg-navy-700 hover:text-white"
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] text-steel-200 transition-colors hover:bg-navy-700 hover:text-steel-100"
             >
               <UserCircle className="size-4 text-steel-400" aria-hidden />
               View Profile
@@ -57,7 +57,7 @@ export function ProfileMenu() {
               type="button"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] text-steel-200 transition-colors hover:bg-navy-700 hover:text-white"
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] text-steel-200 transition-colors hover:bg-navy-700 hover:text-steel-100"
             >
               <Settings className="size-4 text-steel-400" aria-hidden />
               Account Settings

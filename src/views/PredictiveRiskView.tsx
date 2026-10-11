@@ -40,7 +40,7 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+            <h1 className="text-[18px] font-bold leading-tight text-steel-100 xl:text-[22px]">
               Risk Forecast
             </h1>
             <InfoPopover
@@ -79,8 +79,8 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
                     aria-pressed={active}
                     className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                       active
-                        ? 'text-white'
-                        : 'border-navy-600 text-steel-300 hover:border-navy-500 hover:text-white'
+                        ? 'text-steel-100'
+                        : 'border-navy-600 text-steel-300 hover:border-navy-500 hover:text-steel-100'
                     }`}
                     style={active ? { borderColor: RISK_LEVEL_COLORS[level] } : undefined}
                   >
@@ -92,7 +92,7 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
                     {level}
                     <span
                       className={`rounded-full px-1.5 text-[10px] ${
-                        active ? 'bg-navy-900/60 text-white' : 'bg-navy-800 text-steel-400'
+                        active ? 'bg-navy-700 text-steel-100' : 'bg-navy-800 text-steel-400'
                       }`}
                     >
                       {counts[level]}
@@ -117,7 +117,7 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="truncate text-[13px] font-semibold text-white">
+                        <span className="truncate text-[13px] font-semibold text-steel-100">
                           {prediction.area}
                         </span>
                         <RiskBadge level={prediction.risk_level} />

@@ -53,7 +53,7 @@ export function IncidentSheet({
             </span>
             <StatusBadge status={incident.status} />
           </div>
-          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-white">
+          <h2 className="mt-1.5 truncate text-[14px] font-semibold text-steel-100">
             {incident.id} &middot; {incident.area}
           </h2>
         </div>
@@ -63,7 +63,7 @@ export function IncidentSheet({
             onClick={() => setExpanded((current) => !current)}
             aria-label={expanded ? 'Collapse incident details' : 'Expand incident details'}
             title={expanded ? 'Collapse' : 'Expand to full screen'}
-            className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-white"
+            className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
@@ -71,7 +71,7 @@ export function IncidentSheet({
             type="button"
             onClick={onClose}
             aria-label="Close incident details"
-            className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-white"
+            className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
           >
             <X className="size-4" />
           </button>
@@ -100,7 +100,7 @@ export function IncidentSheet({
               </span>
             </div>
           ) : null}
-          <p className="py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-amber-300">
+          <p className="py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-amber-700">
             {incident.isDemo
               ? 'DEMO DATA - NOT REAL CRIME INFORMATION'
               : 'USER-REPORTED - NOT VERIFIED'}
@@ -111,7 +111,7 @@ export function IncidentSheet({
           <button
             type="button"
             onClick={() => onEdit(incident)}
-            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-500/60 bg-amber-500/15 px-3 py-2.5 text-[12px] font-semibold text-amber-300 transition-colors hover:bg-amber-500/25"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-500/60 bg-amber-500/15 px-3 py-2.5 text-[12px] font-semibold text-amber-700 transition-colors hover:bg-amber-500/25"
           >
             <Pencil className="size-4" aria-hidden /> Edit crime &amp; location
           </button>
@@ -137,7 +137,7 @@ export function IncidentSheet({
               <button
                 type="button"
                 onClick={() => setConfirming(false)}
-                className="rounded-xl border border-navy-600 bg-navy-800 px-3 py-2.5 text-[12px] font-semibold text-steel-200 transition-colors hover:bg-navy-700 hover:text-white"
+                className="rounded-xl border border-navy-600 bg-navy-800 px-3 py-2.5 text-[12px] font-semibold text-steel-200 transition-colors hover:bg-navy-700 hover:text-steel-100"
               >
                 Keep
               </button>

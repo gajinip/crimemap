@@ -30,7 +30,7 @@ export function ZoneDetailPanel({
           <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-steel-500">
             Zone analysis · {zone.id}
           </p>
-          <h2 className="truncate text-[14px] font-semibold text-white">{zone.area}</h2>
+          <h2 className="truncate text-[14px] font-semibold text-steel-100">{zone.area}</h2>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <TrendIndicator trend={zone.trend} percent={zone.trendPercent} />
             <span className="text-[10px] text-steel-500">

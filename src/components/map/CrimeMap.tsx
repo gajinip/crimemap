@@ -531,9 +531,9 @@ export function CrimeMap({
         ]}
         radius={4}
         pathOptions={{
-          color: '#60a5fa',
+          color: '#4285F4',
           weight: 2,
-          fillColor: '#60a5fa',
+          fillColor: '#4285F4',
           fillOpacity: 0.8,
         }}
         interactive={false}

@@ -180,7 +180,7 @@ export function ReportsView({
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="text-[18px] font-bold leading-tight text-white xl:text-[22px]">
+            <h1 className="text-[18px] font-bold leading-tight text-steel-100 xl:text-[22px]">
               Reports &amp; Export
             </h1>
             <InfoPopover
@@ -194,13 +194,13 @@ export function ReportsView({
 
       <div className="grid gap-3 md:grid-cols-3">
         <Panel title="Total incidents" subtitle="Filtered">
-          <p className="text-3xl font-bold text-white">{formatNumber(stats.totalIncidents)}</p>
+          <p className="text-3xl font-bold text-steel-100">{formatNumber(stats.totalIncidents)}</p>
         </Panel>
         <Panel title="Risk zones" subtitle="Active">
-          <p className="text-3xl font-bold text-white">{formatNumber(zones.length)}</p>
+          <p className="text-3xl font-bold text-steel-100">{formatNumber(zones.length)}</p>
         </Panel>
         <Panel title="Avg risk score" subtitle="0–100">
-          <p className="text-3xl font-bold text-white">{Math.round(stats.averageRiskScore)}</p>
+          <p className="text-3xl font-bold text-steel-100">{Math.round(stats.averageRiskScore)}</p>
         </Panel>
       </div>
 
@@ -213,7 +213,7 @@ export function ReportsView({
               onClick={button.onClick}
               className="flex items-center justify-between rounded-lg border border-navy-600 bg-navy-800 px-3 py-2.5 text-left hover:border-blue-500/50 hover:bg-navy-700"
             >
-              <span className="text-[12px] font-semibold text-white">{button.label}</span>
+              <span className="text-[12px] font-semibold text-steel-100">{button.label}</span>
               <span className="text-[10px] text-steel-500">{button.hint}</span>
             </button>
           ))}
@@ -224,7 +224,7 @@ export function ReportsView({
         <ul className="divide-y divide-navy-700">
           {categoryStats.slice(0, 6).map((entry) => (
             <li key={entry.category} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
-              <span className="text-[12px] font-semibold text-white">{entry.category}</span>
+              <span className="text-[12px] font-semibold text-steel-100">{entry.category}</span>
               <span className="font-mono text-[11px] text-steel-300">
                 {entry.count} ({entry.share}%)
               </span>
