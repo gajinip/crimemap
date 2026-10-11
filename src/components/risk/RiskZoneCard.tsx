@@ -17,7 +17,6 @@ import {
   RISK_LEVEL_LABEL,
   TREND_COLOR,
 } from '../../utils/riskPalette'
-import { MinSparkline } from './MinSparkline'
 import { RiskScoreRing } from './RiskScoreRing'
 
 const LEVEL_ICON: Record<RiskLevel, ReactNode> = {
@@ -155,31 +154,44 @@ export function RiskZoneCard({
         <Stat label="Repeat within 250 m" value={`${zone.repeatShare}%`} hint={`${zone.nearbyCount} nearby`} />
       </div>
 
-      <div className="flex items-end justify-between gap-3 border-t border-[#123B67]/60 pt-3">
-        <div className="min-w-0">
+      <div className="flex flex-col gap-2 border-t border-[#123B67]/60 pt-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#8DB5DE]">
             <Activity className="size-3" aria-hidden />
             Trend vs previous period
           </p>
-          {hasSeries ? (
-            <p className="mt-0.5 text-[10px] text-[#8DB5DE]">
-              Incidents per day · synthetic demo
-            </p>
-          ) : (
-            <p className="mt-0.5 text-[10px] text-[#8DB5DE]">
-              No daily history available for this zone
-            </p>
-          )}
+          <span
+            className="font-mono text-[10px] font-semibold"
+            style={{ color: TREND_COLOR[zone.trend] }}
+          >
+            {zone.previousCount} → {zone.crimeCount}
+          </span>
         </div>
-        <div className="w-28 shrink-0">
-          {hasSeries ? (
-            <MinSparkline
-              data={series}
-              color={color}
-              label={`${zone.area}: incidents per day over the recent window`}
-            />
-          ) : null}
-        </div>
+        {hasSeries ? (
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-wrap gap-1">
+              {series.slice(-12).map((value, index, trimmed) => (
+                <span
+                  key={`${index}-${value}`}
+                  className="grid min-w-6 place-items-center rounded-md border border-[#123B67]/60 bg-[#0A203B] px-1.5 py-1 text-[11px] font-semibold"
+                  style={{ color }}
+                  title={`Day ${trimmed.length - index} from latest: ${value} incident${
+                    value === 1 ? '' : 's'
+                  }`}
+                >
+                  {value}
+                </span>
+              ))}
+            </div>
+            <p className="text-[10px] text-[#8DB5DE]">
+              Daily incidents, most recent {Math.min(series.length, 12)} days · synthetic demo
+            </p>
+          </div>
+        ) : (
+          <p className="text-[10px] text-[#8DB5DE]">
+            No daily history available for this zone
+          </p>
+        )}
       </div>
 
       <button
