@@ -349,7 +349,6 @@ export default function App() {
         return (
           <HotspotsView
             zones={zones}
-            incidents={incidents}
             recommendations={recommendations}
             selectedZone={selectedZone}
             onFocusArea={focusArea}

@@ -3,17 +3,15 @@ import { X } from 'lucide-react'
 import { RiskZoneCard } from '../components/risk/RiskZoneCard'
 import { RiskBreakdown } from '../components/RiskBreakdown'
 import { RecommendationCard } from '../components/RecommendationCard'
-import type { CrimeIncident, Recommendation, RiskZone } from '../types'
+import type { Recommendation, RiskZone } from '../types'
 import {
   RISK_ACTION_BLUE,
   RISK_BG,
   RISK_ELEVATED_BG,
 } from '../utils/riskPalette'
-import { zoneDailySeries } from '../utils/zoneSeries'
 
 interface HotspotsViewProps {
   zones: RiskZone[]
-  incidents: CrimeIncident[]
   recommendations: Recommendation[]
   selectedZone: RiskZone | null
   onFocusArea: (area: string) => void
@@ -62,7 +60,6 @@ function Seg({
 /** Reference-style Risk Zones page: filter rail, score-ring cards, detach detail. */
 export function HotspotsView({
   zones,
-  incidents,
   recommendations,
   selectedZone,
   onFocusArea,
@@ -79,14 +76,6 @@ export function HotspotsView({
     [sorted],
   )
   const visible = scope === 'active' ? activeZones : sorted
-
-  const seriesByArea = useMemo(() => {
-    const map: Record<string, number[]> = {}
-    for (const zone of sorted) {
-      map[zone.area] = zoneDailySeries(incidents, zone.area)
-    }
-    return map
-  }, [sorted, incidents])
 
   const selectedRecommendation = selectedZone
     ? (recommendations.find(
@@ -145,7 +134,6 @@ export function HotspotsView({
             <RiskZoneCard
               key={zone.id}
               zone={zone}
-              series={seriesByArea[zone.area] ?? []}
               selected={selectedZone?.id === zone.id}
               onView={() => onFocusArea(zone.area)}
               onSelect={() => onSelectZone(zone)}
