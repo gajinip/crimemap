@@ -37,14 +37,6 @@
   --color-blue-500: #4285f4;
   --color-blue-600: #1a73e8;
   --color-blue-700: #174ea6;
-
-  /* Force the mobile layout at every viewport width by disabling the
-     responsive breakpoints (sm/md/lg/xl/2xl can never match). */
-  --breakpoint-sm: 100000px;
-  --breakpoint-md: 100000px;
-  --breakpoint-lg: 100000px;
-  --breakpoint-xl: 100000px;
-  --breakpoint-2xl: 100000px;
 }
 
 :root {

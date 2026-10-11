@@ -210,5 +210,7 @@ Predictive Risk screen serves the deterministic `buildRiskForecast` output from
 
 - React 19, Vite 8, TypeScript strict (`tsc -b`), Tailwind CSS v4
 - Leaflet markers use `divIcon` + `CircleMarker`, so no bundler image-path workarounds are needed
-- Responsive: sidebar becomes a drawer below `lg`, right information panel stacks below the map
-  below `xl`, map remains the primary visual element
+- Responsive: a persistent left navigation rail appears at `lg` and above, with a
+  compact bottom navigation bar below `lg`; the selected risk-zone analysis moves into a
+  right-hand rail at `xl` and is a bottom sheet below `xl`; the map stays the primary visual
+  element and resizes automatically as the layout changes

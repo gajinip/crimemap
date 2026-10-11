@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { CrimeMap } from '../components/map/CrimeMap'
 import { IncidentEditor } from '../components/map/IncidentEditor'
@@ -6,7 +6,11 @@ import { IncidentSheet } from '../components/map/IncidentSheet'
 import { MapLegend } from '../components/map/MapLegend'
 import { PatrolSheet } from '../components/map/PatrolSheet'
 import { StationSheet } from '../components/map/StationSheet'
-import { ZoneDetailPanel } from '../components/map/ZoneDetailPanel'
+import {
+  ZoneDetailBody,
+  ZoneDetailHeader,
+  ZoneDetailPanel,
+} from '../components/map/ZoneDetailPanel'
 import { AreaDatePanel } from '../components/AreaDatePanel'
 import { FilterPanel } from '../components/FilterPanel'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../data/areas'
@@ -83,6 +87,7 @@ export function MapView({
   const [selectedIncident, setSelectedIncident] = useState<CrimeIncident | null>(null)
   const [selectedStation, setSelectedStation] = useState<PoliceStation | null>(null)
   const [selectedPatrolId, setSelectedPatrolId] = useState<string | null>(null)
+  const [openPanel, setOpenPanel] = useState<'filters' | 'area' | null>(null)
 
   const clearMapSelections = useCallback(() => {
     setSelectedIncident(null)
@@ -196,97 +201,133 @@ export function MapView({
   )
 
   return (
-    <div className="relative h-full w-full">
-      <CrimeMap
-        incidents={incidents}
-        zones={zones}
-        stations={stations}
-        selectedArea={selectedArea}
-        searchQuery={filters.searchQuery}
-        relatedIncidentIds={relatedIncidentIds}
-        selectedZoneId={selectedZone ? selectedZone.id : null}
-        onSelectZone={handleSelectZone}
-        onSelectIncident={handleSelectIncident}
-        onSelectStation={handleSelectStation}
-        onSelectPatrol={handleSelectPatrol}
-        onDeselect={handleDeselect}
-        pickingLocation={pickingLocation}
-        onPickLocation={handlePickLocation}
-      />
-      <FilterPanel
-        filters={filters}
-        categoryCounts={categoryCounts}
-        visibleCount={incidents.length}
-        totalCount={totalIncidents}
-        relatedCount={relatedIncidentIds?.size ?? 0}
-        onChange={onFiltersChange}
-        onReset={onResetFilters}
-      />
-      <AreaDatePanel
-        area={filters.area}
-        areas={DEMO_AREAS.map((entry) => entry.name).sort((a, b) => a.localeCompare(b))}
-        dateRange={filters.dateRange}
-        onAreaChange={(area) => onFiltersChange({ ...filters, area })}
-        onDateRangeChange={(dateRange) => onFiltersChange({ ...filters, dateRange })}
-      />
-      <MapLegend />
-      {selectedIncident ? (
-        <IncidentSheet
-          incident={selectedIncident}
-          onClose={() => setSelectedIncident(null)}
-          onEdit={(incident) => {
-            setSelectedIncident(null)
-            openEditor(incident)
-          }}
-          onDelete={(incidentId) => {
-            setSelectedIncident(null)
-            onDeleteIncident(incidentId)
-          }}
+    <div className="relative flex h-full w-full">
+      <div className="relative min-w-0 flex-1">
+        <CrimeMap
+          incidents={incidents}
+          zones={zones}
+          stations={stations}
+          selectedArea={selectedArea}
+          searchQuery={filters.searchQuery}
+          relatedIncidentIds={relatedIncidentIds}
+          selectedZoneId={selectedZone ? selectedZone.id : null}
+          onSelectZone={handleSelectZone}
+          onSelectIncident={handleSelectIncident}
+          onSelectStation={handleSelectStation}
+          onSelectPatrol={handleSelectPatrol}
+          onDeselect={handleDeselect}
+          pickingLocation={pickingLocation}
+          onPickLocation={handlePickLocation}
         />
-      ) : null}
-      {selectedStation ? (
-        <StationSheet
-          station={selectedStation}
-          onClose={() => setSelectedStation(null)}
+        <FilterPanel
+          filters={filters}
+          categoryCounts={categoryCounts}
+          visibleCount={incidents.length}
+          totalCount={totalIncidents}
+          relatedCount={relatedIncidentIds?.size ?? 0}
+          onChange={onFiltersChange}
+          onReset={onResetFilters}
+          open={openPanel === 'filters'}
+          onOpenChange={(next) => setOpenPanel(next ? 'filters' : null)}
         />
-      ) : null}
-      {selectedPatrolId ? (
-        <PatrolSheet
-          unitId={selectedPatrolId}
-          onClose={() => setSelectedPatrolId(null)}
+        <AreaDatePanel
+          area={filters.area}
+          areas={DEMO_AREAS.map((entry) => entry.name).sort((a, b) => a.localeCompare(b))}
+          dateRange={filters.dateRange}
+          onAreaChange={(area) => onFiltersChange({ ...filters, area })}
+          onDateRangeChange={(dateRange) => onFiltersChange({ ...filters, dateRange })}
+          open={openPanel === 'area'}
+          onOpenChange={(next) => setOpenPanel(next ? 'area' : null)}
         />
-      ) : null}
-      {editor ? null : (
-        <button
-          type="button"
-          onClick={openCreate}
-          aria-label="Report a new crime incident"
-          title="Report a new crime incident"
-          className="pointer-events-auto absolute bottom-28 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-blue-500/60 bg-blue-600 text-white shadow-[0_10px_30px_rgba(0,0,0,0.55)] transition-colors hover:bg-blue-500"
-        >
-          <Plus className="size-6" aria-hidden />
-        </button>
-      )}
+        <MapLegend />
+        {selectedIncident ? (
+          <IncidentSheet
+            incident={selectedIncident}
+            onClose={() => setSelectedIncident(null)}
+            onEdit={(incident) => {
+              setSelectedIncident(null)
+              openEditor(incident)
+            }}
+            onDelete={(incidentId) => {
+              setSelectedIncident(null)
+              onDeleteIncident(incidentId)
+            }}
+          />
+        ) : null}
+        {selectedStation ? (
+          <StationSheet
+            station={selectedStation}
+            onClose={() => setSelectedStation(null)}
+          />
+        ) : null}
+        {selectedPatrolId ? (
+          <PatrolSheet
+            unitId={selectedPatrolId}
+            onClose={() => setSelectedPatrolId(null)}
+          />
+        ) : null}
+        {editor ? null : (
+          <button
+            type="button"
+            onClick={openCreate}
+            aria-label="Report a new crime incident"
+            title="Report a new crime incident"
+            className="pointer-events-auto absolute bottom-28 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-blue-500/60 bg-blue-600 text-white shadow-[0_10px_30px_rgba(0,0,0,0.55)] transition-colors hover:bg-blue-500"
+          >
+            <Plus className="size-6" aria-hidden />
+          </button>
+        )}
+        {selectedZone ? (
+          <div className="xl:hidden">
+            <ZoneDetailPanel
+              zone={selectedZone}
+              recommendation={selectedRecommendation}
+              onClose={onCloseZone}
+              onFocusArea={onFocusArea}
+            />
+          </div>
+        ) : null}
+        {editor ? (
+          <IncidentEditor
+            key={editor.incident.id}
+            incident={editor.incident}
+            mode={editor.mode}
+            picking={pickingLocation}
+            picked={pickedPoint}
+            onTogglePick={() => setPickingLocation((current) => !current)}
+            onSave={handleSave}
+            onDelete={handleDelete}
+            onCancel={closeEditor}
+          />
+        ) : null}
+      </div>
+
       {selectedZone ? (
-        <ZoneDetailPanel
-          zone={selectedZone}
-          recommendation={selectedRecommendation}
-          onClose={onCloseZone}
-          onFocusArea={onFocusArea}
-        />
-      ) : null}
-      {editor ? (
-        <IncidentEditor
-          key={editor.incident.id}
-          incident={editor.incident}
-          mode={editor.mode}
-          picking={pickingLocation}
-          picked={pickedPoint}
-          onTogglePick={() => setPickingLocation((current) => !current)}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          onCancel={closeEditor}
-        />
+        <aside
+          className="hidden w-[380px] shrink-0 flex-col border-l border-navy-700 bg-navy-900 xl:flex"
+          aria-label={`Risk analysis for ${selectedZone.area}`}
+        >
+          <header className="flex items-start justify-between gap-2 border-b border-navy-700 p-3">
+            <div className="min-w-0">
+              <ZoneDetailHeader zone={selectedZone} />
+            </div>
+            <button
+              type="button"
+              onClick={onCloseZone}
+              aria-label="Close details"
+              className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
+            >
+              <X className="size-4" />
+            </button>
+          </header>
+          <div className="scroll-thin min-h-0 flex-1 overflow-y-auto p-3">
+            <ZoneDetailBody
+              zone={selectedZone}
+              recommendation={selectedRecommendation}
+              onFocusArea={onFocusArea}
+            />
+          </div>
+        </aside>
       ) : null}
     </div>
   )

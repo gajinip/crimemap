@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test("app boots with the demo banner and a rendered crime map", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Demo data - not real crime information")).toBeVisible();
+  await expect(
+    page.getByText("Demo data - not real crime information").first(),
+  ).toBeVisible();
   await expect(page.getByText("Loading demo dataset")).toBeHidden({ timeout: 30000 });
 
   const map = page.locator(".leaflet-container");
@@ -12,6 +14,8 @@ test("app boots with the demo banner and a rendered crime map", async ({ page })
 });
 
 test("bottom navigation switches between views", async ({ page }) => {
+  // The bottom bar is the mobile/tablet pattern; at lg the sidebar takes over.
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const map = page.locator(".leaflet-container");
   await expect(map).toBeVisible({ timeout: 30000 });

@@ -9,6 +9,8 @@ interface AreaDatePanelProps {
   dateRange: DateRange
   onAreaChange: (area: string) => void
   onDateRangeChange: (range: DateRange) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const PRESETS = timePresets()
@@ -23,8 +25,16 @@ export function AreaDatePanel({
   dateRange,
   onAreaChange,
   onDateRangeChange,
+  open: openProp,
+  onOpenChange,
 }: AreaDatePanelProps) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = openProp !== undefined
+  const open = isControlled ? openProp : internalOpen
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setInternalOpen(next)
+    onOpenChange?.(next)
+  }
   const [mode, setMode] = useState<'day' | 'range'>(
     dateRange.from === dateRange.to ? 'day' : 'range',
   )

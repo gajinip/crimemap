@@ -128,7 +128,7 @@ export function HotspotsView({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 content-start gap-3">
+        <div className="grid grid-cols-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {visible.map((zone) => (
             <RiskZoneCard
               key={zone.id}
@@ -214,7 +214,7 @@ export function HotspotsView({
               {recommendations.length} actionable items derived from these zones
             </p>
           </header>
-          <div className="scroll-thin mt-3 flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1">
+          <div className="scroll-thin mt-3 flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible xl:grid-cols-3">
             {recommendations.slice(0, 6).map((recommendation) => (
               <div key={recommendation.zoneId} className="w-full shrink-0 snap-center">
                 <RecommendationCard recommendation={recommendation} compact plain />

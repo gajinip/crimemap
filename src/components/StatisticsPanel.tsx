@@ -145,7 +145,7 @@ export function StatisticsPanel({
 
   return (
     <aside
-      className={`sticky top-0 self-start xl:w-[340px] xl:shrink-0 ${className}`}
+      className={`w-full ${className}`}
       aria-label="Situation statistics"
     >
       <div className="flex flex-col p-3 xl:p-4">
@@ -239,7 +239,7 @@ export function StatisticsPanel({
           </div>
         ) : null}
 
-        <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+        <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-4">
           <OverviewRow
             label="Total incidents"
             value={formatNumber(stats.totalIncidents)}
@@ -284,14 +284,14 @@ export function StatisticsPanel({
               />
             </div>
             {stats.mostCommonCategory ? (
-              <div className="shrink-0 text-right">
+              <div className="min-w-0 text-right">
                 <span className="flex items-center justify-end gap-1.5 text-[21px] font-bold text-steel-100">
                   <span
-                    className="h-2.5 w-2.5 rounded-full"
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: CRIME_CATEGORY_COLORS[stats.mostCommonCategory] }}
                     aria-hidden
                   />
-                  {stats.mostCommonCategory}
+                  <span className="truncate">{stats.mostCommonCategory}</span>
                 </span>
                 <div className="mt-1 text-[17px] text-steel-400">
                   {formatNumber(stats.mostCommonCount)} incidents &middot;{' '}

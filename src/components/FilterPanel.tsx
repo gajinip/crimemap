@@ -23,6 +23,8 @@ interface FilterPanelProps {
   onChange: (filters: CrimeFilterState) => void
   onReset: () => void
   placement?: 'top-left' | 'bottom-right'
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const PRESETS = timePresets()
@@ -37,8 +39,16 @@ export function FilterPanel({
   onChange,
   onReset,
   placement = 'top-left',
+  open: openProp,
+  onOpenChange,
 }: FilterPanelProps) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = openProp !== undefined
+  const open = isControlled ? openProp : internalOpen
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setInternalOpen(next)
+    onOpenChange?.(next)
+  }
 
   const rootClass =
     placement === 'top-left'

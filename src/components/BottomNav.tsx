@@ -1,37 +1,7 @@
-import {
-  Brain,
-  Car,
-  FileText,
-  Flame,
-  LayoutDashboard,
-  Landmark,
-  Map,
-  MoreHorizontal,
-  ShieldAlert,
-  TrendingUp,
-  X,
-  type LucideIcon,
-} from 'lucide-react'
+import { MoreHorizontal, X } from 'lucide-react'
 import { useState } from 'react'
 import type { AppView } from '../types'
-
-interface NavItem {
-  id: AppView
-  label: string
-  icon: LucideIcon
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'map', label: 'Crime Map', icon: Map },
-  { id: 'hotspots', label: 'Risk Zones', icon: Flame },
-  { id: 'trends', label: 'Crime Trends', icon: TrendingUp },
-  { id: 'intelligence', label: 'Intelligence', icon: Brain },
-  { id: 'predictive-risk', label: 'Risk Forecast', icon: ShieldAlert },
-  { id: 'patrol', label: 'Patrol Simulation', icon: Car },
-  { id: 'stations', label: 'Police Stations', icon: Landmark },
-  { id: 'reports', label: 'Reports', icon: FileText },
-]
+import { NAV_ITEMS } from './navItems'
 
 const VISIBLE = NAV_ITEMS.slice(0, 3)
 const MORE = NAV_ITEMS.slice(3)
@@ -58,7 +28,7 @@ const navButtonClass = (active: boolean) =>
 
   return (
     <nav
-      className="sticky bottom-0 z-[2000] border-t border-navy-700 bg-navy-900 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+      className="sticky bottom-0 z-[2000] border-t border-navy-700 bg-navy-900 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
       aria-label="Primary navigation"
     >
       <div className="flex items-center justify-between gap-1.5 px-3 py-2">

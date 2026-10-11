@@ -11,6 +11,7 @@ import {
 import { buildPatrolPlan, buildPatrolPlanWeighted } from './analytics/patrol'
 import { DemoBanner } from './components/DemoBanner'
 import { BottomNav } from './components/BottomNav'
+import { Sidebar } from './components/Sidebar'
 import { TopNav } from './components/TopNav'
 import { PatrolProvider } from './patrol/PatrolContext'
 import { crimeDataSource } from './services/crimeApi'
@@ -437,15 +438,16 @@ export default function App() {
     view === 'map'
       ? 'relative h-full min-h-[320px]'
       : view === 'intelligence'
-        ? 'relative flex h-full min-h-[320px] min-w-0 flex-col'
-        : 'relative min-w-0 pb-14 xl:min-h-0 xl:flex-1'
+        ? 'relative mx-auto flex h-full min-h-[320px] w-full max-w-[1100px] min-w-0 flex-col'
+        : 'relative mx-auto w-full max-w-[1440px] min-w-0 pb-10 lg:pb-6'
 
   return (
     <PatrolProvider plan={patrolPlan}>
-      <div className="flex h-screen justify-center bg-navy-900 text-steel-100">
+      <div className="flex h-screen bg-navy-900 text-steel-100">
+        <Sidebar activeView={view} onNavigate={navigate} />
         <div
           style={{ height: '100dvh' }}
-          className="relative flex h-screen w-full max-w-[430px] flex-col overflow-hidden bg-navy-950 shadow-[0_0_60px_rgba(20,35,59,0.18)]"
+          className="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-navy-950"
         >
           <DemoBanner />
           <TopNav

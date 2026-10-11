@@ -285,6 +285,25 @@ function TapToDismiss({ onDeselect }: { onDeselect: () => void }) {
 }
 
 /**
+ * Keep Leaflet's internal size in sync when the map container resizes
+ * (responsive layout changes, side rail toggling, orientation change).
+ */
+function AutoResize() {
+  const map = useMap()
+
+  useEffect(() => {
+    const container = map.getContainer()
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false })
+    })
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [map])
+
+  return null
+}
+
+/**
  * Capture a map click as a new incident location when
  * location-picking mode is enabled.
  */
@@ -522,6 +541,8 @@ export function CrimeMap({
         active={pickingLocation}
         onPick={onPickLocation}
       />
+
+      <AutoResize />
 
       {/* Puducherry reference point */}
       <CircleMarker
