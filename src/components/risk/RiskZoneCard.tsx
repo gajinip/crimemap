@@ -26,11 +26,11 @@ const LEVEL_ICON: Record<RiskLevel, ReactNode> = {
   Low: <ShieldCheck className="size-3.5" aria-hidden />,
 }
 
-function TrendBadge({ trend, percent }: { trend: TrendDirection; percent: number }) {
+function TrendBadge({ trend, change }: { trend: TrendDirection; change: number }) {
   const color = TREND_COLOR[trend]
   const Icon =
     trend === 'Rising' ? TrendingUp : trend === 'Declining' ? TrendingDown : Minus
-  const text = `${percent > 0 ? '+' : ''}${percent}%`
+  const text = `${change > 0 ? '+' : ''}${change} incidents`
   return (
     <span
       className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold"
@@ -131,7 +131,7 @@ export function RiskZoneCard({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <TrendBadge trend={zone.trend} percent={zone.trendPercent} />
+            <TrendBadge trend={zone.trend} change={zone.crimeCount - zone.previousCount} />
             <span className="text-[10px] text-[#8DB5DE]">
               vs {zone.previousCount} previous
             </span>

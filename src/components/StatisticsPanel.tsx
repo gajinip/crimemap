@@ -145,7 +145,7 @@ export function StatisticsPanel({
 
   return (
     <aside
-      className={`bg-navy-900 sticky top-0 self-start xl:w-[340px] xl:shrink-0 ${className}`}
+      className={`sticky top-0 self-start xl:w-[340px] xl:shrink-0 ${className}`}
       aria-label="Situation statistics"
     >
       <div className="flex flex-col p-3 xl:p-4">

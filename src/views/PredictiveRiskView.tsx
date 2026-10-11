@@ -36,7 +36,7 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
   const visible = predictions.filter((prediction) => prediction.risk_level === activeLevel)
 
   return (
-    <div className="scroll-thin flex flex-col gap-3 bg-navy-950 p-3 pb-8 xl:p-4">
+    <div className="scroll-thin flex flex-col gap-3 p-3 pb-8 xl:p-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">

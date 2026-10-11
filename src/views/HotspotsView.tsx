@@ -7,7 +7,6 @@ import { InfoPopover } from '../components/ui/InfoPopover'
 import type { Recommendation, RiskZone } from '../types'
 import {
   RISK_ACTION_BLUE,
-  RISK_BG,
   RISK_ELEVATED_BG,
 } from '../utils/riskPalette'
 
@@ -85,10 +84,7 @@ export function HotspotsView({
     : null
 
   return (
-    <div
-      className="scroll-thin flex min-w-0 flex-col gap-4 p-3 pb-8 xl:p-4"
-      style={{ backgroundColor: RISK_BG }}
-    >
+    <div className="scroll-thin flex min-w-0 flex-col gap-4 p-3 pb-8 xl:p-4">
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
           <div className="flex min-w-0 items-center gap-2">

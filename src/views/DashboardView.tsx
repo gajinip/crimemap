@@ -17,7 +17,7 @@ export function DashboardView({
   onCompareRangeChange,
 }: DashboardViewProps) {
   return (
-    <div className="flex flex-col gap-3 bg-navy-950 p-3 pb-6 xl:p-4">
+    <div className="flex flex-col gap-3 p-3 pb-6 xl:p-4">
       <StatisticsPanel
         stats={stats}
         zones={zones}

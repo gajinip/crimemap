@@ -129,7 +129,7 @@ export function IntelligenceView({
   }
 
   return (
-    <div className="flex h-full flex-col bg-navy-950">
+    <div className="flex h-full flex-col">
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-navy-800 px-3 pb-3 pt-3 xl:px-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
