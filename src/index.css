@@ -522,43 +522,7 @@ body {
   font-size: 24px;
 }
 .t-view-title {
-  font-size: clamp(19px, 1rem + 1.2vw, 24px);
-}
-
-@media (min-width: 1024px) {
-  .t-2xs {
-    font-size: 11px;
-  }
-  .t-xs {
-    font-size: 12px;
-  }
-  .t-sm {
-    font-size: 13px;
-  }
-  .t-base {
-    font-size: 14px;
-  }
-  .t-md {
-    font-size: 15px;
-  }
-  .t-lg {
-    font-size: 16px;
-  }
-  .t-xl {
-    font-size: 17px;
-  }
-  .t-title-sm {
-    font-size: 18px;
-  }
-  .t-title {
-    font-size: 22px;
-  }
-  .t-metric {
-    font-size: 27px;
-  }
-  .t-view-title {
-    font-size: 22px;
-  }
+  font-size: 22px;
 }
 
 /* Compact top disclaimer. */
@@ -604,24 +568,6 @@ body {
 /* Extra-small chip/label text. */
 .text-chip {
   font-size: 10px;
-}
-
-@media (min-width: 1024px) {
-  .demo-banner {
-    font-size: 12px;
-  }
-  .demo-banner-note {
-    font-size: 11px;
-  }
-  .text-caption {
-    font-size: 13px;
-  }
-  .text-chip {
-    font-size: 11px;
-  }
-  .editor-eyebrow {
-    font-size: 13px;
-  }
 }
 
 /* ------------------------------------------------------------------ */
