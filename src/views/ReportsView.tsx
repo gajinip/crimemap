@@ -65,7 +65,10 @@ const DEFAULT_FILTERS: ReportFilterDraft = {
 
 const PRESETS = timePresets()
 
-
+const PERIOD_OPTIONS = PRESETS.map((preset) => ({
+  value: preset.days === null ? 'all' : String(preset.days),
+  label: preset.label,
+}))
 
 function rangeFor(days: number | null) {
   return (PRESETS.find((preset) => preset.days === days) ?? PRESETS[PRESETS.length - 1]).range
