@@ -624,6 +624,36 @@ body {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Crime trend report (dashboard)                                      */
+/* ------------------------------------------------------------------ */
+
+/* Category sublist inside each crime-trend panel. Single column on small
+   screens; a strict two-column × auto-row grid once there is room. */
+.crime-category-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 0;
+  row-gap: 0;
+  width: 100%;
+}
+
+.crime-category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 0;
+}
+
+@media (min-width: 640px) {
+  .crime-category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+}
+
 /* Google-Maps-style bottom sheet slide-up */
 @keyframes sheet-in {
   from {

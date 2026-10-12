@@ -452,7 +452,9 @@ export default function App() {
       ? 'relative h-full min-h-[320px]'
       : view === 'intelligence'
         ? 'relative mx-auto flex h-full min-h-[320px] w-full max-w-[1100px] min-w-0 flex-col'
-        : 'relative mx-auto w-full max-w-[1440px] min-w-0 pb-10 lg:pb-6'
+        : view === 'dashboard'
+          ? 'relative w-full min-w-0 pb-10 lg:pb-6'
+          : 'relative mx-auto w-full max-w-[1440px] min-w-0 pb-10 lg:pb-6'
 
   return (
     <PatrolProvider plan={patrolPlan}>
