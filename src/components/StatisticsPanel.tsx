@@ -162,21 +162,14 @@ export function StatisticsPanel({
   }
 
   return (
+    
     <aside
       className={`flex w-full flex-col ${className}`}
       aria-label={t('Situation statistics')}
     >
-      <header className="border-b border-navy-700 px-4 py-3">
-        <h2 className="t-sm font-bold uppercase tracking-[0.16em] text-steel-300">
-          {t('Situation overview')}
-        </h2>
-      </header>
-
       <div className="flex flex-col p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="t-base font-bold uppercase tracking-[0.12em] text-steel-500">
-            {t('vs previous')}
-          </span>
+          
           <div className="flex items-center gap-1">
             <button
               type="button"

@@ -21,6 +21,7 @@ interface KpiCardProps {
 function KpiCard({ label, icon, value, hint, trend }: KpiCardProps) {
   const { t } = useI18n()
   return (
+    
     <div className="flex h-full flex-col gap-2 rounded-lg border border-navy-600 bg-navy-800 px-3 py-2.5">
       <div className="flex min-w-0 items-center gap-1.5">
         <span className="shrink-0 text-steel-500" aria-hidden>
