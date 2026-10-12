@@ -91,7 +91,7 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
           {moreOpen ? (
             <div
               role="menu"
-              className="absolute bottom-full right-0 mb-2 w-[238px] rounded-xl border border-navy-600 bg-navy-800 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.6)]"
+              className="absolute bottom-full right-0 mb-2 w-[238px] rounded-xl border border-navy-600 bg-navy-800 p-2 shadow-[0_16px_40px_rgba(23,43,77,0.2)]"
             >
               <div className="grid grid-cols-3 gap-1">
                 {MORE.map((item) => {

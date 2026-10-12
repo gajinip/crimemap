@@ -42,14 +42,14 @@ function Seg({
       onClick={() => onChange(value)}
       className={`inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 t-base font-semibold transition-colors ${
         active
-          ? 'bg-[#1A73E8] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
-          : 'text-[#53647A] hover:text-[#14233B]'
+          ? 'bg-[#2676D2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
+          : 'text-[#64748B] hover:text-[#172B4D]'
       }`}
     >
       <span className="truncate">{label}</span>
       <span
         className={`shrink-0 rounded-full px-1.5 py-px font-mono t-xs ${
-          active ? 'bg-white/20 text-white' : 'bg-[#DCE4EE] text-[#53647A]'
+          active ? 'bg-white/20 text-white' : 'bg-[#D9E2EF] text-[#64748B]'
         }`}
       >
         {count}
@@ -90,7 +90,7 @@ export function HotspotsView({
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
           <div className="flex min-w-0 items-center gap-2">
-                            <h1 className="min-w-0 break-words t-view-title font-bold leading-tight text-[#14233B]">
+                            <h1 className="min-w-0 break-words t-view-title font-bold leading-tight text-[#172B4D]">
               {t('Risk Zones')}
             </h1>
             <InfoPopover
@@ -99,13 +99,13 @@ export function HotspotsView({
               text={t('Monitor high-risk areas and stay informed about potential crime activity. Scores are deterministic and explainable, derived from incident frequency, trend, severity, repeat activity, time of day and proximity.')}
             />
           </div>
-          <span className="shrink-0 rounded-lg border border-[#DCE4EE] bg-[#F4F7FB] px-2.5 py-1.5 t-xs font-bold uppercase tracking-[0.14em] text-[#53647A]">
+          <span className="shrink-0 rounded-lg border border-[#D9E2EF] bg-[#F4F7FB] px-2.5 py-1.5 t-xs font-bold uppercase tracking-[0.14em] text-[#64748B]">
             {t('Synthetic demo data')}
           </span>
         </div>
         <div
           className="flex gap-1 rounded-xl border p-1"
-          style={{ backgroundColor: RISK_ELEVATED_BG, borderColor: '#DCE4EE' }}
+          style={{ backgroundColor: RISK_ELEVATED_BG, borderColor: '#D9E2EF' }}
           role="group"
           aria-label={t('Filter risk zones')}
         >
@@ -115,16 +115,16 @@ export function HotspotsView({
       </header>
 
       {sorted.length === 0 ? (
-        <div className="rounded-2xl border border-[#DCE4EE] bg-[#F4F7FB] p-4">
-          <p className="t-md font-semibold text-[#14233B]">{t('No risk zones detected')}</p>
-          <p className="mt-1 t-base text-[#53647A]">
+        <div className="rounded-2xl border border-[#D9E2EF] bg-[#F4F7FB] p-4">
+          <p className="t-md font-semibold text-[#172B4D]">{t('No risk zones detected')}</p>
+          <p className="mt-1 t-base text-[#64748B]">
             {t('The engine groups recent incidents by locality and computes 0-100 scores only when enough activity exists in the recent window.')}
           </p>
         </div>
       ) : visible.length === 0 ? (
-        <div className="rounded-2xl border border-[#DCE4EE] bg-[#F4F7FB] p-4">
-          <p className="t-md font-semibold text-[#14233B]">{t('No active high-risk zones')}</p>
-          <p className="mt-1 t-base text-[#53647A]">
+        <div className="rounded-2xl border border-[#D9E2EF] bg-[#F4F7FB] p-4">
+          <p className="t-md font-semibold text-[#172B4D]">{t('No active high-risk zones')}</p>
+          <p className="mt-1 t-base text-[#64748B]">
             {t('Switch to All Zones to browse every detected locality.')}
           </p>
         </div>
@@ -143,20 +143,20 @@ export function HotspotsView({
       )}
 
       {selectedZone ? (
-        <section className="rounded-2xl border border-[#DCE4EE] bg-[#F4F7FB] p-4">
+        <section className="rounded-2xl border border-[#D9E2EF] bg-[#F4F7FB] p-4">
           <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
             <div className="min-w-0">
-              <h2 className="break-words t-lg font-bold text-[#14233B]">
+              <h2 className="break-words t-lg font-bold text-[#172B4D]">
                 {t('Hotspot details: {area}', { area: selectedZone.area })}
               </h2>
-              <p className="mt-0.5 t-sm text-[#53647A]">
+              <p className="mt-0.5 t-sm text-[#64748B]">
                 {t('{id} · Risk score {score} ({level})', { id: selectedZone.id, score: selectedZone.riskScore, level: t('risk.' + selectedZone.riskLevel) })}
               </p>
             </div>
             <button
               type="button"
               onClick={onCloseDetails}
-              className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#DCE4EE] bg-[#FFFFFF] px-2.5 py-1.5 t-xs font-semibold text-[#53647A] hover:text-[#14233B]"
+              className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#D9E2EF] bg-[#FFFFFF] px-2.5 py-1.5 t-xs font-semibold text-[#64748B] hover:text-[#172B4D]"
             >
               <X className="size-3.5" aria-hidden /> {t('Close details')}
             </button>
@@ -170,35 +170,35 @@ export function HotspotsView({
               <RecommendationCard recommendation={selectedRecommendation} />
             ) : null}
             <div className="grid grid-cols-2 gap-2 t-sm md:grid-cols-4">
-              <div className="rounded-lg border border-[#DCE4EE]/60 bg-[#FFFFFF] px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-[#53647A]">{t('Peak time')}</p>
-                <p className="mt-0.5 t-base font-semibold text-[#14233B]">{selectedZone.peakWindow}</p>
-                <p className="t-xs text-[#53647A]">{t('{share}% of incidents', { share: selectedZone.peakShare })}</p>
+              <div className="rounded-lg border border-[#D9E2EF]/60 bg-[#FFFFFF] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#64748B]">{t('Peak time')}</p>
+                <p className="mt-0.5 t-base font-semibold text-[#172B4D]">{selectedZone.peakWindow}</p>
+                <p className="t-xs text-[#64748B]">{t('{share}% of incidents', { share: selectedZone.peakShare })}</p>
               </div>
-              <div className="rounded-lg border border-[#DCE4EE]/60 bg-[#FFFFFF] px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-[#53647A]">{t('Repeat spots')}</p>
-                <p className="mt-0.5 t-base font-semibold text-[#14233B]">{selectedZone.repeatShare}%</p>
-                <p className="t-xs text-[#53647A]">{t('within 250 m')}</p>
+              <div className="rounded-lg border border-[#D9E2EF]/60 bg-[#FFFFFF] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#64748B]">{t('Repeat spots')}</p>
+                <p className="mt-0.5 t-base font-semibold text-[#172B4D]">{selectedZone.repeatShare}%</p>
+                <p className="t-xs text-[#64748B]">{t('within 250 m')}</p>
               </div>
-              <div className="rounded-lg border border-[#DCE4EE]/60 bg-[#FFFFFF] px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-[#53647A]">{t('Previous window')}</p>
-                <p className="mt-0.5 t-base font-semibold text-[#14233B]">
+              <div className="rounded-lg border border-[#D9E2EF]/60 bg-[#FFFFFF] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#64748B]">{t('Previous window')}</p>
+                <p className="mt-0.5 t-base font-semibold text-[#172B4D]">
                   {t('{count} incidents', { count: selectedZone.previousCount })}
                 </p>
-                <p className="t-xs text-[#53647A]">{t('now {count}', { count: selectedZone.crimeCount })}</p>
+                <p className="t-xs text-[#64748B]">{t('now {count}', { count: selectedZone.crimeCount })}</p>
               </div>
-              <div className="rounded-lg border border-[#DCE4EE]/60 bg-[#FFFFFF] px-2.5 py-2">
-                <p className="font-bold uppercase tracking-[0.12em] text-[#53647A]">{t('Nearby activity')}</p>
-                <p className="mt-0.5 t-base font-semibold text-[#14233B]">
+              <div className="rounded-lg border border-[#D9E2EF]/60 bg-[#FFFFFF] px-2.5 py-2">
+                <p className="font-bold uppercase tracking-[0.12em] text-[#64748B]">{t('Nearby activity')}</p>
+                <p className="mt-0.5 t-base font-semibold text-[#172B4D]">
                   {t('{count} incidents', { count: selectedZone.nearbyCount })}
                 </p>
-                <p className="t-xs text-[#53647A]">{t('within 3 km')}</p>
+                <p className="t-xs text-[#64748B]">{t('within 3 km')}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => onFocusArea(selectedZone.area)}
-              className="rounded-xl py-2 t-base font-semibold text-white hover:bg-[#4285F4]"
+              className="rounded-xl py-2 t-base font-semibold text-white hover:bg-[#2676D2]"
               style={{ backgroundColor: RISK_ACTION_BLUE }}
             >
               {t('Focus map on {area}', { area: selectedZone.area })}
@@ -208,10 +208,10 @@ export function HotspotsView({
       ) : null}
 
       {recommendations.length > 0 ? (
-        <section className="rounded-2xl border border-[#DCE4EE] bg-[#F4F7FB] p-4">
+        <section className="rounded-2xl border border-[#D9E2EF] bg-[#F4F7FB] p-4">
           <header className="flex flex-col gap-1">
-            <h2 className="t-md font-bold text-[#14233B]">{t('Recommended actions')}</h2>
-            <p className="t-sm text-[#53647A]">
+            <h2 className="t-md font-bold text-[#172B4D]">{t('Recommended actions')}</h2>
+            <p className="t-sm text-[#64748B]">
               {t('{count} actionable items derived from these zones', { count: recommendations.length })}
             </p>
           </header>

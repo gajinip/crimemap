@@ -46,7 +46,7 @@ export function RiskScoreRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#DCE4EE"
+          stroke="#D9E2EF"
           strokeWidth={strokeWidth}
         />
         <circle
@@ -61,7 +61,6 @@ export function RiskScoreRing({
           strokeDashoffset={offset}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
           style={{
-            filter: `drop-shadow(0 0 5px ${color}80)`,
             transition: 'stroke-dashoffset 600ms cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         />

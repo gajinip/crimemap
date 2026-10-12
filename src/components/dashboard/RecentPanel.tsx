@@ -8,10 +8,10 @@ import { CRIME_CATEGORY_COLORS } from '../../utils/visuals'
 import { Panel } from '../ui/Panel'
 
 const SEVERITY_COLORS: Record<string, string> = {
-  Low: '#34A853',
-  Medium: '#F9AB00',
-  High: '#FA7B17',
-  Critical: '#EA4335',
+  Low: '#16A34A',
+  Medium: '#D97706',
+  High: '#EA580C',
+  Critical: '#DC2626',
 }
 
 interface RecentPanelProps {

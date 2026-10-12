@@ -49,12 +49,12 @@ function Stat({
   hint?: string
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-[#DCE4EE]/60 bg-[#F4F7FB]/70 px-2.5 py-2">
-      <p className="truncate t-2xs font-bold uppercase tracking-[0.12em] text-[#53647A]">
+    <div className="min-w-0 rounded-lg border border-[#D9E2EF]/60 bg-[#F4F7FB]/70 px-2.5 py-2">
+      <p className="truncate t-2xs font-bold uppercase tracking-[0.12em] text-[#64748B]">
         {label}
       </p>
-      <p className="mt-0.5 truncate t-base font-semibold text-[#14233B]">{value}</p>
-      {hint ? <p className="truncate t-xs text-[#53647A]">{hint}</p> : null}
+      <p className="mt-0.5 truncate t-base font-semibold text-[#172B4D]">{value}</p>
+      {hint ? <p className="truncate t-xs text-[#64748B]">{hint}</p> : null}
     </div>
   )
 }
@@ -92,7 +92,7 @@ export function RiskZoneCard({
           {LEVEL_ICON[zone.riskLevel]}
           {t('{level} risk', { level: t('risk.' + zone.riskLevel) })}
         </span>
-        <span className="shrink-0 rounded-md border border-[#DCE4EE] bg-[#F4F7FB] px-1.5 py-0.5 font-mono t-xs font-semibold text-[#53647A]">
+        <span className="shrink-0 rounded-md border border-[#D9E2EF] bg-[#F4F7FB] px-1.5 py-0.5 font-mono t-xs font-semibold text-[#64748B]">
           {zone.id}
         </span>
       </header>
@@ -105,11 +105,11 @@ export function RiskZoneCard({
       >
         <h3
           id={`zone-title-${zone.id}`}
-          className="break-words t-title-sm font-semibold leading-snug text-[#14233B]"
+          className="break-words t-title-sm font-semibold leading-snug text-[#172B4D]"
         >
           {zone.area}
         </h3>
-        <p className="mt-0.5 t-sm text-[#53647A]">
+        <p className="mt-0.5 t-sm text-[#64748B]">
           {t('{status} · {count} recent incidents', { status: t('hotspot.' + zone.status), count: zone.crimeCount })}
         </p>
       </button>
@@ -118,7 +118,7 @@ export function RiskZoneCard({
         <RiskScoreRing score={zone.riskScore} level={zone.riskLevel} />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div>
-            <p className="t-2xs font-bold uppercase tracking-[0.14em] text-[#53647A]">
+            <p className="t-2xs font-bold uppercase tracking-[0.14em] text-[#64748B]">
               {t('Overall risk')}
             </p>
             <p className="t-base font-semibold" style={{ color }}>
@@ -127,11 +127,11 @@ export function RiskZoneCard({
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <TrendBadge trend={zone.trend} change={zone.crimeCount - zone.previousCount} />
-            <span className="t-xs text-[#53647A]">
+            <span className="t-xs text-[#64748B]">
               {t('vs {count} previous', { count: zone.previousCount })}
             </span>
           </div>
-          <p className="flex items-center gap-1 t-sm text-[#53647A]">
+          <p className="flex items-center gap-1 t-sm text-[#64748B]">
             <MapPin className="size-3" aria-hidden />
             {t('{crime} offences trend, peak {peak}', { crime: t('category.' + zone.dominantCrime), peak: zone.peakWindow })}
           </p>
@@ -145,8 +145,8 @@ export function RiskZoneCard({
         <Stat label={t('Repeat within 250 m')} value={`${zone.repeatShare}%`} hint={t('{count} nearby', { count: zone.nearbyCount })} />
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-[#DCE4EE]/60 pt-3">
-        <p className="flex items-center gap-1 t-xs font-bold uppercase tracking-[0.12em] text-[#53647A]">
+      <div className="flex items-center justify-between gap-3 border-t border-[#D9E2EF]/60 pt-3">
+        <p className="flex items-center gap-1 t-xs font-bold uppercase tracking-[0.12em] text-[#64748B]">
           <Activity className="size-3" aria-hidden />
           {t('Recent incidents')}
         </p>
@@ -154,14 +154,14 @@ export function RiskZoneCard({
           <span className="t-title font-bold leading-none" style={{ color }}>
             {zone.crimeCount}
           </span>
-          <span className="t-xs text-[#53647A]">{t('this period')}</span>
+          <span className="t-xs text-[#64748B]">{t('this period')}</span>
         </span>
       </div>
 
       <button
         type="button"
         onClick={onView}
-        className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#1A73E8] px-3 py-2 t-base font-semibold text-white transition-colors hover:bg-[#4285F4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A73E8]"
+        className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#2676D2] px-3 py-2 t-base font-semibold text-white transition-colors hover:bg-[#2676D2] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2676D2]"
       >
         <Radar className="size-4" aria-hidden />
         {t('View on map')}

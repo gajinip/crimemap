@@ -103,7 +103,7 @@ export function FilterPanel({
   return (
     <div className={rootClass}>
       {open ? (
-        <div className="w-[calc(100vw-16px)] max-w-[290px] rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_12px_34px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+        <div className="w-[calc(100vw-16px)] max-w-[290px] rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_12px_34px_rgba(23,43,77,0.18)] backdrop-blur-sm">
           <div className="flex items-center justify-between gap-2 border-b border-navy-700 px-3 py-2">
             <span className="inline-flex items-center gap-1.5 t-xs font-bold uppercase tracking-[0.16em] text-steel-300">
               <SlidersHorizontal className="size-3.5 text-blue-400" aria-hidden />
@@ -150,7 +150,7 @@ export function FilterPanel({
                   className={chipClass(active)}
                   style={
                     active
-                      ? { borderColor: '#1A73E8', backgroundColor: '#1A73E826', color: '#1A73E8' }
+                      ? { borderColor: '#2676D2', backgroundColor: '#2676D226', color: '#2676D2' }
                       : undefined
                   }
                 >
@@ -299,9 +299,9 @@ export function FilterPanel({
                   aria-pressed={active}
                   className="rounded-full border px-2.5 py-1 t-xs font-semibold transition-colors"
                   style={{
-                    borderColor: active ? '#1A73E8' : '#DCE4EE',
-                    backgroundColor: active ? '#1A73E826' : 'transparent',
-                    color: active ? '#1A73E8' : '#53647A',
+                    borderColor: active ? '#2676D2' : '#D9E2EF',
+                    backgroundColor: active ? '#2676D226' : 'transparent',
+                    color: active ? '#2676D2' : '#64748B',
                   }}
                 >
                   {t('status.' + status)}
@@ -347,7 +347,7 @@ export function FilterPanel({
           onClick={() => setOpen(true)}
           aria-label={t('Open crime filters')}
           title={t('Crime filters')}
-          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-steel-100"
+          className="relative grid size-10 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(23,43,77,0.18)] backdrop-blur-sm transition-colors hover:text-steel-100"
         >
           <SlidersHorizontal className="size-5" aria-hidden />
           {isDirty ? (

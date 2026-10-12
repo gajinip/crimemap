@@ -1,7 +1,5 @@
-import { Maximize2, Minimize2, X } from 'lucide-react'
-import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { useI18n } from '../../i18n/useI18n'
+import { Sheet } from '../ui/Sheet'
 
 interface DetailSheetProps {
   ariaLabel: string
@@ -40,55 +38,14 @@ export function DemoNotice({ children }: { children: ReactNode }) {
 }
 
 /**
- * Google-Maps-style bottom sheet shell. Mirrors the incident sheet: slides up
- * from the bottom, can expand to full screen, and can be dismissed.
+ * Detail panel shared by the station, patrol and zone views. Delegates to the
+ * responsive `Sheet` shell: a bottom sheet on mobile and a right-side drawer on
+ * desktop, anchored inside the map column.
  */
 export function DetailSheet({ ariaLabel, header, children, onClose }: DetailSheetProps) {
-  const { t } = useI18n()
-  const [expanded, setExpanded] = useState(false)
-
   return (
-    <section
-      className={`incident-sheet-in pointer-events-auto scroll-thin absolute bottom-0 z-[1300] overflow-y-auto border-t border-navy-600 bg-navy-900/97 shadow-[0_18px_50px_rgba(0,0,0,0.6)] backdrop-blur-sm transition-[border-radius] duration-200 ${
-        expanded
-          ? 'left-0 right-0 top-0 rounded-none'
-          : 'left-0 right-0 max-h-[75%] rounded-t-3xl'
-      }`}
-      aria-label={ariaLabel}
-    >
-      <button
-        type="button"
-        onClick={() => setExpanded((current) => !current)}
-        aria-label={expanded ? t('Collapse details') : t('Expand details')}
-        className="mx-auto mt-2 flex h-6 w-12 items-center justify-center rounded-full"
-      >
-        <span className="h-1 w-9 rounded-full bg-navy-500 transition-colors hover:bg-navy-400" aria-hidden />
-      </button>
-
-      <header className="flex items-start justify-between gap-2 px-3.5 pb-1.5 pt-1">
-        <div className="min-w-0">{header}</div>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <button
-            type="button"
-            onClick={() => setExpanded((current) => !current)}
-            aria-label={expanded ? t('Collapse details') : t('Expand details')}
-            title={expanded ? t('Collapse') : t('Expand to full screen')}
-            className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
-          >
-            {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t('Close details')}
-            className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-      </header>
-
-      <div className="px-3.5 pb-3">{children}</div>
-    </section>
+    <Sheet ariaLabel={ariaLabel} header={header} onClose={onClose} position="absolute">
+      {children}
+    </Sheet>
   )
 }

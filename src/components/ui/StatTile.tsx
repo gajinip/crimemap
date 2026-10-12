@@ -9,7 +9,7 @@ interface StatTileProps {
   icon?: ReactNode
 }
 
-export function StatTile({ label, value, hint, color = '#14233B', icon }: StatTileProps) {
+export function StatTile({ label, value, hint, color = '#172B4D', icon }: StatTileProps) {
   const { t } = useI18n()
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-navy-600 bg-navy-800 px-3 py-2.5">

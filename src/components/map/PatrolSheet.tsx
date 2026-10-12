@@ -6,7 +6,7 @@ import { DemoNotice, DetailSheet, SheetRow } from './DetailSheet'
 const STATUS_COLORS: Record<string, string> = {
   Standby: '#94a3b8',
   Deploying: '#facc15',
-  Patrolling: '#22c55e',
+  Patrolling: '#16A34A',
 }
 
 interface PatrolSheetProps {
@@ -15,8 +15,9 @@ interface PatrolSheetProps {
 }
 
 /**
- * Bottom sheet shown when a simulated patrol unit marker is tapped. Reads the
- * live unit from the patrol context so status/ETA/position stay current.
+ * Detail panel (bottom sheet on mobile, right drawer on desktop) shown when a
+ * simulated patrol unit marker is tapped. Reads the live unit from the patrol
+ * context so status/ETA/position stay current.
  */
 export function PatrolSheet({ unitId, onClose }: PatrolSheetProps) {
   const { t } = useI18n()

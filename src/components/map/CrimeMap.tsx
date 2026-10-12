@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from 'react'
 import {
+  Circle,
   CircleMarker,
   LayerGroup,
   LayersControl,
@@ -25,6 +26,7 @@ import type {
 } from '../../types'
 import { ALL_AREAS } from '../../utils/filters'
 import { areaBoundaryRing, ringBounds } from '../../utils/areaBoundary'
+import { isInsidePuducherry } from '../../utils/district'
 import { IncidentLayer } from './ClusterLayer'
 import { PatrolLayer } from './PatrolLayer'
 import { PoliceStationMarker } from './PoliceStationMarker'
@@ -95,32 +97,6 @@ function buildSpotlightRing(
 }
 
 /**
- * Return true if the supplied coordinate is inside the
- * exterior boundary ring in puducherry-boundary.json.
- *
- * The JSON coordinates are [longitude, latitude].
- */
-function isInsidePuducherry(lat: number, lng: number): boolean {
-  const ring = boundary.outer
-  let inside = false
-
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
-    const [xi, yi] = ring[i]
-    const [xj, yj] = ring[j]
-
-    const crosses =
-      (yi > lat) !== (yj > lat) &&
-      lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi
-
-    if (crosses) {
-      inside = !inside
-    }
-  }
-
-  return inside
-}
-
-/**
  * Build the inner hole of the outside mask.
  *
  * All Areas: reveal the complete district.
@@ -170,6 +146,10 @@ interface CrimeMapProps {
   onDeselect: () => void
   pickingLocation: boolean
   onPickLocation: (point: GeoPoint) => void
+  /** Last known browser location, highlighted with a pulsing marker. */
+  userLocation: GeoPoint | null
+  /** Accuracy radius (metres) for the user marker, when known. */
+  userAccuracyMeters?: number | null
 }
 
 /**
@@ -344,6 +324,87 @@ function LocationPicker({
 }
 
 /**
+ * Pulsing marker showing where the operator currently is. Rendered in its own
+ * pane above the data layers so it is never hidden behind incidents. The soft
+ * ring is the browser-reported accuracy radius, drawn in metres.
+ */
+function UserLocationMarker({
+  location,
+  accuracyMeters,
+}: {
+  location: GeoPoint
+  accuracyMeters?: number | null
+}) {
+  return (
+    <Pane
+      name="user-location"
+      style={{ zIndex: 640 }}
+    >
+      {accuracyMeters && accuracyMeters > 0 ? (
+        <Circle
+          center={[location.lat, location.lng]}
+          radius={accuracyMeters}
+          pathOptions={{
+            stroke: false,
+            fill: true,
+            fillColor: '#2676D2',
+            fillOpacity: 0.12,
+            interactive: false,
+          }}
+        />
+      ) : null}
+      <CircleMarker
+        center={[location.lat, location.lng]}
+        radius={9}
+        pathOptions={{
+          color: '#ffffff',
+          weight: 3,
+          fillColor: '#2676D2',
+          fillOpacity: 1,
+          interactive: false,
+          className: 'user-location-pulse',
+        }}
+      />
+    </Pane>
+  )
+}
+
+/**
+ * Fly the camera to the user's position each time a fresh fix arrives. Fixes
+ * outside the district are ignored (the map is clamped to Puducherry bounds).
+ */
+function UserLocateController({ location }: { location: GeoPoint | null }) {
+  const map = useMap()
+  const lastKey = useRef('')
+
+  useEffect(() => {
+    if (!location) {
+      return
+    }
+
+    const key = `${location.lat.toFixed(5)},${location.lng.toFixed(5)}`
+
+    if (key === lastKey.current) {
+      return
+    }
+
+    lastKey.current = key
+
+    if (!isInsidePuducherry(location.lat, location.lng)) {
+      return
+    }
+
+    map.flyTo(
+      [location.lat, location.lng],
+      Math.max(map.getZoom(), 15),
+      { duration: 0.6 },
+    )
+  }, [location, map])
+
+  return null
+}
+
+/**
  * Main CRIMEMAP Leaflet map.
  */
 export function CrimeMap({
@@ -361,6 +422,8 @@ export function CrimeMap({
   onDeselect,
   pickingLocation,
   onPickLocation,
+  userLocation,
+  userAccuracyMeters,
 }: CrimeMapProps) {
   const { t } = useI18n()
   const selectedAreaRing =
@@ -489,8 +552,8 @@ export function CrimeMap({
           pathOptions={{
             stroke: false,
             fill: true,
-            fillColor: '#334155',
-            fillOpacity: 0.8,
+            fillColor: '#1E293B',
+            fillOpacity: 0.35,
             fillRule: 'evenodd',
             interactive: false,
             className: 'area-mask',
@@ -546,6 +609,15 @@ export function CrimeMap({
 
       <AutoResize />
 
+      {/* Browser location marker + camera follow */}
+      <UserLocateController location={userLocation} />
+      {userLocation ? (
+        <UserLocationMarker
+          location={userLocation}
+          accuracyMeters={userAccuracyMeters}
+        />
+      ) : null}
+
       {/* Puducherry reference point */}
       <CircleMarker
         center={[
@@ -554,9 +626,9 @@ export function CrimeMap({
         ]}
         radius={4}
         pathOptions={{
-          color: '#4285F4',
+          color: '#2676D2',
           weight: 2,
-          fillColor: '#4285F4',
+          fillColor: '#2676D2',
           fillOpacity: 0.8,
         }}
         interactive={false}

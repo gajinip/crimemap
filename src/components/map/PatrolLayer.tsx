@@ -12,7 +12,7 @@ const PATROL_LABEL_ZOOM = 13
 const STATUS_COLORS: Record<string, string> = {
   Standby: '#94a3b8',
   Deploying: '#facc15',
-  Patrolling: '#22c55e',
+  Patrolling: '#16A34A',
 }
 
 function patrolIcon(status: string, label: string): L.DivIcon {

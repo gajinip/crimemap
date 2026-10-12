@@ -85,8 +85,8 @@ export function ZoneDetailHeader({ zone }: { zone: RiskZone }) {
 }
 
 /**
- * Selected-zone intelligence shown as a bottom sheet: explainable score plus
- * the operational recommendation. Matches the crime/station detail sheets.
+ * Selected-zone intelligence shown in the shared detail panel (bottom sheet on
+ * mobile, right drawer on desktop): explainable score plus the recommendation.
  */
 export function ZoneDetailPanel({
   zone,

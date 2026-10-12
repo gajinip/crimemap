@@ -1,35 +1,35 @@
 import type { CrimeCategory, RiskLevel } from '../types'
 
 export const CRIME_CATEGORY_COLORS: Record<CrimeCategory, string> = {
-  Theft: '#1A73E8',
-  Robbery: '#EA4335',
-  Assault: '#FA7B17',
-  Burglary: '#34A853',
-  'Vehicle Theft': '#A142F4',
-  Fraud: '#12B5CB',
-  Other: '#5F6368',
+  Theft: '#2676D2',
+  Robbery: '#16A085',
+  Assault: '#2676D2',
+  Burglary: '#8B5CF6',
+  'Vehicle Theft': '#0EA5E9',
+  Fraud: '#14B8A6',
+  Other: '#64748B',
 }
 
 /** Grey fallback for incident records with an unknown category. */
-export const CRIME_FALLBACK_COLOR = '#5F6368'
+export const CRIME_FALLBACK_COLOR = '#64748B'
 
 export const RISK_LEVEL_COLORS: Record<RiskLevel, string> = {
-  Low: '#34A853',
-  Medium: '#F9AB00',
-  High: '#FA7B17',
-  Critical: '#EA4335',
+  Low: '#16A34A',
+  Medium: '#D97706',
+  High: '#EA580C',
+  Critical: '#DC2626',
 }
 
 export const STATUS_COLORS: Record<string, string> = {
-  Reported: '#1A73E8',
-  'Under Investigation': '#F9AB00',
-  Closed: '#34A853',
-  Active: '#EA4335',
-  Monitoring: '#F9AB00',
-  Contained: '#34A853',
-  Rising: '#EA4335',
-  Stable: '#F9AB00',
-  Declining: '#34A853',
+  Reported: '#2676D2',
+  'Under Investigation': '#D97706',
+  Closed: '#16A34A',
+  Active: '#DC2626',
+  Monitoring: '#D97706',
+  Contained: '#16A34A',
+  Rising: '#DC2626',
+  Stable: '#64748B',
+  Declining: '#16A34A',
 }
 
 export function riskLevelClass(level: RiskLevel): string {

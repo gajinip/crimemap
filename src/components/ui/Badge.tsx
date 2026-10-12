@@ -94,7 +94,7 @@ export function DeltaBadge({
   return (
     <span
       className={`font-mono t-base font-bold ${className}`}
-      style={{ color: rising ? '#ef4444' : '#22c55e' }}
+      style={{ color: rising ? '#DC2626' : '#16A34A' }}
     >
       {rising ? '▲' : '▼'} {Math.abs(percent)}%
     </span>

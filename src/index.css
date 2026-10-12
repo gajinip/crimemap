@@ -9,39 +9,46 @@
      tabular figures rather than a separate monospace family, for aligned digits. */
   --font-mono: 'Inter', 'Noto Sans Tamil', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
-  /* Light theme surfaces. "navy" tokens are surfaces (backgrounds/borders);
-     the names are historical but now map to light values. */
-  --color-navy-950: #ffffff; /* app / page background */
-  --color-navy-900: #f4f7fb; /* secondary background (header, nav) */
-  --color-navy-850: #eef3f9;
-  --color-navy-800: #ffffff; /* cards, inputs */
-  --color-navy-700: #dce4ee; /* borders */
-  --color-navy-600: #cbd6e4; /* stronger borders */
-  --color-navy-500: #b3c2d6;
+  /* "Professional Police Blue" daytime theme.
+     "navy" tokens are surfaces (backgrounds/borders); the names are historical
+     but map to the light palette below. */
+  --color-navy-950: #f4f7fb; /* app / page background */
+  --color-navy-900: #ffffff; /* header, nav, drawers */
+  --color-navy-850: #ffffff; /* card / panel surface */
+  --color-navy-800: #ffffff; /* inputs, inner tiles */
+  --color-navy-700: #d9e2ef; /* borders, dividers, hover background */
+  --color-navy-600: #c6d3e4; /* stronger borders */
+  --color-navy-500: #9fb0c8;
 
-  /* Text ramp (110 = strongest / darkest). */
-  --color-steel-100: #14233b; /* primary text */
-  --color-steel-200: #2c3e58;
-  --color-steel-300: #53647a; /* secondary text */
-  --color-steel-400: #66788f; /* muted */
-  --color-steel-500: #7b8ba1;
-  --color-steel-600: #9fadbf;
+  /* Text ramp (100 = strongest / darkest). */
+  --color-steel-100: #172b4d; /* primary text */
+  --color-steel-200: #2b4059;
+  --color-steel-300: #64748b; /* secondary text */
+  --color-steel-400: #7c8aa0; /* muted */
+  --color-steel-500: #94a3b8;
+  --color-steel-600: #aebacb;
 
-  /* Google-style accent palette. */
-  --color-risk-low: #34a853; /* Google green */
-  --color-risk-medium: #f9ab00; /* Google amber */
-  --color-risk-high: #fa7b17; /* Google orange */
-  --color-risk-critical: #ea4335; /* Google red */
+  /* Severity palette (shared by map markers, risk cards, charts, tables). */
+  --color-risk-low: #16a34a;
+  --color-risk-medium: #d97706;
+  --color-risk-high: #ea580c;
+  --color-risk-critical: #dc2626;
 
-  --color-signal-blue: #1a73e8;
-  --color-signal-cyan: #12b5cb;
+  --color-signal-blue: #2676d2;
+  --color-signal-cyan: #16a085;
 
-  /* Override Tailwind's blue scale with Google blues. */
-  --color-blue-300: #aecbfa;
-  --color-blue-400: #4285f4;
-  --color-blue-500: #4285f4;
-  --color-blue-600: #1a73e8;
-  --color-blue-700: #174ea6;
+  /* Professional Police Blue brand tokens. */
+  --color-police-navy: #163b65; /* sidebar / primary navigation */
+  --color-police-blue: #2676d2; /* primary actions, links, selected */
+  --color-police-teal: #16a085; /* secondary accent */
+  --color-hover: #eaf2fc; /* hover background */
+
+  /* Override Tailwind's blue scale with the brand blue ramp. */
+  --color-blue-300: #a9cbef;
+  --color-blue-400: #5b9be6;
+  --color-blue-500: #3b86db;
+  --color-blue-600: #2676d2;
+  --color-blue-700: #1d5ca6;
 }
 
 :root {
@@ -109,14 +116,14 @@ body {
 /* ------------------------------------------------------------------ */
 
 .leaflet-container {
-  background: #eef3f9;
+  background: #f4f7fb;
   font-family: var(--font-sans);
   outline: none;
 }
 
 .leaflet-control-zoom a {
   background-color: #ffffff !important;
-  border-color: #dce4ee !important;
+  border-color: #d9e2ef !important;
   color: #53647a !important;
 }
 
@@ -127,7 +134,7 @@ body {
 
 .leaflet-control-zoom,
 .leaflet-control-layers {
-  border: 1px solid #dce4ee !important;
+  border: 1px solid #d9e2ef !important;
   border-radius: 8px !important;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(20, 35, 59, 0.12);
@@ -151,7 +158,7 @@ body {
 }
 
 .leaflet-control-layers-separator {
-  border-color: #dce4ee !important;
+  border-color: #d9e2ef !important;
 }
 
 .leaflet-control-attribution {
@@ -161,7 +168,7 @@ body {
 }
 
 .leaflet-control-attribution a {
-  color: #1a73e8 !important;
+  color: #2676d2 !important;
 }
 
 .leaflet-control-scale-line {
@@ -196,7 +203,7 @@ body {
 .leaflet-popup-content-wrapper {
   background: #ffffff !important;
   color: #14233b !important;
-  border: 1px solid #dce4ee;
+  border: 1px solid #d9e2ef;
   border-radius: 10px;
   box-shadow: 0 18px 40px rgba(20, 35, 59, 0.18);
 }
@@ -209,7 +216,7 @@ body {
 
 .leaflet-popup-tip {
   background: #ffffff !important;
-  border: 1px solid #dce4ee;
+  border: 1px solid #d9e2ef;
 }
 
 .leaflet-popup-close-button {
@@ -286,7 +293,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  background: linear-gradient(160deg, #1a73e8, #174ea6);
+  background: linear-gradient(160deg, #2676d2, #1d5ca6);
   border: 2px solid #bfdbfe;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
 }
@@ -315,7 +322,7 @@ body {
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  background: var(--cluster-color, #4285f4);
+  background: var(--cluster-color, #2676d2);
   border: 2px solid #ffffff;
   color: #ffffff;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
@@ -423,6 +430,27 @@ body {
   }
 }
 
+/* Browser location marker: gentle opacity pulse on the white ring. */
+.user-location-pulse {
+  animation: user-location-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes user-location-pulse {
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-location-pulse {
+    animation: none;
+  }
+}
+
 /* Incident editor eyebrow (kept smaller than the global text floor) */
 .editor-eyebrow {
   font-size: 12px;
@@ -441,14 +469,14 @@ body {
   height: 30px;
   border-radius: 999px;
   background: rgba(13, 21, 38, 0.94);
-  border: 2px solid var(--patrol-color, #4285f4);
+  border: 2px solid var(--patrol-color, #2676d2);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
 .patrol-marker svg {
   width: 15px;
   height: 15px;
-  fill: var(--patrol-color, #4285f4);
+  fill: var(--patrol-color, #2676d2);
 }
 
 /* Zoomed-out patrol unit: compact status dot */
@@ -462,7 +490,7 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  background: var(--patrol-color, #4285f4);
+  background: var(--patrol-color, #2676d2);
   border: 1.5px solid #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
@@ -600,8 +628,8 @@ body {
   }
 }
 
-/* Google-Maps-style bottom sheet slide-up */
-@keyframes sheet-in {
+/* Google-Maps-style bottom sheet slide-up (mobile detail panels). */
+@keyframes sheet-in-up {
   from {
     transform: translateY(100%);
   }
@@ -610,8 +638,35 @@ body {
   }
 }
 
-.incident-sheet-in {
-  animation: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+/* Right-side detail drawer slide-in (desktop detail panels). */
+@keyframes sheet-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/*
+ * Responsive detail panel: slides up from the bottom edge on small screens and
+ * in from the right edge on desktop (>= 1024px). Positioning is handled by the
+ * utility classes on the element itself; this only animates the entrance.
+ */
+.sheet-panel {
+  animation: sheet-in-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 1024px) {
+  .sheet-panel {
+    animation: sheet-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-panel {
+    animation: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */

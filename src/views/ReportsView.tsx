@@ -12,6 +12,7 @@ import {
 import { useMemo, useState, type ReactNode } from 'react'
 import { detectChanges } from '../analytics/changes'
 import { computeRiskZones } from '../analytics/risk'
+import { DonutChart } from '../components/charts/DonutChart'
 import { InfoPopover } from '../components/ui/InfoPopover'
 import { Panel } from '../components/ui/Panel'
 import type {
@@ -31,12 +32,11 @@ import { severityOf } from '../utils/severity'
 import {
   buildCategoryStats,
   buildPeriodComparison,
-  buildTrendSeries,
   computeDashboardStats,
   computeTrend,
   reportAnchor,
 } from '../utils/stats'
-import { CRIME_CATEGORY_COLORS } from '../utils/visuals'
+import { CRIME_CATEGORY_SERIES } from '../utils/chartPalette'
 import { useI18n } from '../i18n/useI18n'
 
 interface ReportsViewProps {
@@ -215,6 +215,8 @@ function KpiCard({ icon, label, value, hint, color }: KpiCardProps) {
   )
 }
 
+/** Signed change pill: red for increases, green for decreases, grey for flat;
+ *  falls back to "n/a" when there is no comparable baseline. */
 function ChangeBadge({ value, available }: { value: number | null; available: boolean }) {
   if (!available) {
     return <span className="t-xs text-steel-500">n/a</span>
@@ -224,7 +226,7 @@ function ChangeBadge({ value, available }: { value: number | null; available: bo
   }
   const flat = value === 0
   const up = value > 0
-  const color = flat ? '#7b8ba1' : up ? '#EA4335' : '#34A853'
+  const color = flat ? '#64748B' : up ? '#DC2626' : '#16A34A'
   const Icon = up ? ArrowUpRight : ArrowDownRight
   return (
     <span
@@ -240,248 +242,35 @@ function ChangeBadge({ value, available }: { value: number | null; available: bo
 
 function CategoryDonut({ data }: { data: CategoryStat[] }) {
   const { t } = useI18n()
-  const total = data.reduce((sum, entry) => sum + entry.count, 0)
-  const segments = data.filter((entry) => entry.count > 0)
-  const [active, setActive] = useState<string | null>(null)
-  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null)
-
-  const size = 200
-  const strokeWidth = 30
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-
-  const activeEntry = segments.find((entry) => entry.category === active) ?? null
-
-  const arcs = segments.reduce<{ entry: CategoryStat; dash: number; offset: number }[]>(
-    (built, entry) => {
-      const dash = total > 0 ? (entry.count / total) * circumference : 0
-      const offset = -built.reduce((sum, arc) => sum + arc.dash, 0)
-      built.push({ entry, dash, offset })
-      return built
-    },
-    [],
-  )
-
-  const clearActive = () => {
-    setActive(null)
-    setPointer(null)
-  }
-
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <div
-        className="relative w-full max-w-[230px]"
-        onMouseMove={(event) => {
-          const bounds = event.currentTarget.getBoundingClientRect()
-          setPointer({ x: event.clientX - bounds.left, y: event.clientY - bounds.top })
-        }}
-        onMouseLeave={clearActive}
-      >
-        <svg
-          viewBox={`0 0 ${size} ${size}`}
-          className="h-auto w-full"
-          role="img"
-          aria-label={`Distribution of ${formatNumber(total)} incidents across ${segments.length} categories`}
-        >
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="#eef3f9"
-            strokeWidth={strokeWidth}
-          />
-          {arcs.map(({ entry, dash, offset }) => {
-            const isActive = active === entry.category
-            const dimmed = active !== null && !isActive
-            return (
-              <circle
-                key={entry.category}
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke={CRIME_CATEGORY_COLORS[entry.category]}
-                strokeWidth={isActive ? strokeWidth + 6 : strokeWidth}
-                strokeDasharray={`${dash} ${circumference - dash}`}
-                strokeDashoffset={offset}
-                transform={`rotate(-90 ${size / 2} ${size / 2})`}
-                className="cursor-pointer transition-[stroke-width,opacity] duration-150"
-                style={{ opacity: dimmed ? 0.35 : 1 }}
-                onMouseEnter={() => setActive(entry.category)}
-                onFocus={() => setActive(entry.category)}
-                onBlur={clearActive}
-                tabIndex={0}
-              >
-                <title>
-                  {`${entry.category}: ${entry.count} (${entry.share}%)`}
-                </title>
-              </circle>
-            )
-          })}
-        </svg>
-
-        <div className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center">
-          {activeEntry ? (
-            <div className="min-w-0 leading-tight">
-              <p className="t-sm font-semibold text-steel-200">{activeEntry.category}</p>
-              <p className="mt-1 text-2xl font-bold leading-none text-steel-100">
-                {activeEntry.share}%
-              </p>
-              <p className="mt-1 t-xs uppercase tracking-[0.12em] text-steel-500">
-                {formatNumber(activeEntry.count)} {t('incidents')}
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p className="text-2xl font-bold leading-none text-steel-100">{formatNumber(total)}</p>
-              <p className="mt-1 t-xs uppercase tracking-[0.14em] text-steel-500">{t('Incidents')}</p>
-            </div>
-          )}
-        </div>
-
-        {activeEntry && pointer ? (
-          <div
-            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[135%] rounded-md border border-navy-700 bg-navy-800 px-2.5 py-1.5 shadow-lg"
-            style={{ left: pointer.x, top: pointer.y }}
-          >
-            <span className="flex items-center gap-1.5 t-sm font-semibold text-steel-100">
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: CRIME_CATEGORY_COLORS[activeEntry.category] }}
-                aria-hidden
-              />
-              <span className="whitespace-nowrap">{activeEntry.category}</span>
-            </span>
-            <span className="mt-0.5 block whitespace-nowrap t-xs text-steel-400">
-              {formatNumber(activeEntry.count)} {t('incidents')} · {activeEntry.share}%
-            </span>
-          </div>
-        ) : null}
-      </div>
-
-      {segments.length > 0 ? (
-        <ul className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-2 xl:grid-cols-1">
-          {segments.map((entry) => {
-            const isActive = active === entry.category
-            return (
-              <li
-                key={entry.category}
-                onMouseEnter={() => setActive(entry.category)}
-                onMouseLeave={() => setActive(null)}
-                className={`flex min-w-0 items-center gap-2 t-sm transition-colors ${
-                  isActive ? 'text-steel-100' : 'text-steel-300'
-                }`}
-              >
-                <span
-                  className="size-2.5 shrink-0 rounded-full transition-transform duration-150"
-                  style={{
-                    backgroundColor: CRIME_CATEGORY_COLORS[entry.category],
-                    transform: isActive ? 'scale(1.4)' : undefined,
-                  }}
-                  aria-hidden
-                />
-                <span className="min-w-0 flex-1 truncate">{entry.category}</span>
-                <span className="shrink-0 font-semibold tabular-nums">
-                  {entry.share}%
-                </span>
-                <span className="w-8 shrink-0 text-right font-mono t-xs text-steel-500">
-                  {entry.count}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      ) : (
-        <p className="t-sm text-steel-500">{t('No incidents match the current filters.')}</p>
-      )}
-    </div>
-  )
-}
-
-function TrendChart({
-  buckets,
-  granularity,
-}: {
-  buckets: ReturnType<typeof buildTrendSeries>['buckets']
-  granularity: ReturnType<typeof buildTrendSeries>['granularity']
-}) {
-  const { t } = useI18n()
-  const max = Math.max(1, ...buckets.map((bucket) => bucket.count))
-  const labelEvery = Math.max(1, Math.ceil(buckets.length / 8))
-  const hasData = buckets.some((bucket) => bucket.count > 0)
-
-  if (buckets.length === 0) {
-    return (
-      <p className="py-8 text-center t-sm text-steel-500">
-        {t('No timestamped incidents available for a trend.')}
-      </p>
-    )
-  }
-
-  return (
-    <div>
-      <div className="flex gap-2">
-        <div className="flex h-40 flex-col justify-between py-px text-right t-2xs tabular-nums text-steel-500">
-          <span>{max}</span>
-          <span>{Math.round(max / 2)}</span>
-          <span>0</span>
-        </div>
-        <div className="relative min-w-0 flex-1">
-          <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
-            <span className="border-t border-navy-700" />
-            <span className="border-t border-navy-700" />
-            <span className="border-t border-navy-700" />
-          </div>
-          <div className="flex h-40 items-end gap-1">
-            {buckets.map((bucket) => {
-              const height = (bucket.count / max) * 100
-              return (
-                <div key={bucket.key} className="min-w-0 flex-1">
-                  <div
-                    className="w-full rounded-t bg-blue-600 transition-[height] duration-300"
-                    style={{ height: `${Math.max(height, bucket.count > 0 ? 4 : 0)}%` }}
-                    title={`${bucket.rangeLabel}: ${bucket.count} incident${bucket.count === 1 ? '' : 's'}`}
-                  />
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-      <div className="mt-1 flex gap-2">
-        <span className="w-6 shrink-0" />
-        <div className="flex min-w-0 flex-1 gap-1">
-          {buckets.map((bucket, index) => (
-            <span
-              key={bucket.key}
-              className="min-w-0 flex-1 truncate text-center t-2xs uppercase tracking-[0.08em] text-steel-500"
-            >
-              {index % labelEvery === 0 ? bucket.label : ''}
-            </span>
-          ))}
-        </div>
-      </div>
-      <p className="mt-2 t-xs text-steel-500">
-        {t('Grouped by {granularity}.', { granularity })} {hasData ? t('Values are counts of demo incidents.') : t('No incidents in this period.')}
-      </p>
-    </div>
-  )
+  // Reuse the shared category palette so the donut matches every other chart.
+  const rows = data.map((item) => ({
+    label: t('category.' + item.category),
+    value: item.count,
+    share: item.share,
+    color: CRIME_CATEGORY_SERIES[item.category],
+  }))
+  return <DonutChart data={rows} ariaLabel={t('Category distribution')} />
 }
 
 /** Reports view: export-ready CompStat-style summary of the filtered dataset. */
 export function ReportsView({ incidents, stations, filters }: ReportsViewProps) {
   const { t } = useI18n()
+  // Two-step filters: `draft` is what's in the controls; `applied` is committed
+  // only when Apply is pressed, so typing doesn't recompute every report.
   const [draft, setDraft] = useState<ReportFilterDraft>(DEFAULT_FILTERS)
   const [applied, setApplied] = useState<ReportFilterDraft>(DEFAULT_FILTERS)
 
+  // Distinct localities for the area dropdown, sorted alphabetically.
   const areaOptions = useMemo(
     () => [ALL_AREAS, ...Array.from(new Set(incidents.map((incident) => incident.area))).sort()],
     [incidents],
   )
 
+  // Translate the applied draft into the concrete date range used everywhere.
   const appliedRange = rangeFor(applied.periodDays)
 
+  // Normalise the report's own controls into the shared filter shape used by
+  // the analytics helpers (all categories unless one is chosen).
   const filterState = useMemo<CrimeFilterState>(
     () => ({
       categories: applied.category === ALL_CATEGORIES ? [...CRIME_CATEGORIES] : [applied.category],
@@ -495,14 +284,17 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     [applied, appliedRange, filters.searchQuery],
   )
 
+  // Strictly filtered records feed the headline stats and tables.
   const filteredIncidents = useMemo(
     () => applyCrimeFilters(incidents, filterState),
     [incidents, filterState],
   )
+  // Context records add nearby/related incidents for zone + change analysis.
   const contextIncidents = useMemo(
     () => applyContextFilters(incidents, filterState),
     [incidents, filterState],
   )
+  // Explainable risk zones and change signals for the applied period.
   const reportZones = useMemo(
     () => computeRiskZones(contextIncidents, appliedRange),
     [contextIncidents, appliedRange],
@@ -511,6 +303,7 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     () => detectChanges(contextIncidents, appliedRange),
     [contextIncidents, appliedRange],
   )
+  // Headline KPIs built from the strictly filtered records.
   const reportStats = useMemo(
     () => computeDashboardStats(filteredIncidents, reportZones, appliedRange, appliedRange),
     [filteredIncidents, reportZones, appliedRange],
@@ -519,11 +312,9 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     () => buildCategoryStats(filteredIncidents),
     [filteredIncidents],
   )
-  const trend = useMemo(
-    () => buildTrendSeries(filteredIncidents, appliedRange),
-    [filteredIncidents, appliedRange],
-  )
 
+  // Comparison windows are anchored to the latest date in the dataset, not
+  // "today", so the demo data always has a meaningful previous period.
   const anchor = useMemo(() => reportAnchor(incidents), [incidents])
   const comparison = useMemo(
     () => buildPeriodComparison(contextIncidents, anchor),
@@ -534,6 +325,8 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     [contextIncidents, appliedRange],
   )
 
+  // Stations shown for the applied area: all of them, or only those that police
+  // the chosen locality (either as their own area or within their jurisdiction).
   const visibleStations = useMemo(
     () =>
       applied.area === ALL_AREAS
@@ -545,8 +338,11 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     [stations, applied.area],
   )
 
+  // Human-readable reporting period for KPI hints and headings.
   const periodLabel = `${formatDate(appliedRange.from)} – ${formatDate(appliedRange.to)}`
 
+  // Plain-language takeaways derived from the current filtered dataset, with an
+  // explicit empty-state and an honest "no baseline" line when applicable.
   const insights: string[] = useMemo(() => {
     if (filteredIncidents.length === 0) {
       return [t('No incidents match the current filters. Adjust the reporting period, area or category.')]
@@ -597,6 +393,8 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     return lines
   }, [filteredIncidents.length, categoryStats, reportStats, trendCompare, t])
 
+  // One row per export target; each button closes over exactly the data it
+  // should serialise (respecting the applied filters).
   const exportRows: {
     icon: ReactNode
     color: string
@@ -607,7 +405,7 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
   }[] = [
     {
       icon: <FileText className="size-4" aria-hidden />,
-      color: '#1A73E8',
+      color: '#2676D2',
       name: t('Incidents CSV'),
       hint: t('{count} records', { count: formatNumber(filteredIncidents.length) }),
       action: t('Export'),
@@ -615,7 +413,7 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     },
     {
       icon: <ShieldAlert className="size-4" aria-hidden />,
-      color: '#EA4335',
+      color: '#DC2626',
       name: t('Risk Zones CSV'),
       hint: t('{count} zones', { count: formatNumber(reportZones.length) }),
       action: t('Export'),
@@ -623,7 +421,7 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     },
     {
       icon: <TrendingUp className="size-4" aria-hidden />,
-      color: '#F9AB00',
+      color: '#D97706',
       name: t('Change Signals CSV'),
       hint: t('{count} signals', { count: reportChanges.signals.length }),
       action: t('Export'),
@@ -631,7 +429,7 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     },
     {
       icon: <Landmark className="size-4" aria-hidden />,
-      color: '#34A853',
+      color: '#16A34A',
       name: t('Stations CSV'),
       hint: t('{count} stations', { count: formatNumber(visibleStations.length) }),
       action: t('Export'),
@@ -639,7 +437,7 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
     },
     {
       icon: <Printer className="size-4" aria-hidden />,
-      color: '#174ea6',
+      color: '#1d5ca6',
       name: t('Print / PDF'),
       hint: t('Browser print dialog'),
       action: t('Print'),
@@ -779,33 +577,34 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
           label={t('Total incidents')}
           value={formatNumber(reportStats.totalIncidents)}
           hint={t('{area} · {period}', { area: applied.area, period: periodLabel })}
-          color="#1A73E8"
+          color="#2676D2"
         />
         <KpiCard
           icon={<ShieldAlert className="size-5" aria-hidden />}
           label={t('High risk zones')}
           value={formatNumber(reportStats.highRiskZones)}
           hint={t('High or critical risk level')}
-          color="#EA4335"
+          color="#DC2626"
         />
         <KpiCard
           icon={<TrendingUp className="size-5" aria-hidden />}
           label={t('Average risk score')}
           value={`${reportStats.averageRiskScore}`}
           hint={t('Weighted 0–100 zone score')}
-          color="#F9AB00"
+          color="#D97706"
         />
         <KpiCard
           icon={<Landmark className="size-5" aria-hidden />}
           label={t('Police stations')}
           value={formatNumber(visibleStations.length)}
           hint={applied.area === ALL_AREAS ? t('All demo precincts') : t('Covers {area}', { area: applied.area })}
-          color="#34A853"
+          color="#16A34A"
         />
       </div>
 
-      {/* Main analytics grid */}
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,64fr)_minmax(0,36fr)]">
+      {/* Main analytics column: breakdown first (full width), exports under it,
+          then distribution and insights side by side. */}
+      <div className="flex flex-col gap-3">
         <div className="flex min-w-0 flex-col gap-3">
           {/* C. Crime category breakdown */}
           <Panel
@@ -813,9 +612,9 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
             subtitle={t('Comparison across fixed windows anchored to {anchor}', { anchor: formatDate(anchor) })}
           >
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] t-sm">
+              <table className="w-full min-w-[900px] t-md">
                 <thead>
-                  <tr className="border-b border-navy-700 t-2xs uppercase tracking-[0.12em] text-steel-500">
+                  <tr className="border-b border-navy-700 t-sm uppercase tracking-[0.12em] text-steel-500">
                      <th className="px-2 py-2 text-left">{t('Crime category')}</th>
                     <th className="px-2 py-2 text-right">{t('Current week')}</th>
                     <th className="px-2 py-2 text-right">{t('Previous week')}</th>
@@ -836,9 +635,11 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
                     >
                       <td className="px-2 py-1.5">
                         <span className="inline-flex items-center gap-2">
+                          {/* Colour dot ties this row to the shared category
+                              palette used by the donut and other charts. */}
                           <span
                             className="size-2.5 rounded-full"
-                            style={{ backgroundColor: CRIME_CATEGORY_COLORS[row.category] }}
+                            style={{ backgroundColor: CRIME_CATEGORY_SERIES[row.category] }}
                             aria-hidden
                           />
                           <span className="font-semibold text-steel-100">{row.category}</span>
@@ -919,34 +720,9 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
                 </tbody>
               </table>
             </div>
-            <p className="mt-2 t-xs leading-relaxed text-steel-500">
+            <p className="mt-2 t-base leading-relaxed text-steel-500">
                {t('Week and 28-day windows are comparable across the demo dataset. Previous-year (YTD) figures are unavailable because the demo dataset contains no records for the prior year, so they are shown as')} <span className="font-semibold">{t('n/a')}</span> {t('rather than estimated.')}
             </p>
-          </Panel>
-
-          {/* E + F. Trend and insights */}
-          <div className="grid gap-3 lg:grid-cols-2">
-            <Panel title={t('Crime trend (selected period)')} subtitle={periodLabel}>
-              <TrendChart buckets={trend.buckets} granularity={trend.granularity} />
-            </Panel>
-
-            <Panel title={t('Key insights')} subtitle={t('Derived from the filtered dataset')}>
-              <ul className="space-y-2">
-                {insights.map((line, index) => (
-                  <li key={index} className="flex items-start gap-2 t-sm leading-relaxed text-steel-300">
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-blue-600" aria-hidden />
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          </div>
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-3">
-          {/* D. Category distribution */}
-          <Panel title={t('Category distribution (current period)')} subtitle={periodLabel}>
-            <CategoryDonut data={categoryStats} />
           </Panel>
 
           {/* G. Export reports */}
@@ -976,6 +752,23 @@ export function ReportsView({ incidents, stations, filters }: ReportsViewProps) 
               ))}
             </ul>
           </Panel>
+
+          {/* D + F: category distribution and key insights side by side */}
+          <div className="grid gap-3 lg:grid-cols-2">
+            <Panel title={t('Category distribution (current period)')} subtitle={periodLabel}>
+              <CategoryDonut data={categoryStats} />
+            </Panel>
+            <Panel title={t('Key insights')} subtitle={t('Derived from the filtered dataset')}>
+              <ul className="space-y-2">
+                {insights.map((line, index) => (
+                  <li key={index} className="flex items-start gap-2 t-sm leading-relaxed text-steel-300">
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-blue-600" aria-hidden />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          </div>
         </div>
       </div>
     </div>

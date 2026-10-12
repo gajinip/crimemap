@@ -24,13 +24,14 @@ const CRIME_DIVISIONS: CrimeDivision[] = [
   },
 ]
 
-/** Green for decreasing, red for increasing, neutral for flat. */
+/** Colour of the trend figure: red rising, green declining, grey flat. */
 const TREND_COLOR: Record<TrendDirection, string> = {
-  Rising: '#ea4335',
-  Declining: '#34a853',
-  Stable: '#7b8ba1',
+  Rising: '#DC2626',
+  Declining: '#16A34A',
+  Stable: '#64748B',
 }
 
+/** Optional arrow/tilde glyph shown beside the trend figure. */
 const TREND_GLYPH: Record<TrendDirection, string> = {
   Rising: '▲',
   Declining: '▼',
@@ -72,11 +73,13 @@ function buildRows(
   range: DateRange,
   categories: CrimeCategory[],
 ): PeriodRow[] {
+  // Same IST-anchored, mid-period split used by buildCategoryHalfComparison.
   const from = new Date(`${range.from}T00:00:00+05:30`).getTime()
   const to = new Date(`${range.to}T23:59:59+05:30`).getTime()
   const mid = from + (to - from) / 2
 
   return categories.map((category) => {
+    // Keep only this category within range, then bucket into the two halves.
     const sub = incidents.filter(
       (incident) => incident.category === category && withinDateRange(incident.occurredAt, range),
     )
@@ -94,8 +97,11 @@ interface CrimeMixProps {
 /** Two report panels summarising violent and property crime trends. */
 export function CrimeMix({ incidents, range }: CrimeMixProps) {
   const { t } = useI18n()
+  // Human-readable period shown under each division title.
   const periodLabel = `${formatDate(range.from)} – ${formatDate(range.to)}`
 
+  // For each division: rank categories by volume and roll their half-counts up
+  // into a single division-level trend so the big figure matches the rows.
   const divisions = useMemo(
     () =>
       CRIME_DIVISIONS.map((division) => {
@@ -111,8 +117,9 @@ export function CrimeMix({ incidents, range }: CrimeMixProps) {
   )
 
   return (
-    <div className="rounded-xl bg-navy-800">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="rounded-xl bg-white">
+      {/* Side-by-side on desktop; stacked with a divider on mobile. */}
+      <div className="grid grid-cols-1 divide-y divide-navy-700 lg:grid-cols-2 lg:gap-6 lg:divide-x lg:divide-y-0">
         {divisions.map(({ division, rows, total, trend }) => {
           const trendColor = TREND_COLOR[trend.direction]
 

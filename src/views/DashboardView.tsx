@@ -1,13 +1,15 @@
 ﻿import { useMemo } from 'react'
 import { StatisticsPanel } from '../components/StatisticsPanel'
+import { CrimeLinkPanel } from '../components/dashboard/CrimeLinkPanel'
 import { CrimeMix } from '../components/dashboard/CrimeMix'
 import { DateFilterBar } from '../components/dashboard/DateFilterBar'
 import { KpiRow } from '../components/dashboard/KpiRow'
+import { MostWantedPanel } from '../components/dashboard/MostWantedPanel'
 import { RecentPanel } from '../components/dashboard/RecentPanel'
 import type { CategoryTrend } from '../utils/stats'
-import { buildCategoryStats, buildMonthlySeries } from '../utils/stats'
-import { withinDateRange } from '../utils/filters'
+import { buildCategoryStats, buildMonthlySeries, computeDashboardStats } from '../utils/stats'
 import type {
+  AnalysisWindow,
   CrimeIncident,
   DashboardStats,
   DateRange,
@@ -24,16 +26,18 @@ interface DashboardViewProps {
   categoryTrends: CategoryTrend[]
   incidents: CrimeIncident[]
   stations: PoliceStation[]
+  /** Recent/previous windows, used to flag past-vs-present crime links. */
+  window: AnalysisWindow
 }
 
 /**
  * Situation dashboard.
  *
  * A date filter bar and the headline KPI row sit above the crime mix, which
- * spans the full width. The analytical band below pairs the "Situation
- * overview" rail with the latest records plus derived insights. Every panel is
- * fed from the same window-scoped dataset so the numbers reconcile across the
- * page.
+ * spans the full width. The Day/Range control is a KPI-only filter: the `stats`
+ * prop already reflects the selected window and drives the headline indicators,
+ * while every other panel is computed from the full default-period dataset so
+ * the report trends and insights stay period-complete.
  */
 export function DashboardView({
   stats,
@@ -44,26 +48,20 @@ export function DashboardView({
   categoryTrends,
   incidents,
   stations,
+  window,
 }: DashboardViewProps) {
-  const windowIncidents = useMemo(
-    () =>
-      compareRange
-        ? incidents.filter((incident) => withinDateRange(incident.occurredAt, compareRange))
-        : incidents,
-    [incidents, compareRange],
+  const fullStats = useMemo(
+    () => computeDashboardStats(incidents, zones, null, range, incidents),
+    [incidents, zones, range],
   )
-
-  const categoryStats = useMemo(() => buildCategoryStats(windowIncidents), [windowIncidents])
-  const monthly = useMemo(
-    () => buildMonthlySeries(windowIncidents, compareRange ?? range),
-    [windowIncidents, compareRange, range],
-  )
+  const categoryStats = useMemo(() => buildCategoryStats(incidents), [incidents])
+  const monthly = useMemo(() => buildMonthlySeries(incidents, range), [incidents, range])
   const recent = useMemo(
     () =>
-      [...windowIncidents]
+      [...incidents]
         .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
         .slice(0, 6),
-    [windowIncidents],
+    [incidents],
   )
 
   return (
@@ -74,26 +72,30 @@ export function DashboardView({
         onCompareRangeChange={onCompareRangeChange}
       />
 
-      <KpiRow stats={stats} zones={zones} stationCount={stations.length} />
+      <CrimeMix incidents={incidents} range={range} />
 
-      <CrimeMix incidents={windowIncidents} range={compareRange ?? range} />
+      <KpiRow stats={stats} zones={zones} stationCount={stations.length} />
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <StatisticsPanel
-          stats={stats}
+          stats={fullStats}
           zones={zones}
           className="rounded-xl border border-navy-700 bg-navy-850"
         />
         <RecentPanel
           recent={recent}
-          total={windowIncidents.length}
+          total={incidents.length}
           categoryStats={categoryStats}
           zones={zones}
           monthly={monthly}
           categoryTrends={categoryTrends}
-          rollingTrend={compareRange === null}
+          rollingTrend
         />
       </div>
+
+      <MostWantedPanel />
+
+      <CrimeLinkPanel incidents={incidents} window={window} />
     </div>
   )
 }

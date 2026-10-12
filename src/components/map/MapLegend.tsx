@@ -19,7 +19,7 @@ export function MapLegend() {
   return (
     <div className="pointer-events-auto absolute bottom-9 left-3 z-[1200]">
       {open ? (
-        <div className="flex max-h-[calc(100dvh-6.5rem)] w-[min(18rem,calc(100vw-24px))] flex-col overflow-hidden rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+        <div className="flex max-h-[calc(100dvh-6.5rem)] w-[min(18rem,calc(100vw-24px))] flex-col overflow-hidden rounded-lg border border-navy-600 bg-navy-900/95 shadow-[0_10px_30px_rgba(23,43,77,0.18)] backdrop-blur-sm">
           <div className="flex shrink-0 items-center justify-between gap-2 border-b border-navy-700 px-2 py-1">
             <span className="inline-flex items-center gap-1 t-2xs font-bold uppercase tracking-[0.16em] text-steel-300">
               <Crosshair className="size-2.5 text-blue-400" aria-hidden />
@@ -95,7 +95,7 @@ export function MapLegend() {
                       <path d="M12 2 4 5v6.2C4 17 7.6 21.4 12 22.6 16.4 21.4 20 17 20 11.2V5l-8-3z" />
                       <path
                         d="m12 7.2 1.5 3 3.3.5-2.4 2.3.6 3.3-3-1.6-3 1.6.6-3.3-2.4-2.3 3.3-.5 1.5-3z"
-                        fill="#1d4ed8"
+                        fill="#1d5ca6"
                       />
                     </svg>
                   </span>
@@ -153,7 +153,7 @@ export function MapLegend() {
           onClick={() => setOpen(true)}
           aria-label={t('Open map legend')}
           title={t('Map legend')}
-          className="grid size-9 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:text-steel-100"
+          className="grid size-9 place-items-center rounded-full border border-navy-600 bg-navy-900/95 text-steel-300 shadow-[0_10px_30px_rgba(23,43,77,0.18)] backdrop-blur-sm transition-colors hover:text-steel-100"
         >
           <Crosshair className="size-3.5" aria-hidden />
         </button>

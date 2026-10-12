@@ -25,6 +25,33 @@ export type TrendDirection = 'Rising' | 'Stable' | 'Declining'
 
 export type HotspotStatus = 'Active' | 'Monitoring' | 'Contained'
 
+export type OffenderGender = 'Male' | 'Female' | 'Other' | 'Unknown'
+
+export type OffenderStatus = 'Wanted' | 'Arrested' | 'Under Investigation' | 'Unknown'
+
+/** Details about the person linked to an incident, when known. */
+export interface IncidentOffender {
+  name: string
+  alias: string | null
+  age: number | null
+  gender: OffenderGender
+  status: OffenderStatus
+  description: string
+  /** True for generated demo records; false for operator-entered ones. */
+  isDemo: boolean
+}
+
+/** A timestamped case note posted against an incident (report updater). */
+export interface IncidentUpdate {
+  id: string
+  at: string
+  note: string
+  /** Optional status transition recorded alongside the update. */
+  status: IncidentStatus | null
+  /** Author label (officer name, or the demo analyst). */
+  by: string
+}
+
 export const RISK_LEVELS: RiskLevel[] = ['Low', 'Medium', 'High', 'Critical']
 
 export const SEVERITIES: Severity[] = ['Low', 'Medium', 'High', 'Critical']
@@ -60,6 +87,14 @@ export interface CrimeIncident extends GeoPoint {
   status: IncidentStatus
   /** Always true for bundled records; a live API would return false. */
   isDemo: boolean
+  /** Linked suspect/offender details, when known. */
+  offender?: IncidentOffender
+  /** Evidence photo as a data URL or remote URL, when attached. */
+  imageUrl?: string
+  /** Extra free-text case notes beyond the short description. */
+  caseNotes?: string
+  /** Chronological report updates posted against this incident. */
+  updates?: IncidentUpdate[]
 }
 
 /** A police station with jurisdiction over one or more localities. */
@@ -256,6 +291,93 @@ export interface AssistantAnswer {
   text: string
   sources: string[]
   suggestions: string[]
+}
+
+/** Feature families used by the explainable crime-linkage model. */
+export type LinkFeatureKey =
+  | 'offender'
+  | 'category'
+  | 'proximity'
+  | 'time'
+  | 'mo'
+  | 'area'
+  | 'timeOfDay'
+  | 'window'
+
+/** One weighted feature that contributes to a pair's association score. */
+export interface LinkFeature {
+  key: LinkFeatureKey
+  label: string
+  /** 0-1 normalised strength of this feature for the pair. */
+  strength: number
+  /** Model weight before renormalisation. */
+  weight: number
+  /** Points this feature contributed to the final 0-100 score. */
+  points: number
+  /** Human-readable evidence behind the feature. */
+  detail: string
+}
+
+/** A scored relationship between two incidents, with every reason itemised. */
+export interface IncidentLink {
+  id: string
+  a: string
+  b: string
+  /** 0-100 association strength. */
+  score: number
+  strength: 'strong' | 'moderate' | 'weak'
+  distanceMeters: number
+  hoursApart: number
+  sameCategory: boolean
+  sameArea: boolean
+  /** Shared suspect name when both records name the same person. */
+  sharedOffender: string | null
+  /** True when the two incidents sit on opposite sides of the compare window. */
+  crossWindow: boolean
+  features: LinkFeature[]
+  rationale: string[]
+}
+
+/** A connected group of incidents the model considers one network. */
+export interface LinkCluster {
+  id: string
+  incidentIds: string[]
+  size: number
+  areas: string[]
+  categories: CrimeCategory[]
+  dominantCategory: CrimeCategory
+  sharedOffender: string | null
+  earliest: string
+  latest: string
+  /** Mean association score across the cluster's links. */
+  score: number
+  strength: 'strong' | 'moderate' | 'weak'
+  rationale: string[]
+}
+
+/** Incidents the model attributes to the same (known) person. */
+export interface RepeatSuspect {
+  name: string
+  incidentIds: string[]
+  areas: string[]
+  categories: CrimeCategory[]
+  count: number
+  earliest: string
+  latest: string
+}
+
+/** Full output of the crime-linkage model. */
+export interface LinkAnalysisResult {
+  modelVersion: string
+  generatedAt: string
+  links: IncidentLink[]
+  clusters: LinkCluster[]
+  repeatSuspects: RepeatSuspect[]
+  /** Incidents the model compared. */
+  scanned: number
+  /** Pairs that cleared the linking threshold. */
+  linkedPairs: number
+  isDemo: boolean
 }
 
 /**

@@ -11,9 +11,9 @@ interface StatisticsPanelProps {
 }
 
 const TREND_COLORS: Record<DashboardStats['trendDirection'], string> = {
-  Rising: '#ef4444',
-  Stable: '#eab308',
-  Declining: '#22c55e',
+  Rising: '#DC2626',
+  Stable: '#64748B',
+  Declining: '#16A34A',
 }
 
 /** Uppercase section heading sharing the Panel title styling. */
@@ -31,7 +31,9 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle?: string })
 /** Right-hand information panel with the headline intelligence indicators. */
 export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPanelProps) {
   const { t } = useI18n()
+  // Colour keyed to the overall trend direction (red / amber / green).
   const trendColor = TREND_COLORS[stats.trendDirection]
+  // Top 5 zones by risk score, ties broken by incident volume.
   const watchlist = [...zones]
     .sort((a, b) => b.riskScore - a.riskScore || b.crimeCount - a.crimeCount)
     .slice(0, 5)
@@ -45,7 +47,7 @@ export function StatisticsPanel({ stats, zones, className = '' }: StatisticsPane
         <section>
           <div className="flex items-start justify-between gap-3">
             <h2 className="t-xs font-bold uppercase tracking-[0.14em] text-steel-500">
-              {t('Change summary')}
+              {t('Overall trend')}
             </h2>
             <div className="shrink-0 text-right">
               <span

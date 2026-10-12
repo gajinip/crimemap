@@ -9,8 +9,11 @@ import {
   buildRecommendation,
 } from './analytics/recommend'
 import { buildPatrolPlan, buildPatrolPlanWeighted } from './analytics/patrol'
+import { clearSession, readSession, writeSession, type AuthUser } from './auth/auth'
 import { DemoBanner } from './components/DemoBanner'
 import { BottomNav } from './components/BottomNav'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { LoginPage } from './components/LoginPage'
 import { Sidebar } from './components/Sidebar'
 import { TopNav } from './components/TopNav'
 import { useI18n } from './i18n/useI18n'
@@ -25,6 +28,7 @@ import type {
   RiskZone,
 } from './types'
 import { CRIME_CATEGORIES, INCIDENT_STATUSES, RISK_LEVELS, SEVERITIES } from './types'
+import { readView, writeView } from './utils/viewStorage'
 import {
   ALL_AREAS,
   applyContextFilters,
@@ -37,11 +41,11 @@ import {
   buildAreaStats,
   buildCategoryStats,
   buildCategoryTrends,
-  buildMonthlySeries,
   buildStatusStats,
   computeDashboardStats,
 } from './utils/stats'
 import { findRelatedIncidents } from './utils/relatedIncidents'
+import { buildCriticalAlerts } from './utils/alerts'
 import { DashboardView } from './views/DashboardView'
 import { HotspotsView } from './views/HotspotsView'
 import { IntelligenceView } from './views/IntelligenceView'
@@ -79,7 +83,7 @@ interface ZoneSelection {
 
 export default function App() {
   const { t } = useI18n()
-  const [view, setView] = useState<AppView>('map')
+  const [view, setView] = useState<AppView>(() => readView())
   const [filters, setFilters] = useState<CrimeFilterState>(INITIAL_FILTERS)
   const [viewRange, setViewRange] = useState<DateRange | null>(null)
   const [data, setData] = useState<LoadState | null>(null)
@@ -87,6 +91,8 @@ export default function App() {
   const [reloadKey, setReloadKey] = useState(0)
   const [selection, setSelection] = useState<ZoneSelection | null>(null)
   const [generatedAt] = useState(() => new Date().toISOString())
+  // Demo auth: restore any in-tab session so a refresh keeps the user signed in.
+  const [user, setUser] = useState<AuthUser | null>(() => readSession())
 
   useEffect(() => {
     let active = true
@@ -105,6 +111,11 @@ export default function App() {
       active = false
     }
   }, [reloadKey])
+
+  // Remember the active page so a refresh restores it instead of the map.
+  useEffect(() => {
+    writeView(view)
+  }, [view])
 
   const incidents = useMemo(() => data?.incidents ?? [], [data])
   const stations = useMemo(() => data?.stations ?? [], [data])
@@ -163,16 +174,14 @@ export default function App() {
     () => computeDashboardStats(scopedIncidents, zones, viewRange, DEMO_DATE_RANGE, incidents),
     [scopedIncidents, zones, viewRange, incidents],
   )
+  // The dashboard's Day/Range control is a KPI-only filter, so the trend mix
+  // always reports the rolling 30-day comparison over the full dataset.
   const categoryTrends = useMemo(
-    () =>
-      viewRange
-        ? buildCategoryTrends(incidents, viewRange)
-        : buildCategoryTrends(incidents, DEMO_DATE_RANGE, 30),
-    [incidents, viewRange],
+    () => buildCategoryTrends(incidents, DEMO_DATE_RANGE, 30),
+    [incidents],
   )
   const categoryStats = useMemo(() => buildCategoryStats(incidents), [incidents])
   const areaStats = useMemo(() => buildAreaStats(incidents), [incidents])
-  const monthly = useMemo(() => buildMonthlySeries(incidents, DEMO_DATE_RANGE), [incidents])
   const statusStats = useMemo(() => buildStatusStats(incidents), [incidents])
   const zoneRiskCounts = useMemo(() => {
     const counts: Record<string, number> = { Low: 0, Medium: 0, High: 0, Critical: 0 }
@@ -235,6 +244,11 @@ export default function App() {
     )
   }, [mapZones, selection])
 
+  const criticalAlerts = useMemo(
+    () => buildCriticalAlerts(mapZones, mapRecommendations, generatedAt),
+    [mapZones, mapRecommendations, generatedAt],
+  )
+
   const mapSelectedRecommendation = useMemo(() => {
     if (!mapSelectedZone) return null
     return (
@@ -249,6 +263,16 @@ export default function App() {
       ...INITIAL_FILTERS,
       dateRange: current.dateRange,
     }))
+  }, [])
+
+  const handleAuthenticated = useCallback((authed: AuthUser) => {
+    writeSession(authed)
+    setUser(authed)
+  }, [])
+
+  const handleSignOut = useCallback(() => {
+    clearSession()
+    setUser(null)
   }, [])
 
   const focusArea = useCallback((area: string) => {
@@ -310,6 +334,10 @@ export default function App() {
     setSelection({ id: zone.id, area: zone.area })
   }, [])
 
+  if (!user) {
+    return <LoginPage onAuthenticated={handleAuthenticated} />
+  }
+
   if (error) {
     return (
       <div className="grid h-screen place-items-center bg-navy-950 px-6">
@@ -357,6 +385,7 @@ export default function App() {
             categoryTrends={categoryTrends}
             incidents={incidents}
             stations={stations}
+            window={analysisWindow}
           />
         )
       case 'hotspots':
@@ -374,12 +403,14 @@ export default function App() {
         return (
           <TrendsView
             stats={stats}
-            monthly={monthly}
             categoryStats={categoryStats}
             areaStats={areaStats}
             statusStats={statusStats}
             zoneRiskCounts={zoneRiskCounts}
             changes={changes}
+            // Raw incidents + full period power the category comparison chart.
+            incidents={incidents}
+            range={DEMO_DATE_RANGE}
             onFocusArea={focusArea}
           />
         )
@@ -395,7 +426,13 @@ export default function App() {
           />
         )
       case 'predictive-risk':
-        return <PredictiveRiskView forecast={forecast} onFocusArea={focusArea} />
+        return (
+          <PredictiveRiskView
+            forecast={forecast}
+            onFocusArea={focusArea}
+            onViewAllSummary={() => navigate('reports')}
+          />
+        )
       case 'patrol':
         return (
           <PatrolView
@@ -434,6 +471,7 @@ export default function App() {
             relatedIncidentIds={mapRelatedIds}
             selectedZone={mapSelectedZone}
             selectedRecommendation={mapSelectedRecommendation}
+            analystName={user.name}
             onSelectZone={selectZone}
             onCloseZone={() => setSelection(null)}
             onFocusArea={focusArea}
@@ -467,11 +505,16 @@ export default function App() {
             onSearchChange={(searchQuery) =>
               setFilters((current) => ({ ...current, searchQuery }))
             }
+            activeView={view}
+            alerts={criticalAlerts}
+            onOpenMap={() => navigate('map')}
+            user={user}
+            onSignOut={handleSignOut}
           />
 
           <div className="scroll-thin min-h-0 flex-1 overflow-y-auto print:overflow-visible">
             <main className={mainClass} key={view}>
-              {renderView()}
+              <ErrorBoundary>{renderView()}</ErrorBoundary>
             </main>
           </div>
           <BottomNav activeView={view} onNavigate={navigate} />

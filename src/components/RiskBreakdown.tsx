@@ -32,6 +32,7 @@ export function RiskBreakdown({ zone, title, compact = false }: RiskBreakdownPro
             <RiskBadge level={zone.riskLevel} />
           </div>
         </div>
+        {/* Coverage badge: total points earned as a share of the max possible. */}
         <span
           className="grid size-10 shrink-0 place-items-center rounded-full t-xs font-bold"
           style={{ backgroundColor: `${color}1f`, color }}
@@ -51,6 +52,7 @@ export function RiskBreakdown({ zone, title, compact = false }: RiskBreakdownPro
 
       <ul className={`mt-3 grid grid-cols-1 gap-2.5 min-[400px]:grid-cols-2 ${compact ? '' : 'min-[640px]:gap-3'}`}>
         {zone.components.map((component) => {
+          // Each bar fills proportionally to the points scored, clamped to 0-100.
           const width = Math.max(0, Math.min(100, (component.points / component.max) * 100))
           return (
             <li key={component.key}>
@@ -60,10 +62,14 @@ export function RiskBreakdown({ zone, title, compact = false }: RiskBreakdownPro
                   +{component.points} / {component.max}
                 </span>
               </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-navy-700">
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-navy-700/60">
                 <div
                   className="h-full rounded-full transition-[width] duration-300"
-                  style={{ width: `${width}%`, backgroundColor: color }}
+                  // Risk-level colour fading to a lighter tint at the bar's end.
+                  style={{
+                    width: `${width}%`,
+                    background: `linear-gradient(90deg, ${color} 0%, ${color}C4 100%)`,
+                  }}
                 />
               </div>
               <p className="mt-0.5 t-xs leading-snug text-steel-500">{component.detail}</p>

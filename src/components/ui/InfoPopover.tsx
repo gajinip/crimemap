@@ -53,10 +53,10 @@ export function InfoPopover({ text, label, tone = 'default' }: InfoPopoverProps)
         onClick={() => setOpen((value) => !value)}
         className={
           isRisk
-            ? 'grid size-7 shrink-0 place-items-center rounded-full border text-[#53647A] transition-colors hover:text-[#14233B]'
+            ? 'grid size-7 shrink-0 place-items-center rounded-full border text-[#64748B] transition-colors hover:text-[#172B4D]'
             : 'grid size-7 shrink-0 place-items-center rounded-full border border-navy-600 bg-navy-800 text-steel-300 transition-colors hover:border-blue-500/60 hover:text-steel-100'
         }
-        style={isRisk ? { borderColor: '#DCE4EE', backgroundColor: '#F4F7FB' } : undefined}
+        style={isRisk ? { borderColor: '#D9E2EF', backgroundColor: '#F4F7FB' } : undefined}
       >
         <Info className="size-4" aria-hidden />
       </button>
@@ -67,10 +67,10 @@ export function InfoPopover({ text, label, tone = 'default' }: InfoPopoverProps)
         aria-label={resolvedLabel}
           className={
             isRisk
-              ? 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border p-3 t-base leading-relaxed text-[#14233B] shadow-2xl'
+              ? 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border p-3 t-base leading-relaxed text-[#172B4D] shadow-2xl'
               : 'absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-navy-600 bg-navy-850 p-3 t-base leading-relaxed text-steel-200 shadow-2xl'
           }
-          style={isRisk ? { borderColor: '#DCE4EE', backgroundColor: '#F4F7FB' } : undefined}
+          style={isRisk ? { borderColor: '#D9E2EF', backgroundColor: '#F4F7FB' } : undefined}
         >
           {text}
         </div>

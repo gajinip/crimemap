@@ -1,4 +1,4 @@
-import { ShieldAlert, TrendingUp } from 'lucide-react'
+import { FileText, ShieldAlert, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 import { useI18n } from '../i18n/useI18n'
 import { RiskBadge, TrendIndicator } from '../components/ui/Badge'
@@ -11,12 +11,18 @@ import { RISK_LEVEL_COLORS } from '../utils/visuals'
 interface PredictiveRiskViewProps {
   forecast: RiskForecastResponse
   onFocusArea: (area: string) => void
+  /** Opens the Reports page with the full analytical summary. */
+  onViewAllSummary: () => void
 }
 
 const LEVEL_ORDER: RiskLevel[] = ['Critical', 'High', 'Medium', 'Low']
 
 /** Risk Forecast view - deterministic forward view using current zone dynamics. */
-export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskViewProps) {
+export function PredictiveRiskView({
+  forecast,
+  onFocusArea,
+  onViewAllSummary,
+}: PredictiveRiskViewProps) {
   const { t } = useI18n()
   const predictions = [...forecast.predictions].sort(
     (a, b) => b.risk_score - a.risk_score,
@@ -52,6 +58,14 @@ export function PredictiveRiskView({ forecast, onFocusArea }: PredictiveRiskView
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={onViewAllSummary}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-800 px-3 py-2 t-sm font-semibold text-steel-300 hover:border-navy-500 hover:text-steel-100"
+          >
+            <FileText className="size-4" aria-hidden />
+            {t('View all summary')}
+          </button>
           {topArea ? (
             <button
               type="button"

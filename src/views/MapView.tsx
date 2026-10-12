@@ -1,21 +1,22 @@
-import { Plus, X } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { Crosshair, Plus } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
 import { useI18n } from '../i18n/useI18n'
 import { CrimeMap } from '../components/map/CrimeMap'
+import { isInsidePuducherry } from '../utils/district'
+import { DispatchPanel } from '../components/map/DispatchPanel'
 import { IncidentEditor } from '../components/map/IncidentEditor'
 import { IncidentSheet } from '../components/map/IncidentSheet'
 import { MapLegend } from '../components/map/MapLegend'
 import { PatrolSheet } from '../components/map/PatrolSheet'
 import { StationSheet } from '../components/map/StationSheet'
-import {
-  ZoneDetailBody,
-  ZoneDetailHeader,
-  ZoneDetailPanel,
-} from '../components/map/ZoneDetailPanel'
+import { ZoneDetailPanel } from '../components/map/ZoneDetailPanel'
 import { AreaDatePanel } from '../components/AreaDatePanel'
 import { FilterPanel } from '../components/FilterPanel'
 import { DEMO_AREAS, PUDUCHERRY_CENTER } from '../data/areas'
 import type { DisplayPatrolUnit } from '../patrol/patrolStore'
+import { usePatrol } from '../patrol/usePatrol'
+import { useGeolocation } from '../hooks/useGeolocation'
+import { DISPATCH_RADIUS_METERS, findNearbyOfficers, isCriticalIncident } from '../utils/dispatch'
 import type {
   CrimeFilterState,
   CrimeIncident,
@@ -52,6 +53,8 @@ interface MapViewProps {
   relatedIncidentIds?: Set<string>
   selectedZone: RiskZone | null
   selectedRecommendation: Recommendation | null
+  /** Signed-in officer, recorded as author of report updates. */
+  analystName: string
   onSelectZone: (zoneId: string) => void
   onCloseZone: () => void
   onFocusArea: (area: string) => void
@@ -73,6 +76,7 @@ export function MapView({
   relatedIncidentIds,
   selectedZone,
   selectedRecommendation,
+  analystName,
   onSelectZone,
   onCloseZone,
   onFocusArea,
@@ -83,6 +87,18 @@ export function MapView({
   onDeleteIncident,
 }: MapViewProps) {
   const { t } = useI18n()
+  const { units: patrolUnits } = usePatrol()
+  const geo = useGeolocation()
+  // Only surface a marker when the fix lands inside the district; the map is
+  // clamped to Puducherry bounds so an out-of-area pin would be unusable.
+  const userLocation =
+    geo.position && isInsidePuducherry(geo.position.lat, geo.position.lng) ? geo.position : null
+  const geoMessage =
+    geo.status === 'error'
+      ? geo.error
+      : geo.status === 'success' && !userLocation
+        ? t('Your location is outside the mapped district.')
+        : null
   const [editor, setEditor] = useState<EditorState | null>(null)
   const [pickingLocation, setPickingLocation] = useState(false)
   const [pickedPoint, setPickedPoint] = useState<GeoPoint | null>(null)
@@ -90,6 +106,7 @@ export function MapView({
   const [selectedStation, setSelectedStation] = useState<PoliceStation | null>(null)
   const [selectedPatrolId, setSelectedPatrolId] = useState<string | null>(null)
   const [openPanel, setOpenPanel] = useState<'filters' | 'area' | null>(null)
+  const [pendingDispatch, setPendingDispatch] = useState<CrimeIncident | null>(null)
 
   const clearMapSelections = useCallback(() => {
     setSelectedIncident(null)
@@ -187,11 +204,22 @@ export function MapView({
 
   const handleSave = useCallback(
     (updated: CrimeIncident) => {
-      if (editor?.mode === 'create') onCreateIncident(updated)
-      else onUpdateIncident(updated)
+      if (editor?.mode === 'create') {
+        onCreateIncident(updated)
+        // Critical reports open the immediate-action dispatch panel so the
+        // operator can alert the officers currently near the incident.
+        if (isCriticalIncident(updated)) setPendingDispatch(updated)
+      } else {
+        onUpdateIncident(updated)
+      }
       closeEditor()
     },
     [editor, onCreateIncident, onUpdateIncident, closeEditor],
+  )
+
+  const dispatchOfficers = useMemo(
+    () => (pendingDispatch ? findNearbyOfficers(pendingDispatch, patrolUnits) : []),
+    [pendingDispatch, patrolUnits],
   )
 
   const handleDelete = useCallback(
@@ -220,6 +248,8 @@ export function MapView({
           onDeselect={handleDeselect}
           pickingLocation={pickingLocation}
           onPickLocation={handlePickLocation}
+          userLocation={userLocation}
+          userAccuracyMeters={geo.accuracyMeters}
         />
         <FilterPanel
           filters={filters}
@@ -269,25 +299,46 @@ export function MapView({
           />
         ) : null}
         {editor ? null : (
-          <button
-            type="button"
-            onClick={openCreate}
-            aria-label={t('Report a new crime incident')}
-            title={t('Report a new crime incident')}
-            className="pointer-events-auto absolute bottom-28 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-blue-500/60 bg-blue-600 text-white shadow-[0_10px_30px_rgba(0,0,0,0.55)] transition-colors hover:bg-blue-500"
-          >
-            <Plus className="size-6" aria-hidden />
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={geo.locate}
+              aria-label={t('Show my current location')}
+              title={t('Show my current location')}
+              aria-busy={geo.status === 'locating'}
+              className="pointer-events-auto absolute bottom-40 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-navy-600 bg-navy-900 text-steel-200 shadow-[0_10px_30px_rgba(23,43,77,0.2)] transition-colors hover:bg-navy-700"
+            >
+              <Crosshair
+                className={`size-5${geo.status === 'locating' ? ' animate-spin' : ''}`}
+                aria-hidden
+              />
+            </button>
+            {geoMessage ? (
+              <div
+                role="status"
+                className="pointer-events-none absolute bottom-40 left-3 z-[1200] max-w-[70%] rounded-lg border border-navy-600 bg-navy-900/95 px-2.5 py-1.5 t-xs font-medium text-steel-200 shadow-[0_10px_30px_rgba(23,43,77,0.2)]"
+              >
+                {geoMessage}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              onClick={openCreate}
+              aria-label={t('Report a new crime incident')}
+              title={t('Report a new crime incident')}
+              className="pointer-events-auto absolute bottom-28 right-3 z-[1200] grid size-11 place-items-center rounded-full border border-blue-500/60 bg-blue-600 text-white shadow-[0_10px_30px_rgba(23,43,77,0.2)] transition-colors hover:bg-blue-500"
+            >
+              <Plus className="size-6" aria-hidden />
+            </button>
+          </>
         )}
         {selectedZone ? (
-          <div className="xl:hidden">
-            <ZoneDetailPanel
-              zone={selectedZone}
-              recommendation={selectedRecommendation}
-              onClose={onCloseZone}
-              onFocusArea={onFocusArea}
-            />
-          </div>
+          <ZoneDetailPanel
+            zone={selectedZone}
+            recommendation={selectedRecommendation}
+            onClose={onCloseZone}
+            onFocusArea={onFocusArea}
+          />
         ) : null}
         {editor ? (
           <IncidentEditor
@@ -296,41 +347,22 @@ export function MapView({
             mode={editor.mode}
             picking={pickingLocation}
             picked={pickedPoint}
+            analystName={analystName}
             onTogglePick={() => setPickingLocation((current) => !current)}
             onSave={handleSave}
             onDelete={handleDelete}
             onCancel={closeEditor}
           />
         ) : null}
+        {pendingDispatch ? (
+          <DispatchPanel
+            incident={pendingDispatch}
+            officers={dispatchOfficers}
+            radiusMeters={DISPATCH_RADIUS_METERS}
+            onClose={() => setPendingDispatch(null)}
+          />
+        ) : null}
       </div>
-
-      {selectedZone ? (
-        <aside
-          className="hidden w-[380px] shrink-0 flex-col border-l border-navy-700 bg-navy-900 xl:flex"
-          aria-label={t('Risk analysis for {area}', { area: selectedZone.area })}
-        >
-          <header className="flex items-start justify-between gap-2 border-b border-navy-700 p-3">
-            <div className="min-w-0">
-              <ZoneDetailHeader zone={selectedZone} />
-            </div>
-            <button
-              type="button"
-              onClick={onCloseZone}
-              aria-label={t('Close details')}
-              className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
-            >
-              <X className="size-4" />
-            </button>
-          </header>
-          <div className="scroll-thin min-h-0 flex-1 overflow-y-auto p-3">
-            <ZoneDetailBody
-              zone={selectedZone}
-              recommendation={selectedRecommendation}
-              onFocusArea={onFocusArea}
-            />
-          </div>
-        </aside>
-      ) : null}
     </div>
   )
 }

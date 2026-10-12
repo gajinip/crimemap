@@ -1,10 +1,12 @@
-import { Check, Maximize2, Minimize2, Navigation, Pencil, Trash2, X } from 'lucide-react'
-import { useState } from 'react'
+import { Check, Navigation, Pencil, Trash2, UserRound } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
 import { useI18n } from '../../i18n/useI18n'
 import type { CrimeIncident } from '../../types'
 import { formatDateTime } from '../../utils/format'
+import { offenderFor } from '../../utils/offender'
 import { CRIME_CATEGORY_COLORS } from '../../utils/visuals'
 import { StatusBadge } from '../ui/Badge'
+import { Sheet } from '../ui/Sheet'
 
 interface IncidentSheetProps {
   incident: CrimeIncident
@@ -13,7 +15,17 @@ interface IncidentSheetProps {
   onDelete: (incidentId: string) => void
 }
 
-/** Google-Maps-style bottom sheet shown when a crime marker is tapped. */
+/** Shared label/value row used inside the detail cards. */
+function Row({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm last:border-b-0">
+      <span className="shrink-0 text-steel-500">{label}</span>
+      <span className="text-right font-medium text-steel-100">{value}</span>
+    </div>
+  )
+}
+
+/** Responsive detail panel (bottom sheet on mobile, right drawer on desktop) shown when a crime marker is tapped. */
 export function IncidentSheet({
   incident,
   onClose,
@@ -22,28 +34,16 @@ export function IncidentSheet({
 }: IncidentSheetProps) {
   const { t } = useI18n()
   const [confirming, setConfirming] = useState(false)
-  const [expanded, setExpanded] = useState(false)
   const accent = CRIME_CATEGORY_COLORS[incident.category]
+  // Suspect details come from the record when present, otherwise a deterministic
+  // demo profile is derived — "shown when available".
+  const offender = offenderFor(incident)
 
   return (
-    <section
-      className={`incident-sheet-in pointer-events-auto scroll-thin absolute bottom-0 z-[1300] overflow-y-auto border-t border-navy-600 bg-navy-900/97 shadow-[0_18px_50px_rgba(0,0,0,0.6)] backdrop-blur-sm transition-[border-radius] duration-200 ${
-        expanded
-          ? 'left-0 right-0 top-0 rounded-none'
-          : 'left-0 right-0 max-h-[75%] rounded-t-3xl'
-      }`}
-      aria-label={t('Incident {id} details', { id: incident.id })}
-    >
-      <button
-        type="button"
-        onClick={() => setExpanded((current) => !current)}
-        aria-label={expanded ? t('Collapse incident details') : t('Expand incident details')}
-        className="mx-auto mt-2 flex h-6 w-12 items-center justify-center rounded-full"
-      >
-        <span className="h-1 w-9 rounded-full bg-navy-500 transition-colors hover:bg-navy-400" aria-hidden />
-      </button>
-
-      <header className="flex items-start justify-between gap-2 px-3.5 pb-1.5 pt-1">
+    <Sheet
+      ariaLabel={t('Incident {id} details', { id: incident.id })}
+      onClose={onClose}
+      header={
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
             <span
@@ -59,55 +59,85 @@ export function IncidentSheet({
             {incident.id} &middot; {incident.area}
           </h2>
         </div>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <button
-            type="button"
-            onClick={() => setExpanded((current) => !current)}
-            aria-label={expanded ? t('Collapse incident details') : t('Expand incident details')}
-            title={expanded ? t('Collapse') : t('Expand to full screen')}
-            className="rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
-          >
-            {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t('Close incident details')}
-            className="shrink-0 rounded-lg p-1.5 text-steel-400 transition-colors hover:bg-navy-700 hover:text-steel-100"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-      </header>
+      }
+    >
+        {incident.imageUrl ? (
+          <img
+            src={incident.imageUrl}
+            alt={t('Evidence image')}
+            className="mb-3 max-h-56 w-full rounded-xl border border-navy-600 object-cover"
+          />
+        ) : null}
 
-      <div className="px-3.5 pb-3">
         <div className="rounded-xl border border-navy-600 bg-navy-800/70 px-2.5 py-1">
-          <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm">
-            <span className="shrink-0 text-steel-500">{t('Occurred')}</span>
-            <span className="text-right font-medium text-steel-100">
-              {formatDateTime(incident.occurredAt)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm">
-            <span className="shrink-0 text-steel-500">{t('Coordinates')}</span>
-            <span className="text-right font-medium font-mono text-steel-100">
-              {incident.lat.toFixed(4)}, {incident.lng.toFixed(4)}
-            </span>
-          </div>
-          {incident.description ? (
-            <div className="flex items-start justify-between gap-3 border-b border-dashed border-navy-600 py-1.5 t-sm">
-              <span className="shrink-0 text-steel-500">{t('Details')}</span>
-              <span className="text-right font-medium text-steel-100">
-                {incident.description}
+          <Row label={t('Occurred')} value={formatDateTime(incident.occurredAt)} />
+          <Row
+            label={t('Coordinates')}
+            value={
+              <span className="font-mono">
+                {incident.lat.toFixed(4)}, {incident.lng.toFixed(4)}
               </span>
-            </div>
+            }
+          />
+          {incident.description ? (
+            <Row label={t('Details')} value={incident.description} />
           ) : null}
-          <p className="py-1.5 text-center t-xs font-bold uppercase tracking-[0.08em] text-amber-700">
-            {incident.isDemo
-              ? t('DEMO DATA - NOT REAL CRIME INFORMATION')
-              : t('USER-REPORTED - NOT VERIFIED')}
-          </p>
+          {incident.caseNotes ? (
+            <Row label={t('Additional details')} value={incident.caseNotes} />
+          ) : null}
         </div>
+
+        {offender ? (
+          <div className="mt-3 rounded-xl border border-navy-600 bg-navy-800/70 p-3">
+            <div className="flex items-center gap-2">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full" style={{ backgroundColor: `${accent}1f`, color: accent }}>
+                <UserRound className="size-5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="truncate t-base font-semibold text-steel-100">
+                  {offender.name}
+                  {offender.alias ? <span className="ml-1 text-steel-400">“{offender.alias}”</span> : null}
+                </p>
+                <p className="t-2xs uppercase tracking-[0.1em] text-steel-500">
+                  {t('Person involved')}
+                </p>
+              </div>
+            </div>
+            <div className="mt-2">
+              {offender.age !== null ? <Row label={t('Age')} value={offender.age} /> : null}
+              <Row label={t('Gender')} value={t(offender.gender)} />
+              <Row label={t('Suspect status')} value={t(offender.status)} />
+              {offender.description ? (
+                <Row label={t('Notes')} value={offender.description} />
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        {incident.updates && incident.updates.length > 0 ? (
+          <div className="mt-3 rounded-xl border border-navy-600 bg-navy-800/70 p-3">
+            <p className="t-xs font-bold uppercase tracking-[0.12em] text-steel-500">
+              {t('Report updates')}
+            </p>
+            <ul className="mt-2 flex flex-col gap-1.5">
+              {incident.updates.map((entry) => (
+                <li key={entry.id} className="rounded-lg border border-navy-700 bg-navy-900/50 p-2">
+                  <p className="t-sm text-steel-200">{entry.note}</p>
+                  <p className="mt-0.5 t-2xs text-steel-500">
+                    {formatDateTime(entry.at)} · {entry.by}
+                    {entry.status ? ` · ${t('status.' + entry.status)}` : ''}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <p className="mt-3 py-1.5 text-center t-xs font-bold uppercase tracking-[0.08em] text-amber-700">
+          {incident.isDemo
+            ? t('DEMO DATA - NOT REAL CRIME INFORMATION')
+            : t('USER-REPORTED - NOT VERIFIED')}
+        </p>
 
         <div className="mt-3 flex flex-col gap-1.5">
           <button
@@ -154,7 +184,6 @@ export function IncidentSheet({
             </button>
           )}
         </div>
-      </div>
-    </section>
+    </Sheet>
   )
 }
